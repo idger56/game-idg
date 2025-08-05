@@ -67,10 +67,12 @@ authBtn.addEventListener("click", () => {
   if (auth.currentUser) {
     signOut(auth);
   } else {
-    authSection.style.display = "block";
-    mainSection.style.display = "none";
+    signInWithPopup(auth, provider).catch((error) => {
+      console.error(error);
+    });
   }
 });
+
 
 window.login = async function () {
   const email = document.getElementById("email").value.trim();
