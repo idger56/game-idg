@@ -1,3 +1,4 @@
+
 body {
   font-family: Arial, sans-serif;
   margin: 0; padding: 0;
@@ -5,30 +6,44 @@ body {
   color: #333;
 }
 
-header {
-  background-color: #222;
-  padding: 10px 20px;
-}
-
 .top-menu {
   display: flex;
-  gap: 15px;
+  justify-content: space-between;
   align-items: center;
+  background-color: #222;
+  color: white;
+  padding: 10px 30px;
+}
+
+.top-menu .left,
+.top-menu .right {
+  flex: 1;
+}
+
+.top-menu .center {
+  flex: 2;
+  text-align: center;
+}
+
+.top-menu h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #fff;
 }
 
 .top-menu button {
-  background: none;
-  border: none;
+  background: #2a7ae2;
   color: #fff;
-  cursor: pointer;
-  font-weight: bold;
+  border: none;
   padding: 8px 16px;
+  font-weight: bold;
   border-radius: 4px;
-  transition: background-color 0.3s ease;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .top-menu button:hover {
-  background-color: #444;
+  background-color: #125ecf;
 }
 
 #error-message,
@@ -93,15 +108,15 @@ header {
 
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(240px,1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
   margin-top: 20px;
 }
 
 .game-card {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -110,7 +125,7 @@ header {
 
 .game-card img {
   width: 100%;
-  height: 140px;
+  height: 160px;
   object-fit: cover;
 }
 
@@ -129,13 +144,12 @@ header {
 
 .game-content p {
   margin: 4px 0;
-  flex-grow: 0;
   font-size: 0.9rem;
   color: #555;
 }
 
 .game-content a {
-  margin-top: auto;
+  margin-top: 10px;
   text-decoration: none;
   color: #2a7ae2;
   font-weight: bold;
@@ -143,4 +157,19 @@ header {
 
 .game-content a:hover {
   text-decoration: underline;
+}
+
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.filters select,
+.filters input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
 }
