@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -11,15 +10,9 @@
 
 <header>
   <nav class="top-menu">
-    <div class="left">
-      <button id="auth-btn">Вход</button>
-    </div>
-    <div class="center">
-      <h1>Игры</h1>
-    </div>
-    <div class="right" id="admin-controls" style="display: none;">
-      <button id="add-game-toggle">Добавить игру</button>
-    </div>
+    <button id="show-completed">Пройденные игры</button>
+    <button id="show-planned">В планах</button>
+    <button id="auth-btn">Вход</button>
   </nav>
 </header>
 
@@ -35,7 +28,9 @@
 </section>
 
 <section id="main-section" style="display:none;">
-  <form id="add-game-form" style="display:none;">
+  <h1>Игры</h1>
+  
+  <form id="add-game-form">
     <h3>Добавить игру</h3>
     <input id="title" type="text" placeholder="Название игры" required />
     <input id="category" type="text" placeholder="Категория" required />
@@ -49,18 +44,10 @@
     <button type="submit">Добавить игру</button>
   </form>
 
-  <div class="filters">
-    <select id="status-filter">
-      <option value="all">Все</option>
-      <option value="Пройдена">Пройдена</option>
-      <option value="В планах">В планах</option>
-    </select>
-    <input type="text" id="genre-filter" placeholder="Фильтр по жанру..." />
-  </div>
-
   <div id="games-list" class="games-grid"></div>
 </section>
 
 <script type="module" src="script.js"></script>
+
 </body>
 </html>

@@ -1,4 +1,3 @@
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
 import {
   getAuth,
@@ -11,10 +10,7 @@ import {
   getFirestore,
   collection,
   addDoc,
-  getDocs,
-  doc,
-  updateDoc,
-  arrayUnion
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -38,28 +34,29 @@ const mainSection = document.getElementById("main-section");
 const authMessage = document.getElementById("auth-message");
 const form = document.getElementById("add-game-form");
 const gamesList = document.getElementById("games-list");
-const authBtn = document.getElementById("auth-btn");
-const statusFilter = document.getElementById("status-filter");
-const genreFilter = document.getElementById("genre-filter");
 
-let currentUser = null;
+const authBtn = document.getElementById("auth-btn");
+const showCompletedBtn = document.getElementById("show-completed");
+const showPlannedBtn = document.getElementById("show-planned");
+
+let currentFilter = "all"; // "completed", "planned", "all"
+
+function clearAuthMessage() {
+  authMessage.textContent = "";
+}
 
 onAuthStateChanged(auth, (user) => {
+  clearAuthMessage();
   if (user) {
-    currentUser = user;
     authSection.style.display = "none";
     mainSection.style.display = "block";
     authBtn.textContent = "Выход";
-    const isAdmin = user.email === adminEmail;
-    document.getElementById("admin-controls").style.display = isAdmin ? "block" : "none";
-    form.style.display = isAdmin ? "block" : "none";
+    form.style.display = (user.email === adminEmail) ? "block" : "none";
     loadGames();
   } else {
-    currentUser = null;
     authSection.style.display = "block";
     mainSection.style.display = "none";
     authBtn.textContent = "Вход";
-    document.getElementById("admin-controls").style.display = "none";
   }
 });
 
@@ -72,7 +69,18 @@ authBtn.addEventListener("click", () => {
   }
 });
 
+showCompletedBtn.addEventListener("click", () => {
+  currentFilter = "completed";
+  loadGames();
+});
+
+showPlannedBtn.addEventListener("click", () => {
+  currentFilter = "planned";
+  loadGames();
+});
+
 window.login = async function () {
+  clearAuthMessage();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
   if (!email || !password) {
@@ -82,11 +90,18 @@ window.login = async function () {
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
-    authMessage.textContent = error.message;
+    if (error.code === "auth/user-not-found") {
+      authMessage.textContent = "Пользователь не найден. Зарегистрируйтесь.";
+    } else if (error.code === "auth/wrong-password") {
+      authMessage.textContent = "Неверный пароль.";
+    } else {
+      authMessage.textContent = error.message;
+    }
   }
 };
 
 window.register = async function () {
+  clearAuthMessage();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
   if (!email || !password) {
@@ -96,13 +111,20 @@ window.register = async function () {
   try {
     await createUserWithEmailAndPassword(auth, email, password);
   } catch (error) {
-    authMessage.textContent = error.message;
+    if (error.code === "auth/email-already-in-use") {
+      authMessage.textContent = "Этот email уже зарегистрирован. Попробуйте войти.";
+    } else if (error.code === "auth/weak-password") {
+      authMessage.textContent = "Пароль слишком простой. Используйте минимум 6 символов.";
+    } else {
+      authMessage.textContent = error.message;
+    }
   }
 };
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!currentUser || currentUser.email !== adminEmail) return;
+  const user = auth.currentUser;
+  if (!user || user.email !== adminEmail) return;
 
   const title = document.getElementById("title").value.trim();
   const category = document.getElementById("category").value.trim();
@@ -115,67 +137,36 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  await addDoc(collection(db, "games"), {
-    title, category, link, image, status, ratings: []
-  });
-
-  form.reset();
-  loadGames();
+  try {
+    await addDoc(collection(db, "games"), { title, category, link, image, status });
+    form.reset();
+    loadGames
+();
+} catch (error) {
+alert("Ошибка при добавлении игры: " + error.message);
+}
 });
 
-statusFilter.addEventListener("change", loadGames);
-genreFilter.addEventListener("input", loadGames);
-
 async function loadGames() {
-  gamesList.innerHTML = "";
-  const snapshot = await getDocs(collection(db, "games"));
-  snapshot.forEach(docSnap => {
-    const game = docSnap.data();
-    const docId = docSnap.id;
+gamesList.innerHTML = "";
+const snapshot = await getDocs(collection(db, "games"));
+snapshot.forEach(doc => {
+const game = doc.data();
+if (currentFilter === "completed" && game.status !== "Пройдена") return;
+if (currentFilter === "planned" && game.status !== "В планах") return;
+const card = document.createElement("div");
+card.className = "game-card";
 
-    const statusVal = statusFilter.value;
-    const genreVal = genreFilter.value.toLowerCase();
+card.innerHTML = `
+  <img src="${game.image}" alt="${game.title}" />
+  <div class="game-content">
+    <h3>${game.title}</h3>
+    <p>Категория: ${game.category}</p>
+    <p>Статус: ${game.status}</p>
+    <a href="${game.link}" target="_blank">Скачать / Перейти</a>
+  </div>
+`;
 
-    if (statusVal !== "all" && game.status !== statusVal) return;
-    if (genreVal && !game.category.toLowerCase().includes(genreVal)) return;
-
-    const avgRating = (game.ratings?.length > 0)
-      ? (game.ratings.reduce((a, b) => a + b, 0) / game.ratings.length).toFixed(1)
-      : "—";
-
-    const card = document.createElement("div");
-    card.className = "game-card";
-    card.innerHTML = `
-      <img src="${game.image}" alt="${game.title}" />
-      <div class="game-content">
-        <h3>${game.title}</h3>
-        <p>Категория: ${game.category}</p>
-        <p>Статус: ${game.status}</p>
-        <p>Средняя оценка: ${avgRating}</p>
-        <a href="${game.link}" target="_blank">Скачать / Перейти</a>
-        <div class="rate-area">
-          <label>Ваша оценка:</label>
-          <select data-id="${docId}" class="rating-select">
-            <option value="">—</option>
-            ${[1,2,3,4,5].map(n => `<option value="${n}">${n}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-    `;
-    gamesList.appendChild(card);
-  });
-
-  document.querySelectorAll(".rating-select").forEach(select => {
-    select.addEventListener("change", async (e) => {
-      const value = parseInt(e.target.value);
-      const docId = e.target.getAttribute("data-id");
-      if (value >= 1 && value <= 5) {
-        const gameRef = doc(db, "games", docId);
-        await updateDoc(gameRef, {
-          ratings: arrayUnion(value)
-        });
-        loadGames();
-      }
-    });
-  });
+gamesList.appendChild(card);
+});
 }
