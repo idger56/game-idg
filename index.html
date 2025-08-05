@@ -9,24 +9,57 @@
 </head>
 <body>
 
-<header class="main-header">
-  <nav class="nav-bar">
-    <div class="nav-left">
-      <button id="nav-games">Игры</button>
-    </div>
-    <div class="nav-center">
-      <button id="nav-add-game" style="display: none;">Добавить игру</button>
-    </div>
-    <div class="nav-right">
-      <span id="user-name" style="margin-right: 10px;"></span>
+<header>
+  <nav class="top-menu">
+    <div class="left">
       <button id="auth-btn">Вход</button>
+    </div>
+    <div class="center">
+      <h1>Игры</h1>
+    </div>
+    <div class="right" id="admin-controls" style="display: none;">
+      <button id="add-game-toggle">Добавить игру</button>
     </div>
   </nav>
 </header>
 
-<main id="main-content">
-  <!-- Контент будет подгружаться сюда -->
-</main>
+<section id="auth-section">
+  <h2>Вход / Регистрация</h2>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Пароль" />
+  <div class="auth-buttons">
+    <button onclick="login()">Войти</button>
+    <button onclick="register()">Регистрация</button>
+  </div>
+  <p id="auth-message" class="error-message"></p>
+</section>
+
+<section id="main-section" style="display:none;">
+  <form id="add-game-form" style="display:none;">
+    <h3>Добавить игру</h3>
+    <input id="title" type="text" placeholder="Название игры" required />
+    <input id="category" type="text" placeholder="Категория" required />
+    <input id="link" type="url" placeholder="Ссылка на скачивание" required />
+    <input id="image" type="url" placeholder="URL картинки" required />
+    <select id="status" required>
+      <option value="" disabled selected>Статус</option>
+      <option value="Пройдена">Пройдена</option>
+      <option value="В планах">В планах</option>
+    </select>
+    <button type="submit">Добавить игру</button>
+  </form>
+
+  <div class="filters">
+    <select id="status-filter">
+      <option value="all">Все</option>
+      <option value="Пройдена">Пройдена</option>
+      <option value="В планах">В планах</option>
+    </select>
+    <input type="text" id="genre-filter" placeholder="Фильтр по жанру..." />
+  </div>
+
+  <div id="games-list" class="games-grid"></div>
+</section>
 
 <script type="module" src="script.js"></script>
 </body>
