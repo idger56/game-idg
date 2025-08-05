@@ -1,53 +1,41 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Игры с друзьями</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Library</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<header>
-  <nav class="top-menu">
-    <button id="show-completed">Пройденные игры</button>
-    <button id="show-planned">В планах</button>
-    <button id="auth-btn">Вход</button>
-  </nav>
-</header>
-
-<section id="auth-section">
-  <h2>Вход / Регистрация</h2>
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Пароль" />
-  <div class="auth-buttons">
+  <div id="auth-section">
+    <h2>Вход / Регистрация</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Пароль">
     <button onclick="login()">Войти</button>
     <button onclick="register()">Регистрация</button>
+    <p id="auth-message"></p>
   </div>
-  <p id="auth-message" class="error-message"></p>
-</section>
 
-<section id="main-section" style="display:none;">
-  <h1>Игры</h1>
-  
-  <form id="add-game-form">
-    <h3>Добавить игру</h3>
-    <input id="title" type="text" placeholder="Название игры" required />
-    <input id="category" type="text" placeholder="Категория" required />
-    <input id="link" type="url" placeholder="Ссылка на скачивание" required />
-    <input id="image" type="url" placeholder="URL картинки" required />
-    <select id="status" required>
-      <option value="" disabled selected>Статус</option>
-      <option value="Пройдена">Пройдена</option>
-      <option value="В планах">В планах</option>
-    </select>
-    <button type="submit">Добавить игру</button>
-  </form>
+  <div id="main-section" style="display:none;">
+    <h1>🎮 Библиотека Игр</h1>
+    <button onclick="logout()">Выйти</button>
 
-  <div id="games-list" class="games-grid"></div>
-</section>
+    <form id="add-game-form">
+      <input type="text" id="title" placeholder="Название игры" required>
+      <input type="text" id="category" placeholder="Категория" required>
+      <input type="text" id="link" placeholder="Ссылка на скачивание" required>
+      <input type="text" id="image" placeholder="Ссылка на изображение" required>
+      <select id="status">
+        <option value="Пройдена">Пройдена</option>
+        <option value="В планах">В планах</option>
+      </select>
+      <button type="submit">Добавить игру</button>
+    </form>
 
-<script type="module" src="script.js"></script>
+    <div id="games-list"></div>
+  </div>
 
+  <script type="module" src="script.js"></script>
 </body>
 </html>
