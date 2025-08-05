@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Library</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="auth-section">
+    <h2>Вход / Регистрация</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Пароль">
+    <button onclick="login()">Войти</button>
+    <button onclick="register()">Регистрация</button>
+    <p id="auth-message"></p>
+  </div>
+
+  <div id="main-section" style="display:none;">
+    <h1>🎮 Библиотека Игр</h1>
+    <button onclick="logout()">Выйти</button>
+
+    <form id="add-game-form">
+      <input type="text" id="title" placeholder="Название игры" required>
+      <input type="text" id="category" placeholder="Категория" required>
+      <input type="text" id="link" placeholder="Ссылка на скачивание" required>
+      <input type="text" id="image" placeholder="Ссылка на изображение" required>
+      <select id="status">
+        <option value="Пройдена">Пройдена</option>
+        <option value="В планах">В планах</option>
+      </select>
+      <button type="submit">Добавить игру</button>
+    </form>
+
+    <div id="games-list"></div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
