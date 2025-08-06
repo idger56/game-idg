@@ -47,6 +47,7 @@ const gamesList = document.getElementById("games-list");
 
 const authBtn = document.getElementById("auth-btn");
 const showCompletedBtn = document.getElementById("show-completed");
+const showProcessdBtn = document.getElementById("show-process");
 const showPlannedBtn = document.getElementById("show-planned");
 
 let currentFilter = "all"; // Фильтр отображения игр: "all", "completed", "planned"
@@ -113,6 +114,12 @@ authBtn.addEventListener("click", () => {
 // ✅ Фильтр: Пройденные игры
 showCompletedBtn.addEventListener("click", () => {
   currentFilter = "completed";
+  loadGames();
+});
+
+// ✅ Фильтр: В процессе
+showProcessBtn.addEventListener("click", () => {
+  currentFilter = "process";
   loadGames();
 });
 
@@ -222,6 +229,7 @@ async function loadGames() {
     const gameId = docSnap.id;
 
     if (currentFilter === "completed" && game.status !== "Пройдена") continue;
+    if (currentFilter === "process" && game.status !== "В процессе") continue;
     if (currentFilter === "planned" && game.status !== "В планах") continue;
 
     // Получаем оценки

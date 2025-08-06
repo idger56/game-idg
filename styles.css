@@ -179,10 +179,10 @@ header {
 /* Сетка карточек */
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 25px;
-  margin-top: 30px;
-  padding: 0 20px; 
+  grid-template-columns: repeat(3, 1fr); /* 🔥 3 карточки в ряд */
+  gap: 30px; /* расстояние между карточками */
+  padding: 0 40px; /* отступы по краям */
+  margin-top: 40px;
   box-sizing: border-box;
 }
 
@@ -190,13 +190,14 @@ header {
 .game-card {
   background: white;
   border-radius: 14px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease;
-  height: 100%; /* Поддерживает равную высоту */
+  height: 100%;
   margin-bottom: 20px;
+  min-height: 520px; /* 🔥 делаем выше */
 }
 
 .game-card:hover {
@@ -205,7 +206,7 @@ header {
 
 .game-card img {
   width: 100%;
-  height: 220px; /* Увеличена высота изображения */
+  height: 250px; /* 🔥 фиксированная высота */
   object-fit: cover;
 }
 
@@ -217,15 +218,15 @@ header {
 }
 
 .game-content h3 {
-  margin: 0 0 12px;
-  font-size: 1.6rem; /* Увеличен шрифт заголовка */
+  margin: 0 0 14px;
+  font-size: 1.7rem;
   color: #222;
 }
 
 .game-content p {
-  margin: 6px 0;
-  color: #666;
-  font-size: 1.05rem; /* Чуть крупнее обычного текста */
+  margin: 8px 0;
+  color: #555;
+  font-size: 1.05rem;
 }
 
 .game-content a {
