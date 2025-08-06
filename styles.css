@@ -239,7 +239,7 @@ header {
 .game-content h3 {
   margin: 0 0 14px;
   font-size: 1.7rem;
-  color: #222;
+  color: #555;
 }
 
 .game-content p {
@@ -306,7 +306,7 @@ header {
 }
 
 .mt-10 {
-  background-color: #1a3d29;
+  background-color: #2e8d57;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -416,7 +416,7 @@ header {
 .user-rating-info {
   margin-top: 10px;
   font-weight: 500;
-  color: #444;
+  color: #555;
   font-size: 1rem;
 }
 

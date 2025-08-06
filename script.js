@@ -253,15 +253,6 @@ if (user && game.status === "Пройдена" && userRating === null) {
   });
 }
 
-
-    // 👇 Показываем "Ваша оценка" если уже оценил
-    if (user && userRating !== null) {
-      const ratingInfo = document.createElement("p");
-      ratingInfo.className = "user-rating-info";
-      ratingInfo.textContent = `Ваша оценка: ${userRating} ⭐`;
-      content.appendChild(ratingInfo);
-    }
-
     // ✅ Кнопка редактирования — ВСЕГДА для админа, не внутри других условий
     if (user && user.email === adminEmail) {
       const editBtn = document.createElement("button");
