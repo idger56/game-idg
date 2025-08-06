@@ -420,20 +420,57 @@ header {
   font-size: 1rem;
 }
 
+/* Центрирование кнопки */
 #toggle-add-form {
+  display: block;
+  margin: 30px auto 20px auto;  /* отступ сверху и снизу + центрирование */
+  padding: 12px 24px;
   background-color: #27ae60;
   color: white;
-  font-weight: bold;
   border: none;
   border-radius: 8px;
-  padding: 12px 24px;
   font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  margin: 30px auto 20px auto;  /* Центрируем по горизонтали + отступы сверху/снизу */
-  display: block;               /* Обязательно! иначе margin auto не сработает */
   transition: background-color 0.3s ease;
 }
 
 #toggle-add-form:hover {
   background-color: #1e874b;
+}
+
+/* Контейнер формы */
+#add-form-container {
+  max-width: 600px;
+  margin: 0 auto 30px auto;  /* центр и отступ снизу */
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Поля ввода */
+#add-game-form input,
+#add-game-form select,
+#add-game-form button {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+#add-game-form button {
+  background-color: #2ecc71;
+  color: white;
+  font-weight: bold;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+#add-game-form button:hover {
+  background-color: #27ae60;
 }
