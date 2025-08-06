@@ -166,37 +166,60 @@ header {
   text-decoration: underline;                       /* Подчеркивание при наведении */
 }
 
-/* Кнопка редактирования (для админа) */
 .edit-button {
-  margin-top: 10px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
-  background-color: #555;
+  background-color: #3498db;
   color: white;
   border: none;
-  border-radius: 5px;
+  padding: 8px 14px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
   transition: background-color 0.3s ease;
 }
 
 .edit-button:hover {
-  background-color: #333;
+  background-color: #2980b9;
 }
 
-/* Селектор для оценки */
-.rating-select {
+.mt-10 {
   margin-top: 10px;
-  padding: 6px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  width: 100%;
-  max-width: 120px;
-  font-size: 0.9rem;
 }
 
-/* Текст средней оценки */
-.average-rating {
-  margin-top: 8px;
-  font-size: 0.9rem;
-  color: #888;
+.edit-form {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-input,
+.form-select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-select:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 3px #3498db;
+}
+
+.submit-button {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #27ae60;
 }

@@ -257,16 +257,16 @@ async function loadGames() {
     if (user && user.email === adminEmail) {
       const editBtn = document.createElement("button");
       editBtn.textContent = "Редактировать";
-      editBtn.className = "edit-button";
-      editBtn.style.marginTop = "10px";
+      editBtn.className = "edit-button mt-10";
+
 
       editBtn.addEventListener("click", () => {
         const formHtml = `
-          <form class="edit-form">
-            <input type="text" name="title" value="${game.title}" required />
-            <input type="text" name="image" value="${game.image}" required />
-            <input type="text" name="link" value="${game.link}" required />
-            <select name="status" required>
+        <form class="edit-form">
+               <input type="text" name="title" value="${game.title}" required class="form-input" />
+                 <input type="text" name="image" value="${game.image}" required class="form-input" />
+                 <input type="text" name="link" value="${game.link}" required class="form-input" />
+             <select name="status" required class="form-select">
               <option value="Пройдена" ${game.status === "Пройдена" ? "selected" : ""}>Пройдена</option>
               <option value="В процессе" ${game.status === "В процессе" ? "selected" : ""}>В процессе</option>
               <option value="В планах" ${game.status === "В планах" ? "selected" : ""}>В планах</option>
