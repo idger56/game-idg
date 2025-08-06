@@ -261,19 +261,28 @@ async function loadGames() {
 
 
       editBtn.addEventListener("click", () => {
-        const formHtml = `
-        <form class="edit-form">
-               <input type="text" name="title" value="${game.title}" required class="form-input" />
-                 <input type="text" name="image" value="${game.image}" required class="form-input" />
-                 <input type="text" name="link" value="${game.link}" required class="form-input" />
-             <select name="status" required class="form-select">
-              <option value="Пройдена" ${game.status === "Пройдена" ? "selected" : ""}>Пройдена</option>
-              <option value="В процессе" ${game.status === "В процессе" ? "selected" : ""}>В процессе</option>
-              <option value="В планах" ${game.status === "В планах" ? "selected" : ""}>В планах</option>
-            </select>
-            <button type="submit">Сохранить</button>
-          </form>
-        `;
+const formHtml = `
+  <form class="edit-form">
+    <div class="form-group">
+      <input type="text" name="title" value="${game.title}" required placeholder="Название игры" class="form-input" />
+    </div>
+    <div class="form-group">
+      <input type="text" name="image" value="${game.image}" required placeholder="URL картинки" class="form-input" />
+    </div>
+    <div class="form-group">
+      <input type="text" name="link" value="${game.link}" required placeholder="Ссылка на игру" class="form-input" />
+    </div>
+    <div class="form-group">
+      <select name="status" required class="form-select">
+        <option value="Пройдена" ${game.status === "Пройдена" ? "selected" : ""}>Пройдена</option>
+        <option value="В процессе" ${game.status === "В процессе" ? "selected" : ""}>В процессе</option>
+        <option value="В планах" ${game.status === "В планах" ? "selected" : ""}>В планах</option>
+      </select>
+    </div>
+    <button type="submit" class="save-button">Сохранить</button>
+  </form>
+`;
+
         card.innerHTML += formHtml;
 
         const editForm = card.querySelector(".edit-form");

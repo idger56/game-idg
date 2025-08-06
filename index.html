@@ -20,24 +20,25 @@
     </nav>
   </header>
 
-  <div class="container">
-    <section id="auth-section">
-      <h2>Вход / Регистрация</h2>
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Пароль" />
-      <div class="auth-buttons">
-        <button onclick="login()">Войти</button>
-        <button onclick="register()">Регистрация</button>
-      </div>
-      <p id="auth-message" class="error-message"></p>
-    </section>
+<section id="auth-section" class="auth-card">
+  <h2>Вход / Регистрация</h2>
+  <div class="auth-fields">
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Пароль" />
+  </div>
+  <div class="auth-buttons">
+    <button onclick="login()">Войти</button>
+    <button onclick="register()">Регистрация</button>
+  </div>
+  <p id="auth-message" class="error-message"></p>
+</section>
+
 
     <section id="main-section" style="display:none;">
       <h1>Игры</h1>
       <form id="add-game-form">
         <h3>Добавить игру</h3>
         <input id="title" type="text" placeholder="Название игры" required />
-        <label for="category">Категории</label>
         <select id="category" multiple required>
           <option value="Экшен">Экшен</option>
           <option value="Приключения">Приключения</option>
