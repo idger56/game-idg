@@ -223,41 +223,39 @@ async function renderGames(games, user) {
 
     const content = card.querySelector(".game-content");
 
+const ratingSummary = document.createElement("div");
+ratingSummary.className = "rating-summary";
+ratingSummary.innerHTML = `
+  <span><strong>Средняя:</strong> ${avgRating ?? "—"} ⭐</span>
+  <span><strong>Ваша оценка:</strong> ${userRating ?? "—"} ⭐</span>
+`;
+content.appendChild(ratingSummary);
+
 if (user && game.status === "Пройдена" && userRating === null) {
-      const ratingContainer = document.createElement("div");
-      ratingContainer.className = "rating-block";
+  const ratingForm = document.createElement("div");
+  ratingForm.className = "rating-form";
+  ratingForm.innerHTML = `
+    <label for="rate-${gameId}" class="rating-label">Оцените:</label>
+    <select id="rate-${gameId}" data-game-id="${gameId}" class="rating-select">
+      <option value="">Выберите</option>
+      ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join("")}
+    </select>
+  `;
+  content.appendChild(ratingForm);
 
-      ratingContainer.innerHTML = `
-        <div class="user-rating">
-          <strong>Ваша оценка:</strong> —
-        </div>
-        <div class="rating-select-block">
-          <label for="rate-${gameId}" class="rating-label">Оцените:</label>
-          <select id="rate-${gameId}" data-game-id="${gameId}" class="rating-select">
-            <option value="">Выберите</option>
-            ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join("")}
-          </select>
-        </div>
-        <div class="avg-rating">
-          <strong>Средняя:</strong> ${avgRating ?? "—"}
-        </div>
-      `;
-      content.appendChild(ratingContainer);
+  ratingForm.querySelector("select").addEventListener("change", async (e) => {
+    const rating = parseInt(e.target.value);
+    if (!user || isNaN(rating)) return;
 
-      ratingContainer.querySelector("select").addEventListener("change", async (e) => {
-        const rating = parseInt(e.target.value);
-        if (!user || isNaN(rating)) return;
+    await addDoc(collection(db, "ratings"), {
+      userId: user.uid,
+      gameId,
+      rating
+    });
 
-        await addDoc(collection(db, "ratings"), {
-          userId: user.uid,
-          gameId,
-          rating
-        });
-
-        alert("Оценка сохранена!");
-        loadGames();
-      });
-    }
+    loadGames(); // обновим, но без alert
+  });
+}
 
     // 👇 Показываем "Ваша оценка" если уже оценил
     if (user && userRating !== null) {

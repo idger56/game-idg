@@ -503,3 +503,29 @@ header {
   font-weight: 500;
   color: #333;
 }
+
+.rating-summary {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.rating-form {
+  margin-top: 10px;
+}
+
+.rating-form .rating-label {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.rating-form select.rating-select {
+  padding: 6px 10px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
