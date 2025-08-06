@@ -165,3 +165,38 @@ header {
 .game-content a:hover {
   text-decoration: underline;                       /* Подчеркивание при наведении */
 }
+
+/* Кнопка редактирования (для админа) */
+.edit-button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #333;
+}
+
+/* Селектор для оценки */
+.rating-select {
+  margin-top: 10px;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 120px;
+  font-size: 0.9rem;
+}
+
+/* Текст средней оценки */
+.average-rating {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #888;
+}

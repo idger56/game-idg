@@ -12,7 +12,11 @@ import {
   getFirestore,
   collection,
   addDoc,
-  getDocs
+  getDocs,
+  query,
+  where,
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 // ✅ Конфигурация Firebase проекта
