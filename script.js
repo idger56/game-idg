@@ -216,34 +216,30 @@ async function renderGames(games, user) {
         <h3>${game.title}</h3>
         <p>Категория: ${Array.isArray(game.category) ? game.category.join(", ") : game.category}</p>
         <p>Статус: ${game.status}</p>
-        <p>Средняя оценка: ${avgRating ? `${avgRating} ⭐` : "Нет оценок"}</p>
+        <p class="rating-line">
+    <span><strong>Средняя:</strong> ${avgRating ?? "—"} ⭐</span>
+   ${userRating !== null ? `<span><strong>Ваша:</strong> ${userRating} ⭐</span>` : ""} </p>
         <a href="${game.link}" target="_blank">Скачать / Перейти</a>
       </div>
     `;
 
     const content = card.querySelector(".game-content");
 
-const ratingSummary = document.createElement("div");
-ratingSummary.className = "rating-summary";
-ratingSummary.innerHTML = `
-  <span><strong>Средняя:</strong> ${avgRating ?? "—"} ⭐</span>
-  <span><strong>Ваша оценка:</strong> ${userRating ?? "—"} ⭐</span>
-`;
-content.appendChild(ratingSummary);
-
 if (user && game.status === "Пройдена" && userRating === null) {
-  const ratingForm = document.createElement("div");
-  ratingForm.className = "rating-form";
-  ratingForm.innerHTML = `
-    <label for="rate-${gameId}" class="rating-label">Оцените:</label>
-    <select id="rate-${gameId}" data-game-id="${gameId}" class="rating-select">
-      <option value="">Выберите</option>
-      ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join("")}
-    </select>
+  const ratingWrapper = document.createElement("div");
+  ratingWrapper.className = "rating-form";
+  ratingWrapper.innerHTML = `
+    <label class="rating-label">
+      Оцените:
+      <select data-game-id="${gameId}" class="rating-select">
+        <option value="">Выберите</option>
+        ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join('')}
+      </select>
+    </label>
   `;
-  content.appendChild(ratingForm);
+  content.appendChild(ratingWrapper);
 
-  ratingForm.querySelector("select").addEventListener("change", async (e) => {
+  ratingWrapper.querySelector("select").addEventListener("change", async (e) => {
     const rating = parseInt(e.target.value);
     if (!user || isNaN(rating)) return;
 
@@ -253,9 +249,10 @@ if (user && game.status === "Пройдена" && userRating === null) {
       rating
     });
 
-    loadGames(); // обновим, но без alert
+    loadGames(); // перерисовка без alert
   });
 }
+
 
     // 👇 Показываем "Ваша оценка" если уже оценил
     if (user && userRating !== null) {

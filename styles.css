@@ -522,7 +522,7 @@ header {
   margin-right: 8px;
 }
 
-.rating-form select.rating-select {
+.rating-form .rating-select {
   padding: 6px 10px;
   font-size: 1rem;
   border-radius: 6px;
