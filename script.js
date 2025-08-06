@@ -64,16 +64,12 @@ onAuthStateChanged(auth, async (user) => {
   const nicknameSpan = document.getElementById("user-nickname");
 
   if (user) {
-    // Показываем основной интерфейс
     authSection.style.display = "none";
     mainSection.style.display = "block";
     authBtn.textContent = "Выход";
-
-    // Отображаем форму добавления только администратору
     form.style.display = (user.email === adminEmail) ? "block" : "none";
 
     try {
-      // Загружаем ник пользователя из коллекции users
       const q = query(collection(db, "users"), where("uid", "==", user.uid));
       const snapshot = await getDocs(q);
 
@@ -89,9 +85,8 @@ onAuthStateChanged(auth, async (user) => {
       console.error("Ошибка при загрузке ника:", error.message);
     }
 
-    loadGames(); // Загружаем игры
+    loadGames();
   } else {
-    // Если пользователь вышел
     authSection.style.display = "block";
     mainSection.style.display = "none";
     authBtn.textContent = "Вход";

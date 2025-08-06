@@ -13,13 +13,19 @@
 <body>
 
   <header>
-    <nav class="top-menu">
-      <button id="show-completed">Пройденные игры</button>
-      <button id="show-process">В процессе</button>
-      <button id="show-planned">В планах</button>
-      <button id="auth-btn">Вход</button>
-      <span id="user-nickname" class="user-nickname" style="display: none;"></span>
-    </nav>
+<nav class="top-menu">
+  <div class="menu-left">
+    <button id="show-completed">Пройденные игры</button>
+    <button id="show-planned">В планах</button>
+    <button id="show-process">В процессе</button>
+  </div>
+
+  <div class="menu-right">
+    <span id="user-nickname" class="user-nickname" style="display: none;"></span>
+    <button id="auth-btn">Вход</button>
+  </div>
+</nav>
+
   </header>
 
 <section id="auth-section" class="auth-card">
