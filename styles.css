@@ -474,3 +474,32 @@ header {
 #add-game-form button:hover {
   background-color: #27ae60;
 }
+
+.rating-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9f9f9;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-top: 16px;
+  gap: 20px;
+}
+
+.rating-select-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-block .rating-select {
+  min-width: 100px;
+}
+
+.rating-block .user-rating,
+.rating-block .avg-rating {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+}
