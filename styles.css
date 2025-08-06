@@ -28,18 +28,19 @@ header {
 /* Верхнее меню */
 .top-menu {
   display: flex;
-  justify-content: space-between; /* выравнивание по краям */
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
+  padding: 10px 25px;
+  background-color: #222;
 }
 
 .menu-left,
 .menu-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
+
 
 .menu-left button,
 .menu-right button {
@@ -56,6 +57,12 @@ header {
 .menu-left button:hover,
 .menu-right button:hover {
   background-color: #444;
+}
+
+.user-nickname {
+  color: #fff;
+  font-weight: bold;
+  font-size: 1rem;
 }
 
 /* Секция авторизации */
@@ -341,8 +348,18 @@ header {
   background-color: #27ae60;
 }
 
-.user-nickname {
-  color: #fff;
-  font-weight: bold;
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.filter-bar input,
+.filter-bar select {
+  padding: 10px;
   font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  min-width: 200px;
 }
