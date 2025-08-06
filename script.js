@@ -244,17 +244,17 @@ gamesList.appendChild(card);
   }
 }
 
-const toggleAddFormBtn = document.getElementById("toggle-add-form");
-const addFormContainer = document.getElementById("add-form-container");
-
 if (user.email === adminEmail) {
-  toggleAddFormBtn.style.display = "inline-block";
-  addFormContainer.style.display = "none"; // изначально скрыто
-} else {
-  toggleAddFormBtn.style.display = "none";
-  addFormContainer.style.display = "none";
+  const toggleAddFormBtn = document.getElementById("toggle-add-form");
+  const addFormContainer = document.getElementById("add-form-container");
+
+  if (toggleAddFormBtn && addFormContainer) {
+    toggleAddFormBtn.style.display = "inline-block";
+    addFormContainer.style.display = "none";
+
+    toggleAddFormBtn.addEventListener("click", () => {
+      const isVisible = addFormContainer.style.display === "block";
+      addFormContainer.style.display = isVisible ? "none" : "block";
+    });
+  }
 }
-toggleAddFormBtn.addEventListener("click", () => {
-  const isVisible = addFormContainer.style.display === "block";
-  addFormContainer.style.display = isVisible ? "none" : "block";
-});
