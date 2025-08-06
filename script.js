@@ -47,7 +47,7 @@ const gamesList = document.getElementById("games-list");
 
 const authBtn = document.getElementById("auth-btn");
 const showCompletedBtn = document.getElementById("show-completed");
-const showProcessdBtn = document.getElementById("show-process");
+const showProcessBtn = document.getElementById("show-process");
 const showPlannedBtn = document.getElementById("show-planned");
 
 let currentFilter = "all"; // Фильтр отображения игр: "all", "completed", "planned"
