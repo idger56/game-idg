@@ -56,8 +56,6 @@ function clearAuthMessage() {
   authMessage.textContent = "";
 }
 
-import { query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
-
 // ✅ Обработка изменения состояния авторизации
 onAuthStateChanged(auth, async (user) => {
   clearAuthMessage();
@@ -124,7 +122,41 @@ showPlannedBtn.addEventListener("click", () => {
   loadGames();
 });
 
-// ✅ Функция входа в аккаунт
+window.register = async function () {
+  clearAuthMessage();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const nickname = document.getElementById("nickname").value.trim();
+
+  if (!email || !password || !nickname) {
+    authMessage.textContent = "Пожалуйста, заполните все поля";
+    return;
+  }
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Сохраняем ник в Firestore
+    await addDoc(collection(db, "users"), {
+      uid: user.uid,
+      email: user.email,
+      nickname: nickname
+    });
+
+    authMessage.textContent = "Регистрация успешна! Теперь войдите.";
+  } catch (error) {
+    if (error.code === "auth/email-already-in-use") {
+      authMessage.textContent = "Этот email уже зарегистрирован.";
+    } else if (error.code === "auth/weak-password") {
+      authMessage.textContent = "Пароль слишком простой (минимум 6 символов).";
+    } else {
+      authMessage.textContent = error.message;
+    }
+  }
+};
+
+
 window.login = async function () {
   clearAuthMessage();
   const email = document.getElementById("email").value.trim();
@@ -136,21 +168,11 @@ window.login = async function () {
   }
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-const user = userCredential.user;
-
-// сохраняем ник в Firestore
-const nickname = document.getElementById("nickname").value.trim();
-await addDoc(collection(db, "users"), {
-  uid: user.uid,
-  email: user.email,
-  nickname
-});
-
+    await signInWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged сам сработает после успешного входа
   } catch (error) {
-    // Обработка ошибок входа
     if (error.code === "auth/user-not-found") {
-      authMessage.textContent = "Пользователь не найден. Зарегистрируйтесь.";
+      authMessage.textContent = "Пользователь не найден.";
     } else if (error.code === "auth/wrong-password") {
       authMessage.textContent = "Неверный пароль.";
     } else {
@@ -159,30 +181,6 @@ await addDoc(collection(db, "users"), {
   }
 };
 
-// ✅ Функция регистрации нового пользователя
-window.register = async function () {
-  clearAuthMessage();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if (!email || !password) {
-    authMessage.textContent = "Пожалуйста, заполните email и пароль";
-    return;
-  }
-
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    // Обработка ошибок регистрации
-    if (error.code === "auth/email-already-in-use") {
-      authMessage.textContent = "Этот email уже зарегистрирован. Попробуйте войти.";
-    } else if (error.code === "auth/weak-password") {
-      authMessage.textContent = "Пароль слишком простой. Используйте минимум 6 символов.";
-    } else {
-      authMessage.textContent = error.message;
-    }
-  }
-};
 
 // ✅ Добавление новой игры (только для администратора)
 form.addEventListener("submit", async (e) => {
