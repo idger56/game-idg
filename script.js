@@ -62,7 +62,10 @@ onAuthStateChanged(auth, async (user) => {
     authSection.style.display = "none";
     mainSection.style.display = "block";
     authBtn.textContent = "Выход";
+    const addBtn = document.getElementById("toggle-add-form");
     form.style.display = (user.email === adminEmail) ? "block" : "none";
+    addBtn.style.display = (user.email === adminEmail) ? "inline-block" : "none";
+
 
      if (user.email === adminEmail) {
       document.getElementById("toggle-add-form").style.display = "block";
