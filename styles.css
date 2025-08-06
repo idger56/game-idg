@@ -1,180 +1,210 @@
+/* Общий контейнер */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  background-color: #fff;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  margin-top: 30px;
+}
+
 /* Общие стили страницы */
 body {
-  font-family: Arial, sans-serif;   /* Основной шрифт */
-  margin: 0; padding: 0;            /* Убираем отступы у body */
-  background: #f5f5f5;              /* Светлый фон */
-  color: #333;                      /* Цвет текста по умолчанию */
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+  color: #333;
 }
 
-/* Хедер (шапка сайта) */
+/* Хедер */
 header {
-  background-color: #222;           /* Темный фон */
-  padding: 10px 20px;               /* Внутренние отступы */
+  background-color: #1f1f1f;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Верхнее меню в хедере */
+/* Верхнее меню */
 .top-menu {
-  display: flex;                    /* Горизонтальное выравнивание */
-  gap: 15px;                        /* Расстояние между кнопками */
-  align-items: center;             /* Центрирование по вертикали */
+  display: flex;
+  justify-content: center;
+  gap: 20px;
 }
 
-/* Кнопки в верхнем меню */
 .top-menu button {
-  background: none;                 /* Прозрачный фон */
-  border: none;                     /* Без границ */
-  color: #fff;                      /* Белый текст */
-  cursor: pointer;                  /* Курсор при наведении */
-  font-weight: bold;               /* Жирный шрифт */
-  padding: 8px 16px;                /* Внутренние отступы */
-  border-radius: 4px;               /* Скругление углов */
-  transition: background-color 0.3s ease;  /* Анимация при наведении */
+  background: none;
+  border: 2px solid #fff;
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 30px;
+  transition: all 0.3s ease;
 }
 
-/* Эффект наведения на кнопки меню */
 .top-menu button:hover {
-  background-color: #444;           /* Темный фон при наведении */
+  background-color: #444;
 }
 
-/* Сообщения об ошибке */
+/* Секция авторизации */
+#auth-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+#auth-section input {
+  margin: 10px auto;
+}
+
+.auth-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.auth-buttons button {
+  padding: 12px 20px;
+  background-color: #2a7ae2;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
+}
+
+.auth-buttons button:hover {
+  background-color: #125ecf;
+}
+
+/* Ошибки */
 #error-message,
 .error-message {
-  color: red;                       /* Красный текст ошибок */
-  margin-top: 10px;                 /* Отступ сверху */
+  color: #e74c3c;
+  margin-top: 15px;
 }
 
-/* Основные секции (авторизация и контент) */
-#auth-section,
-#main-section {
-  max-width: 900px;                 /* Максимальная ширина блока */
-  margin: 20px auto;                /* Центрирование и отступ сверху/снизу */
-  padding: 0 15px;                  /* Горизонтальные отступы */
+/* Секция контента */
+#main-section h1 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-/* Поля ввода и кнопки в формах */
-#auth-section input,
-#auth-section button,
+/* Форма добавления */
+#add-game-form {
+  background-color: #fafafa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+#add-game-form h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#add-game-form input,
+#add-game-form select {
+  margin: 10px auto;
+}
+
 #add-game-form input,
 #add-game-form select,
 #add-game-form button {
-  display: block;                   /* Каждый элемент с новой строки */
-  margin-bottom: 12px;              /* Отступ снизу */
-  padding: 10px;                    /* Внутренние отступы */
-  width: 100%;                      /* На всю ширину контейнера */
-  max-width: 400px;                 /* Ограничение ширины */
-  box-sizing: border-box;           /* Внутренние отступы входят в ширину */
-  font-size: 1rem;                  /* Размер шрифта */
-  border-radius: 4px;               /* Скругление границ */
-  border: 1px solid #ccc;           /* Светлая рамка */
+  width: 100%;
+  max-width: 500px;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  display: block;
 }
 
-/* Кнопки авторизации (вход/регистрация) */
-.auth-buttons {
-  display: flex;                    /* Горизонтальное расположение */
-  gap: 10px;                        /* Промежуток между кнопками */
-  max-width: 400px;                 /* Максимальная ширина блока */
-}
-
-/* Стили кнопок авторизации */
-.auth-buttons button {
-  flex: 1;                          /* Каждая кнопка занимает равную часть */
-  cursor: pointer;                  /* Курсор при наведении */
-  background-color: #2a7ae2;        /* Синий фон */
-  color: white;                     /* Белый текст */
-  border: none;                     /* Без границ */
-  transition: background-color 0.3s ease; /* Плавное изменение цвета */
-}
-
-/* Эффект наведения на кнопки авторизации */
-.auth-buttons button:hover {
-  background-color: #125ecf;        /* Темнее при наведении */
-}
-
-/* Кнопка добавления игры */
+/* Кнопка "Добавить игру" */
 #add-game-form button {
-  background-color: #27ae60;        /* Зеленый фон */
-  color: white;                     /* Белый текст */
-  border: none;                     /* Без рамки */
-  cursor: pointer;                  /* Курсор-указатель */
-  max-width: 400px;                 /* Ограничение ширины */
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
 }
 
-/* Наведение на кнопку добавления игры */
 #add-game-form button:hover {
-  background-color: #1e874b;        /* Более темно-зеленый */
+  background-color: #1e874b;
 }
 
-/* Сетка для карточек игр */
+/* Сетка карточек */
 .games-grid {
-  display: grid;                                    /* Сетка */
-  grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); /* Адаптивная сетка */
-  gap: 20px;                                        /* Промежуток между карточками */
-  margin-top: 20px;                                 /* Отступ сверху */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
 }
 
-/* Карточка игры */
+/* Карточка */
 .game-card {
-  background: white;                                /* Белый фон */
-  border-radius: 8px;                               /* Скругление углов */
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);            /* Тень */
-  overflow: hidden;                                 /* Обрезать выходящий контент */
-  display: flex;
-  flex-direction: column;                           /* Сверху вниз */
-  height: 100%;                                     /* Полная высота */
-}
-
-/* Изображение в карточке */
-.game-card img {
-  width: 100%;                                      /* На всю ширину */
-  height: 140px;                                    /* Фиксированная высота */
-  object-fit: cover;                                /* Обрезка/масштабирование */
-}
-
-/* Контент карточки */
-.game-content {
-  padding: 15px;                                    /* Внутренние отступы */
-  flex-grow: 1;                                     /* Растягивается по вертикали */
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease;
 }
 
-/* Название игры */
+.game-card:hover {
+  transform: translateY(-5px);
+}
+
+.game-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.game-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .game-content h3 {
-  margin: 0 0 10px 0;                               /* Отступ снизу */
-  font-size: 1.2rem;                                /* Размер шрифта */
-  color: #222;                                      /* Темный цвет */
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+  color: #222;
 }
 
-/* Текстовая информация (категория, статус) */
 .game-content p {
-  margin: 4px 0;                                    /* Вертикальные отступы */
-  flex-grow: 0;
-  font-size: 0.9rem;
-  color: #555;                                      /* Серый цвет */
+  margin: 5px 0;
+  color: #666;
+  font-size: 0.95rem;
 }
 
-/* Ссылка на игру */
 .game-content a {
-  margin-top: auto;                                 /* Перемещаем вниз */
-  text-decoration: none;                            /* Без подчеркивания */
-  color: #2a7ae2;                                   /* Синий цвет */
-  font-weight: bold;                                /* Жирный */
+  margin-top: auto;
+  color: #2a7ae2;
+  text-decoration: none;
+  font-weight: bold;
 }
 
-/* Наведение на ссылку */
 .game-content a:hover {
-  text-decoration: underline;                       /* Подчеркивание при наведении */
+  text-decoration: underline;
 }
 
+/* Кнопка редактирования */
 .edit-button {
   background-color: #3498db;
   color: white;
   border: none;
-  padding: 8px 14px;
+  padding: 10px 16px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
 .edit-button:hover {
@@ -194,9 +224,9 @@ header {
 
 .form-input,
 .form-select {
-  padding: 8px 10px;
+  padding: 10px 14px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 8px;
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
@@ -206,17 +236,17 @@ header {
 .form-select:focus {
   border-color: #3498db;
   outline: none;
-  box-shadow: 0 0 3px #3498db;
+  box-shadow: 0 0 4px #3498db;
 }
 
 .submit-button {
   background-color: #2ecc71;
   color: white;
   border: none;
-  padding: 10px 16px;
+  padding: 12px 20px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 16px;
   transition: background-color 0.3s ease;
 }
 

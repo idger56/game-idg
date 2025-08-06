@@ -12,87 +12,59 @@
 </head>
 <body>
 
-<!-- Верхнее меню -->
-<header>
-  <nav class="top-menu">
-    <!-- Кнопка фильтрации: показать пройденные игры -->
-    <button id="show-completed">Пройденные игры</button>
-    <!-- Кнопка фильтрации: показать игры "в планах" -->
-    <button id="show-planned">В планах</button>
-    <!-- Кнопка входа (показывает форму авторизации) -->
-    <button id="auth-btn">Вход</button>
-  </nav>
-</header>
+  <header>
+    <nav class="top-menu">
+      <button id="show-completed">Пройденные игры</button>
+      <button id="show-planned">В планах</button>
+      <button id="auth-btn">Вход</button>
+    </nav>
+  </header>
 
-<!-- Секция входа / регистрации -->
-<section id="auth-section">
-  <h2>Вход / Регистрация</h2>
+  <div class="container">
+    <section id="auth-section">
+      <h2>Вход / Регистрация</h2>
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Пароль" />
+      <div class="auth-buttons">
+        <button onclick="login()">Войти</button>
+        <button onclick="register()">Регистрация</button>
+      </div>
+      <p id="auth-message" class="error-message"></p>
+    </section>
 
-  <!-- Поле для ввода email -->
-  <input type="email" id="email" placeholder="Email" />
-  <!-- Поле для ввода пароля -->
-  <input type="password" id="password" placeholder="Пароль" />
+    <section id="main-section" style="display:none;">
+      <h1>Игры</h1>
+      <form id="add-game-form">
+        <h3>Добавить игру</h3>
+        <input id="title" type="text" placeholder="Название игры" required />
+        <label for="category">Категории</label>
+        <select id="category" multiple required>
+          <option value="Экшен">Экшен</option>
+          <option value="Приключения">Приключения</option>
+          <option value="RPG">RPG</option>
+          <option value="Стратегия">Стратегия</option>
+          <option value="Симулятор">Симулятор</option>
+          <option value="Головоломка">Головоломка</option>
+          <option value="Выживание">Выживание</option>
+          <option value="Хоррор">Хоррор</option>
+          <option value="Зомби">Зомби</option>
+          <option value="Песочница">Песочница</option>
+        </select>
+        <input id="link" type="url" placeholder="Ссылка на скачивание" required />
+        <input id="image" type="url" placeholder="URL картинки" required />
+        <select id="status" required>
+          <option value="" disabled selected>Статус</option>
+          <option value="Пройдена">Пройдена</option>
+          <option value="В планах">В планах</option>
+          <option value="В процессе">В процессе</option>
+        </select>
+        <button type="submit">Добавить игру</button>
+      </form>
 
-  <!-- Кнопки входа и регистрации -->
-  <div class="auth-buttons">
-    <!-- Кнопка "Войти", вызывает JS-функцию login() -->
-    <button onclick="login()">Войти</button>
-    <!-- Кнопка "Регистрация", вызывает JS-функцию register() -->
-    <button onclick="register()">Регистрация</button>
+      <div id="games-list" class="games-grid"></div>
+    </section>
   </div>
 
-  <!-- Здесь будут показаны ошибки или сообщения от login()/register() -->
-  <p id="auth-message" class="error-message"></p>
-</section>
-
-<!-- Основной контент: список игр -->
-<section id="main-section" style="display:none;">
-  <!-- Скрыт до авторизации -->
-  <h1>Игры</h1>
-  
-  <!-- Форма добавления новой игры -->
-  <form id="add-game-form">
-    <h3>Добавить игру</h3>
-
-    <!-- Название игры -->
-    <input id="title" type="text" placeholder="Название игры" required />
-    <!-- Категория игры (например, шутер, стратегия) -->
-   <label for="category">Категории</label>
-    <select id="category" multiple required>
-       <option value="Экшен">Экшен</option>
-       <option value="Приключения">Приключения</option>
-       <option value="RPG">RPG</option>
-        <option value="Стратегия">Стратегия</option>
-       <option value="Симулятор">Симулятор</option>
-       <option value="Головоломка">Головоломка</option>
-       <option value="Выживание">Выживание</option>
-       <option value="Хоррор">Хоррор</option>
-       <option value="Зомби">Зомби</option>
-       <option value="Песочница">Песочница</option>
-    </select>
-    <!-- Ссылка на скачивание -->
-    <input id="link" type="url" placeholder="Ссылка на скачивание" required />
-    <!-- Ссылка на изображение (обложку игры) -->
-    <input id="image" type="url" placeholder="URL картинки" required />
-
-    <!-- Статус игры -->
-    <select id="status" required>
-      <option value="" disabled selected>Статус</option>
-      <option value="Пройдена">Пройдена</option>
-      <option value="В планах">В планах</option>
-      <option value="В процессе">В процессе</option>
-    </select>
-
-    <!-- Кнопка отправки формы -->
-    <button type="submit">Добавить игру</button>
-  </form>
-
-  <!-- Контейнер, в который будут добавляться карточки с играми -->
-  <div id="games-list" class="games-grid"></div>
-</section>
-
-<!-- Подключение основного JS-файла с логикой (написан как модуль) -->
-<script type="module" src="script.js"></script>
-
+  <script type="module" src="script.js"></script>
 </body>
 </html>
