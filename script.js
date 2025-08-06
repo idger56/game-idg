@@ -201,32 +201,60 @@ async function renderGames(games, user) {
 
     const content = card.querySelector(".game-content");
 
-    if (user && game.status === "Пройдена" && userRating === null) {
-      const ratingLabel = document.createElement("label");
-      ratingLabel.innerHTML = `
-        Оцените игру:
-        <select data-game-id="${gameId}" class="rating-select">
-          <option value="">Выберите</option>
-          ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join('')}
-        </select>
-      `;
-      content.appendChild(ratingLabel);
+if (user && game.status === "Пройдена" && userRating === null) {
+  const ratingWrapper = document.createElement("div");
+  ratingWrapper.className = "rating-wrapper";
 
-      ratingLabel.querySelector("select").addEventListener("change", async (e) => {
-        const rating = parseInt(e.target.value);
-        if (!user || isNaN(rating)) return;
-        await addDoc(collection(db, "ratings"), { userId: user.uid, gameId, rating });
-        alert("Оценка сохранена!");
-        loadGames();
-      });
-    }
+  ratingWrapper.innerHTML = `
+    <label class="rating-label">
+      Оцените игру:
+      <select data-game-id="${gameId}" class="rating-select">
+        <option value="">Выберите</option>
+        ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join('')}
+      </select>
+    </label>
+  `;
 
-    if (user && userRating !== null) {
-      const ratingInfo = document.createElement("p");
-      ratingInfo.textContent = `Ваша оценка: ${userRating} ⭐`;
-      content.appendChild(ratingInfo);
-    }
+  content.appendChild(ratingWrapper);
 
-    gamesList.appendChild(card);
+  ratingWrapper.querySelector("select").addEventListener("change", async (e) => {
+    const rating = parseInt(e.target.value);
+    if (!user || isNaN(rating)) return;
+
+    await addDoc(collection(db, "ratings"), {
+      userId: user.uid,
+      gameId,
+      rating
+    });
+
+    alert("Оценка сохранена!");
+    loadGames();
+  });
+}
+
+if (user && userRating !== null) {
+  const ratingInfo = document.createElement("p");
+  ratingInfo.className = "user-rating-info";
+  ratingInfo.textContent = `Ваша оценка: ${userRating} ⭐`;
+  content.appendChild(ratingInfo);
+}
+
+gamesList.appendChild(card);
+
   }
 }
+
+const toggleAddFormBtn = document.getElementById("toggle-add-form");
+const addFormContainer = document.getElementById("add-form-container");
+
+if (user.email === adminEmail) {
+  toggleAddFormBtn.style.display = "inline-block";
+  addFormContainer.style.display = "none"; // изначально скрыто
+} else {
+  toggleAddFormBtn.style.display = "none";
+  addFormContainer.style.display = "none";
+}
+toggleAddFormBtn.addEventListener("click", () => {
+  const isVisible = addFormContainer.style.display === "block";
+  addFormContainer.style.display = isVisible ? "none" : "block";
+});
