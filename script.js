@@ -216,10 +216,14 @@ async function renderGames(games, user) {
         <h3>${game.title}</h3>
         <p>Категория: ${Array.isArray(game.category) ? game.category.join(", ") : game.category}</p>
         <p>Статус: ${game.status}</p>
-        <p class="rating-line">
-    <span><strong>Средняя:</strong> ${avgRating ?? "—"} ⭐</span>
-   ${userRating !== null ? `<span><strong>Ваша:</strong> ${userRating} ⭐</span>` : ""} </p>
-        <a href="${game.link}" target="_blank">Скачать / Перейти</a>
+<div class="rating-summary">
+  <span class="rating-label"><strong>Средняя:</strong> ${avgRating ?? "—"} ⭐</span>
+  <span class="rating-label"><strong>Ваша:</strong> ${userRating ?? "—"} ⭐</span>
+</div>
+        <div class="download-btn-wrapper">
+  <a class="download-btn" href="${game.link}" target="_blank">Скачать / Перейти</a>
+</div>
+
       </div>
     `;
 

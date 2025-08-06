@@ -504,13 +504,14 @@ header {
   color: #555;
 }
 
+/* Блок оценок в карточке */
 .rating-summary {
   display: flex;
   justify-content: space-between;
-  margin-top: 10px;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 1.05rem;
   color: #555;
+  margin: 10px 0;
+  font-weight: normal;
 }
 
 .rating-form {
@@ -528,4 +529,26 @@ header {
   border-radius: 6px;
   border: 1px solid #ccc;
   background-color: #fff;
+}
+
+/* Стилизация кнопки "Скачать / Перейти" */
+.download-btn-wrapper {
+  margin-top: auto;
+  text-align: center;
+}
+
+.download-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background-color: #2a7ae2;
+  color: white;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.05rem;
+  transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+  background-color: #1e5bbf;
 }
