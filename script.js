@@ -224,40 +224,20 @@ async function renderGames(games, user) {
     const content = card.querySelector(".game-content");
 
 if (user && game.status === "Пройдена" && userRating === null) {
-const ratingContainer = document.createElement("div");
-ratingContainer.className = "rating-block";
+const ratingWrapper = document.createElement("div");
+ratingWrapper.className = "rating-wrapper";
 
-ratingContainer.innerHTML = `
-  <div class="user-rating">
-    <strong>Ваша оценка:</strong> ${userRating ?? "—"}
-  </div>
-  <div class="rating-select-block">
-    <label for="rate-${gameId}" class="rating-label">Оцените:</label>
-    <select id="rate-${gameId}" data-game-id="${gameId}" class="rating-select">
+ratingWrapper.innerHTML = `
+  <label class="rating-label">
+    Оцените игру:
+    <select data-game-id="${gameId}" class="rating-select">
       <option value="">Выберите</option>
       ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join('')}
     </select>
-  </div>
-  <div class="avg-rating">
-    <strong>Средняя:</strong> ${avgRating ?? "—"}
-  </div>
+  </label>
 `;
+content.appendChild(ratingWrapper);
 
-content.appendChild(ratingContainer);
-
-ratingContainer.querySelector("select").addEventListener("change", async (e) => {
-  const rating = parseInt(e.target.value);
-  if (!user || isNaN(rating)) return;
-
-  await addDoc(collection(db, "ratings"), {
-    userId: user.uid,
-    gameId,
-    rating
-  });
-
-  alert("Оценка сохранена!");
-  loadGames();
-});
 
 
   ratingWrapper.querySelector("select").addEventListener("change", async (e) => {
