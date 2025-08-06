@@ -76,6 +76,21 @@ onAuthStateChanged(auth, async (user) => {
       console.error("Ошибка при загрузке ника:", error.message);
     }
 
+    if (user.email === adminEmail) {
+  const toggleAddFormBtn = document.getElementById("toggle-add-form");
+  const addFormContainer = document.getElementById("add-form-container");
+
+  if (toggleAddFormBtn && addFormContainer) {
+    toggleAddFormBtn.style.display = "inline-block";
+    addFormContainer.style.display = "none";
+
+    toggleAddFormBtn.addEventListener("click", () => {
+      const isVisible = addFormContainer.style.display === "block";
+      addFormContainer.style.display = isVisible ? "none" : "block";
+    });
+  }
+}
+
     loadGames();
   } else {
     authSection.style.display = "block";
@@ -241,20 +256,5 @@ if (user && userRating !== null) {
 
 gamesList.appendChild(card);
 
-  }
-}
-
-if (user.email === adminEmail) {
-  const toggleAddFormBtn = document.getElementById("toggle-add-form");
-  const addFormContainer = document.getElementById("add-form-container");
-
-  if (toggleAddFormBtn && addFormContainer) {
-    toggleAddFormBtn.style.display = "inline-block";
-    addFormContainer.style.display = "none";
-
-    toggleAddFormBtn.addEventListener("click", () => {
-      const isVisible = addFormContainer.style.display === "block";
-      addFormContainer.style.display = isVisible ? "none" : "block";
-    });
   }
 }
