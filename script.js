@@ -259,24 +259,6 @@ ratingContainer.querySelector("select").addEventListener("change", async (e) => 
   loadGames();
 });
 
-
-
-
-  ratingWrapper.querySelector("select").addEventListener("change", async (e) => {
-    const rating = parseInt(e.target.value);
-    if (!user || isNaN(rating)) return;
-
-    await addDoc(collection(db, "ratings"), {
-      userId: user.uid,
-      gameId,
-      rating
-    });
-
-    alert("Оценка сохранена!");
-    loadGames();
-  });
-}
-
 if (user && userRating !== null) {
   const ratingInfo = document.createElement("p");
   ratingInfo.className = "user-rating-info";
