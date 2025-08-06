@@ -224,96 +224,99 @@ async function renderGames(games, user) {
     const content = card.querySelector(".game-content");
 
 if (user && game.status === "Пройдена" && userRating === null) {
-const ratingContainer = document.createElement("div");
-ratingContainer.className = "rating-block";
+      const ratingContainer = document.createElement("div");
+      ratingContainer.className = "rating-block";
 
-ratingContainer.innerHTML = `
-  <div class="user-rating">
-    <strong>Ваша оценка:</strong> ${userRating ?? "—"}
-  </div>
-  <div class="rating-select-block">
-    <label for="rate-${gameId}" class="rating-label">Оцените:</label>
-    <select id="rate-${gameId}" data-game-id="${gameId}" class="rating-select">
-      <option value="">Выберите</option>
-      ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join('')}
-    </select>
-  </div>
-  <div class="avg-rating">
-    <strong>Средняя:</strong> ${avgRating ?? "—"}
-  </div>
-`;
+      ratingContainer.innerHTML = `
+        <div class="user-rating">
+          <strong>Ваша оценка:</strong> —
+        </div>
+        <div class="rating-select-block">
+          <label for="rate-${gameId}" class="rating-label">Оцените:</label>
+          <select id="rate-${gameId}" data-game-id="${gameId}" class="rating-select">
+            <option value="">Выберите</option>
+            ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join("")}
+          </select>
+        </div>
+        <div class="avg-rating">
+          <strong>Средняя:</strong> ${avgRating ?? "—"}
+        </div>
+      `;
+      content.appendChild(ratingContainer);
 
-content.appendChild(ratingContainer);
+      ratingContainer.querySelector("select").addEventListener("change", async (e) => {
+        const rating = parseInt(e.target.value);
+        if (!user || isNaN(rating)) return;
 
-ratingContainer.querySelector("select").addEventListener("change", async (e) => {
-  const rating = parseInt(e.target.value);
-  if (!user || isNaN(rating)) return;
-
-  await addDoc(collection(db, "ratings"), {
-    userId: user.uid,
-    gameId,
-    rating
-  });
-
-  alert("Оценка сохранена!");
-  loadGames();
-});
-
-if (user && userRating !== null) {
-  const ratingInfo = document.createElement("p");
-  ratingInfo.className = "user-rating-info";
-  ratingInfo.textContent = `Ваша оценка: ${userRating} ⭐`;
-  content.appendChild(ratingInfo);
-}
-if (user && user.email === adminEmail) {
-  const editBtn = document.createElement("button");
-  editBtn.textContent = "✏️ Редактировать";
-  editBtn.className = "edit-button mt-10";
-
-  editBtn.addEventListener("click", () => {
-    const formHtml = `
-      <form class="edit-form">
-        <input type="text" name="title" value="${game.title}" required class="form-input" />
-        <input type="text" name="image" value="${game.image}" required class="form-input" />
-        <input type="text" name="link" value="${game.link}" required class="form-input" />
-        <select name="status" required class="form-select">
-          <option value="Пройдена" ${game.status === "Пройдена" ? "selected" : ""}>Пройдена</option>
-          <option value="В процессе" ${game.status === "В процессе" ? "selected" : ""}>В процессе</option>
-          <option value="В планах" ${game.status === "В планах" ? "selected" : ""}>В планах</option>
-        </select>
-        <button type="submit" class="save-button">Сохранить</button>
-      </form>
-    `;
-    content.innerHTML += formHtml;
-
-    const editForm = card.querySelector(".edit-form");
-    editForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const updatedTitle = editForm.title.value.trim();
-      const updatedImage = editForm.image.value.trim();
-      const updatedLink = editForm.link.value.trim();
-      const updatedStatus = editForm.status.value;
-
-      try {
-        const gameRef = doc(db, "games", gameId);
-        await updateDoc(gameRef, {
-          title: updatedTitle,
-          image: updatedImage,
-          link: updatedLink,
-          status: updatedStatus
+        await addDoc(collection(db, "ratings"), {
+          userId: user.uid,
+          gameId,
+          rating
         });
-        alert("Игра обновлена!");
+
+        alert("Оценка сохранена!");
         loadGames();
-      } catch (error) {
-        alert("Ошибка при обновлении: " + error.message);
-      }
-    });
-  });
+      });
+    }
 
-  content.appendChild(editBtn);
-}
+    // 👇 Показываем "Ваша оценка" если уже оценил
+    if (user && userRating !== null) {
+      const ratingInfo = document.createElement("p");
+      ratingInfo.className = "user-rating-info";
+      ratingInfo.textContent = `Ваша оценка: ${userRating} ⭐`;
+      content.appendChild(ratingInfo);
+    }
 
-gamesList.appendChild(card);
+    // ✅ Кнопка редактирования — ВСЕГДА для админа, не внутри других условий
+    if (user && user.email === adminEmail) {
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "✏️ Редактировать";
+      editBtn.className = "edit-button mt-10";
+
+      editBtn.addEventListener("click", () => {
+        const formHtml = `
+          <form class="edit-form">
+            <input type="text" name="title" value="${game.title}" required class="form-input" />
+            <input type="text" name="image" value="${game.image}" required class="form-input" />
+            <input type="text" name="link" value="${game.link}" required class="form-input" />
+            <select name="status" required class="form-select">
+              <option value="Пройдена" ${game.status === "Пройдена" ? "selected" : ""}>Пройдена</option>
+              <option value="В процессе" ${game.status === "В процессе" ? "selected" : ""}>В процессе</option>
+              <option value="В планах" ${game.status === "В планах" ? "selected" : ""}>В планах</option>
+            </select>
+            <button type="submit" class="save-button">Сохранить</button>
+          </form>
+        `;
+        content.innerHTML += formHtml;
+
+        const editForm = card.querySelector(".edit-form");
+        editForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const updatedTitle = editForm.title.value.trim();
+          const updatedImage = editForm.image.value.trim();
+          const updatedLink = editForm.link.value.trim();
+          const updatedStatus = editForm.status.value;
+
+          try {
+            const gameRef = doc(db, "games", gameId);
+            await updateDoc(gameRef, {
+              title: updatedTitle,
+              image: updatedImage,
+              link: updatedLink,
+              status: updatedStatus
+            });
+            alert("Игра обновлена!");
+            loadGames();
+          } catch (error) {
+            alert("Ошибка при обновлении: " + error.message);
+          }
+        });
+      });
+
+      content.appendChild(editBtn);
+    }
+
+    gamesList.appendChild(card);
 
   }
 }
