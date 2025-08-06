@@ -64,6 +64,10 @@ onAuthStateChanged(auth, async (user) => {
     authBtn.textContent = "Выход";
     form.style.display = (user.email === adminEmail) ? "block" : "none";
 
+     if (user.email === adminEmail) {
+      document.getElementById("toggle-add-form").style.display = "block";
+    }
+    
     try {
       const q = query(collection(db, "users"), where("uid", "==", user.uid));
       const snapshot = await getDocs(q);
