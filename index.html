@@ -46,12 +46,17 @@
   <form id="add-game-form">
     <h3>Добавить игру</h3>
     <input id="title" type="text" placeholder="Название игры" required />
-    <label for="category">Категории</label>
     <select id="category" multiple required>
-      <option value="Экшен">Экшен</option>
-      <option value="RPG">RPG</option>
-      <option value="Хоррор">Хоррор</option>
-      <!-- и т.д. -->
+          <option value="Экшен">Экшен</option>
+          <option value="Приключения">Приключения</option>
+          <option value="RPG">RPG</option>
+          <option value="Стратегия">Стратегия</option>
+          <option value="Симулятор">Симулятор</option>
+          <option value="Головоломка">Головоломка</option>
+          <option value="Выживание">Выживание</option>
+          <option value="Хоррор">Хоррор</option>
+          <option value="Зомби">Зомби</option>
+          <option value="Песочница">Песочница</option>
     </select>
     <input id="link" type="url" placeholder="Ссылка на скачивание" required />
     <input id="image" type="url" placeholder="URL картинки" required />
@@ -65,22 +70,31 @@
   </form>
 
   <!-- 🔍 ФИЛЬТРЫ -->
-  <div class="filter-bar">
-    <input id="search-input" type="text" placeholder="Поиск по названию" />
-    <select id="filter-category">
-      <option value="">Все категории</option>
-      <option value="RPG">RPG</option>
-      <option value="Экшен">Экшен</option>
-      <option value="Хоррор">Хоррор</option>
-      <!-- и т.д. -->
-    </select>
-    <select id="filter-status">
-      <option value="">Все статусы</option>
-      <option value="Пройдена">Пройдена</option>
-      <option value="В процессе">В процессе</option>
-      <option value="В планах">В планах</option>
-    </select>
-  </div>
+<div class="filters">
+  <input id="search-input" type="text" placeholder="Поиск по названию..." />
+
+  <select id="filter-category">
+    <option value="">Все категории</option>
+    <option value="RPG">RPG</option>
+    <option value="Экшен">Экшен</option>
+    <option value="Приключения">Приключения</option>
+    <option value="Стратегия">Стратегия</option>
+    <option value="Симулятор">Симулятор</option>
+    <option value="Головоломка">Головоломка</option>
+    <option value="Выживание">Выживание</option>
+    <option value="Хоррор">Хоррор</option>
+    <option value="Зомби">Зомби</option>
+    <option value="Песочница">Песочница</option>
+  </select>
+
+  <select id="filter-status">
+    <option value="">Все статусы</option>
+    <option value="Пройдена">Пройдена</option>
+    <option value="В процессе">В процессе</option>
+    <option value="В планах">В планах</option>
+  </select>
+</div>
+
 
   <!-- 📦 СПИСОК ИГР -->
   <div id="games-list" class="games-grid"></div>
