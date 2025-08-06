@@ -2,51 +2,96 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
+  <!-- Устанавливает кодировку символов на UTF-8 -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Делает страницу адаптивной на мобильных устройствах -->
   <title>Игры с друзьями</title>
+  <!-- Заголовок вкладки браузера -->
   <link rel="stylesheet" href="styles.css" />
+  <!-- Подключение файла со стилями -->
 </head>
 <body>
 
+<!-- Верхнее меню -->
 <header>
   <nav class="top-menu">
+    <!-- Кнопка фильтрации: показать пройденные игры -->
     <button id="show-completed">Пройденные игры</button>
+    <!-- Кнопка фильтрации: показать игры "в планах" -->
     <button id="show-planned">В планах</button>
+    <!-- Кнопка входа (показывает форму авторизации) -->
     <button id="auth-btn">Вход</button>
   </nav>
 </header>
 
+<!-- Секция входа / регистрации -->
 <section id="auth-section">
   <h2>Вход / Регистрация</h2>
+
+  <!-- Поле для ввода email -->
   <input type="email" id="email" placeholder="Email" />
+  <!-- Поле для ввода пароля -->
   <input type="password" id="password" placeholder="Пароль" />
+
+  <!-- Кнопки входа и регистрации -->
   <div class="auth-buttons">
+    <!-- Кнопка "Войти", вызывает JS-функцию login() -->
     <button onclick="login()">Войти</button>
+    <!-- Кнопка "Регистрация", вызывает JS-функцию register() -->
     <button onclick="register()">Регистрация</button>
   </div>
+
+  <!-- Здесь будут показаны ошибки или сообщения от login()/register() -->
   <p id="auth-message" class="error-message"></p>
 </section>
 
+<!-- Основной контент: список игр -->
 <section id="main-section" style="display:none;">
+  <!-- Скрыт до авторизации -->
   <h1>Игры</h1>
   
+  <!-- Форма добавления новой игры -->
   <form id="add-game-form">
     <h3>Добавить игру</h3>
+
+    <!-- Название игры -->
     <input id="title" type="text" placeholder="Название игры" required />
-    <input id="category" type="text" placeholder="Категория" required />
+    <!-- Категория игры (например, шутер, стратегия) -->
+   <label for="category">Категории</label>
+    <select id="category" multiple required>
+       <option value="Экшен">Экшен</option>
+       <option value="Приключения">Приключения</option>
+       <option value="RPG">RPG</option>
+        <option value="Стратегия">Стратегия</option>
+       <option value="Симулятор">Симулятор</option>
+       <option value="Головоломка">Головоломка</option>
+       <option value="Выживание">Выживание</option>
+       <option value="Хоррор">Хоррор</option>
+       <option value="Зомби">Зомби</option>
+       <option value="Песочница">Песочница</option>
+</select>
+    <!-- Ссылка на скачивание -->
     <input id="link" type="url" placeholder="Ссылка на скачивание" required />
+    <!-- Ссылка на изображение (обложку игры) -->
     <input id="image" type="url" placeholder="URL картинки" required />
+
+    <!-- Статус игры -->
     <select id="status" required>
       <option value="" disabled selected>Статус</option>
       <option value="Пройдена">Пройдена</option>
       <option value="В планах">В планах</option>
+      <option value="В процессе">В процессе</option>
     </select>
+
+    <!-- Кнопка отправки формы -->
     <button type="submit">Добавить игру</button>
   </form>
 
+  <!-- Контейнер, в который будут добавляться карточки с играми -->
   <div id="games-list" class="games-grid"></div>
 </section>
 
+<!-- Подключение основного JS-файла с логикой (написан как модуль) -->
 <script type="module" src="script.js"></script>
 
 </body>
