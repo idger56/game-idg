@@ -179,9 +179,11 @@ header {
 /* Сетка карточек */
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 карточки в строку */
-  gap: 30px;
-  margin-top: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+  padding: 0 20px; 
+  box-sizing: border-box;
 }
 
 /* Карточка */
@@ -194,6 +196,7 @@ header {
   flex-direction: column;
   transition: transform 0.2s ease;
   height: 100%; /* Поддерживает равную высоту */
+  margin-bottom: 20px;
 }
 
 .game-card:hover {
@@ -323,4 +326,12 @@ header {
 
 .submit-button:hover {
   background-color: #27ae60;
+}
+
+.user-nickname {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #fff;
+  margin-right: auto;
+  padding-right: 15px;
 }

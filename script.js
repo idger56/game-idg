@@ -56,26 +56,51 @@ function clearAuthMessage() {
   authMessage.textContent = "";
 }
 
+import { query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
 // ✅ Обработка изменения состояния авторизации
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   clearAuthMessage();
+
+  const nicknameSpan = document.getElementById("user-nickname");
+
   if (user) {
-    // Если пользователь вошел
+    // Показываем основной интерфейс
     authSection.style.display = "none";
     mainSection.style.display = "block";
     authBtn.textContent = "Выход";
-    
-    // Показываем форму добавления игр только администратору
+
+    // Отображаем форму добавления только администратору
     form.style.display = (user.email === adminEmail) ? "block" : "none";
-    
-    loadGames(); // Загружаем список игр
+
+    try {
+      // Загружаем ник пользователя из коллекции users
+      const q = query(collection(db, "users"), where("uid", "==", user.uid));
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        const userData = snapshot.docs[0].data();
+        nicknameSpan.textContent = `👤 ${userData.nickname}`;
+        nicknameSpan.style.display = "inline-block";
+      } else {
+        nicknameSpan.textContent = "👤 Пользователь";
+        nicknameSpan.style.display = "inline-block";
+      }
+    } catch (error) {
+      console.error("Ошибка при загрузке ника:", error.message);
+    }
+
+    loadGames(); // Загружаем игры
   } else {
     // Если пользователь вышел
     authSection.style.display = "block";
     mainSection.style.display = "none";
     authBtn.textContent = "Вход";
+    nicknameSpan.style.display = "none";
+    nicknameSpan.textContent = "";
   }
 });
+
 
 // ✅ Кнопка "Вход/Выход"
 authBtn.addEventListener("click", () => {
@@ -111,7 +136,17 @@ window.login = async function () {
   }
 
   try {
-    await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+const user = userCredential.user;
+
+// сохраняем ник в Firestore
+const nickname = document.getElementById("nickname").value.trim();
+await addDoc(collection(db, "users"), {
+  uid: user.uid,
+  email: user.email,
+  nickname
+});
+
   } catch (error) {
     // Обработка ошибок входа
     if (error.code === "auth/user-not-found") {
