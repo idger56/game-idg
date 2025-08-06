@@ -501,7 +501,7 @@ header {
 .rating-block .avg-rating {
   font-size: 1rem;
   font-weight: 500;
-  color: #333;
+  color: #555;
 }
 
 .rating-summary {
@@ -510,7 +510,7 @@ header {
   margin-top: 10px;
   font-size: 1rem;
   font-weight: 500;
-  color: #444;
+  color: #555;
 }
 
 .rating-form {
