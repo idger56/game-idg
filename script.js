@@ -260,6 +260,53 @@ if (user && userRating !== null) {
   ratingInfo.textContent = `Ваша оценка: ${userRating} ⭐`;
   content.appendChild(ratingInfo);
 }
+if (user && user.email === adminEmail) {
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "✏️ Редактировать";
+  editBtn.className = "edit-button mt-10";
+
+  editBtn.addEventListener("click", () => {
+    const formHtml = `
+      <form class="edit-form">
+        <input type="text" name="title" value="${game.title}" required class="form-input" />
+        <input type="text" name="image" value="${game.image}" required class="form-input" />
+        <input type="text" name="link" value="${game.link}" required class="form-input" />
+        <select name="status" required class="form-select">
+          <option value="Пройдена" ${game.status === "Пройдена" ? "selected" : ""}>Пройдена</option>
+          <option value="В процессе" ${game.status === "В процессе" ? "selected" : ""}>В процессе</option>
+          <option value="В планах" ${game.status === "В планах" ? "selected" : ""}>В планах</option>
+        </select>
+        <button type="submit" class="save-button">Сохранить</button>
+      </form>
+    `;
+    content.innerHTML += formHtml;
+
+    const editForm = card.querySelector(".edit-form");
+    editForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const updatedTitle = editForm.title.value.trim();
+      const updatedImage = editForm.image.value.trim();
+      const updatedLink = editForm.link.value.trim();
+      const updatedStatus = editForm.status.value;
+
+      try {
+        const gameRef = doc(db, "games", gameId);
+        await updateDoc(gameRef, {
+          title: updatedTitle,
+          image: updatedImage,
+          link: updatedLink,
+          status: updatedStatus
+        });
+        alert("Игра обновлена!");
+        loadGames();
+      } catch (error) {
+        alert("Ошибка при обновлении: " + error.message);
+      }
+    });
+  });
+
+  content.appendChild(editBtn);
+}
 
 gamesList.appendChild(card);
 
