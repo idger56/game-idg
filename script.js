@@ -16,7 +16,9 @@ import {
   query,
   where,
   doc,
-  updateDoc
+  updateDoc,
+  setDoc,  
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 // ✅ Конфигурация Firebase проекта
@@ -140,11 +142,11 @@ window.register = async function () {
     const user = userCredential.user;
 
     // Сохраняем ник в Firestore
-    await addDoc(collection(db, "users"), {
-      uid: user.uid,
-      email: user.email,
-      nickname: nickname
-    });
+await setDoc(doc(db, "users", user.uid), {
+  uid: user.uid,
+  email: user.email,
+  nickname
+});
 
     authMessage.textContent = "Регистрация успешна! Теперь войдите.";
   } catch (error) {
