@@ -71,24 +71,17 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById("toggle-add-form").style.display = "block";
     }
     
-try {
-  const usersSnapshot = await getDocs(collection(db, "users"));
-  let userNickname = null;
-
-  usersSnapshot.forEach((doc) => {
-    if (doc.data().uid === user.uid) {
-      userNickname = doc.data().nickname;
+    try {
+      const q = query(collection(db, "users"), where("uid", "==", user.uid));
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        const userData = snapshot.docs[0].data();
+        nicknameSpan.textContent = `👤 ${userData.nickname}`;
+        nicknameSpan.style.display = "inline-block";
+      }
+    } catch (error) {
+      console.error("Ошибка при загрузке ника:", error.message);
     }
-  });
-
-  if (userNickname) {
-    nicknameSpan.textContent = `👤 ${userNickname}`;
-    nicknameSpan.style.display = "inline-block";
-  }
-} catch (error) {
-  console.error("Ошибка при загрузке ника:", error.message);
-}
-
 
     if (user.email === adminEmail) {
   const toggleAddFormBtn = document.getElementById("toggle-add-form");
@@ -124,53 +117,38 @@ searchInput?.addEventListener("input", applyFilters);
 filterCategory?.addEventListener("change", applyFilters);
 filterStatus?.addEventListener("change", applyFilters);
 
-// Функция регистрации с параметрами
-async function register(email, password, nickname) {
-  try {
-    // Создание пользователя
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const createdUser = userCredential.user;
-
-    // Ждём подтверждения аутентификации Firebase
-    await new Promise((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user && user.uid === createdUser.uid) {
-          console.log("✅ Аутентификация подтверждена:", user.uid);
-          resolve();
-          unsubscribe();
-        }
-      });
-    });
-
-    // Запись в Firestore
-    await setDoc(doc(db, "users", createdUser.uid), {
-      uid: createdUser.uid,
-      email: createdUser.email,
-      nickname
-    });
-
-    alert("Регистрация прошла успешно! Теперь войдите.");
-  } catch (error) {
-    console.error("Ошибка при регистрации:", error.code, error.message);
-    alert("Ошибка: " + error.message);
-  }
-}
-
-
-// Глобальная функция, вызываемая из HTML кнопки
-window.register = function () {
+window.register = async function () {
+  clearAuthMessage();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
   const nickname = document.getElementById("nickname").value.trim();
-
   if (!email || !password || !nickname) {
-    alert("Пожалуйста, заполните все поля (ник, email, пароль)");
+    authMessage.textContent = "Пожалуйста, заполните все поля";
     return;
   }
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+const nicknameId = nickname.toLowerCase().replace(/\s+/g, "_"); // или slugify
+const userRef = doc(db, "users", nicknameId);
 
-  register(email, password, nickname);
+const userSnap = await getDoc(userRef);
+if (userSnap.exists()) {
+  authMessage.textContent = "Такой ник уже занят. Выберите другой.";
+  return;
+}
+
+await setDoc(userRef, {
+  uid: user.uid,
+  email: user.email,
+  nickname
+});
+
+    authMessage.textContent = "Регистрация успешна! Теперь войдите.";
+  } catch (error) {
+    authMessage.textContent = error.message;
+  }
 };
-
 
 window.login = async function () {
   clearAuthMessage();
@@ -250,17 +228,11 @@ for (const docSnap of ratingsSnapshot.docs) {
     userRating = data.rating;
   }
 
-const usersSnapshot = await getDocs(collection(db, "users"));
-let nickname = "Неизвестно";
-
-usersSnapshot.forEach((doc) => {
-  if (doc.data().uid === data.userId) {
-    nickname = doc.data().nickname || "Неизвестно";
+  const userSnapshot = await getDocs(query(collection(db, "users"), where("uid", "==", data.userId)));
+  if (!userSnapshot.empty) {
+    const nickname = userSnapshot.docs[0].data().nickname || "Неизвестно";
+    userRatingsMap[data.userId] = { nickname, rating: data.rating };
   }
-});
-
-userRatingsMap[data.userId] = { nickname, rating: data.rating };
-
 }
 
     const avgRating = ratings.length ? (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(1) : null;
