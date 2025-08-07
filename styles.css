@@ -553,3 +553,20 @@ header {
 .download-btn:hover {
   background-color: #1e5bbf;
 }
+
+.top-btn {
+  background: none;
+  border: 2px solid #fff;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.top-btn:hover {
+  background-color: #444;
+}

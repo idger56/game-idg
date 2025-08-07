@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Топ игр</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- 🔼 Шапка -->
+  <header>
+    <nav class="top-menu">
+      <div class="menu-left">
+        <button id="games-btn" onclick="window.location.href='index.html'">Игры</button>
+        <button id="top-btn" class="active">Топ игр</button>
+      </div>
+      <div class="menu-right">
+        <span id="user-nickname" class="user-nickname" style="display: none;"></span>
+        <button id="auth-btn">Вход</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- 🔽 Контент Топа -->
+  <section class="container">
+    <h1>🏆 Топ игр по оценкам</h1>
+    <div id="top-games-list" class="top-list"></div>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBNuHz-OPbVWHoc7gtuxHU21-CC5TbYKbw",
+      authDomain: "game-idg.firebaseapp.com",
+      projectId: "game-idg",
+      storageBucket: "game-idg.appspot.com",
+      messagingSenderId: "987199066254",
+      appId: "1:987199066254:web:ed82cea15f4a7b7a4279df",
+      measurementId: "G-QLLFXDHX51"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const nicknameSpan = document.getElementById("user-nickname");
+    const authBtn = document.getElementById("auth-btn");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        authBtn.textContent = "Выход";
+
+        // Загрузка ника
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("uid", "==", user.uid));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          const userData = snapshot.docs[0].data();
+          nicknameSpan.textContent = `👤 ${userData.nickname}`;
+          nicknameSpan.style.display = "inline-block";
+        }
+
+        loadTopGames();
+      } else {
+        authBtn.textContent = "Вход";
+        nicknameSpan.style.display = "none";
+      }
+    });
+
+    authBtn.addEventListener("click", () => {
+      if (auth.currentUser) signOut(auth);
+      else window.location.href = "index.html";
+    });
+
+    async function loadTopGames() {
+      const gamesSnapshot = await getDocs(collection(db, "games"));
+      const ratingsSnapshot = await getDocs(collection(db, "ratings"));
+
+      const ratingMap = {}; // { gameId: [ratings] }
+
+      ratingsSnapshot.forEach(doc => {
+        const { gameId, rating } = doc.data();
+        if (!ratingMap[gameId]) ratingMap[gameId] = [];
+        ratingMap[gameId].push(rating);
+      });
+
+      const gamesWithAvg = gamesSnapshot.docs.map(doc => {
+        const game = doc.data();
+        const id = doc.id;
+        const ratings = ratingMap[id] || [];
+        const avg = ratings.length ? (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(2) : null;
+        return { id, ...game, avgRating: avg };
+      }).filter(game => game.avgRating !== null);
+
+      gamesWithAvg.sort((a, b) => b.avgRating - a.avgRating);
+
+      renderTopList(gamesWithAvg);
+    }
+
+    function renderTopList(games) {
+      const list = document.getElementById("top-games-list");
+      list.innerHTML = "";
+
+      games.forEach((game, index) => {
+        const div = document.createElement("div");
+        div.className = "top-game-item";
+
+        if (index === 0) div.classList.add("gold");
+        if (index === 1) div.classList.add("silver");
+        if (index === 2) div.classList.add("bronze");
+
+        div.innerHTML = `
+          <span class="rank">${index + 1}.</span>
+          <span class="title">${game.title}</span>
+          <span class="avg">${game.avgRating} ⭐</span>
+        `;
+
+        list.appendChild(div);
+      });
+    }
+  </script>
+
+  <style>
+    .top-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .top-game-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .top-game-item.gold {
+      background: #fff7db;
+      border-left: 6px solid gold;
+    }
+
+    .top-game-item.silver {
+      background: #f1f1f1;
+      border-left: 6px solid silver;
+    }
+
+    .top-game-item.bronze {
+      background: #fbe5d0;
+      border-left: 6px solid #cd7f32;
+    }
+
+    .rank {
+      font-weight: bold;
+      width: 40px;
+    }
+
+    .avg {
+      font-weight: bold;
+      color: #2a7ae2;
+    }
+  </style>
+</body>
+</html>
