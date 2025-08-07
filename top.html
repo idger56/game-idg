@@ -23,13 +23,14 @@
       min-width: 220px;
     }
 
-    .top-grid {
+   .top-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-top: 30px;
 }
 
+/* Общий стиль карточек */
 .top-card {
   background: #fff;
   border-radius: 12px;
@@ -49,7 +50,7 @@
 
 .top-card img {
   width: 100%;
-  height: 240px;
+  height: 220px;
   object-fit: cover;
   border-radius: 10px;
 }
@@ -78,28 +79,51 @@
   font-size: 1.1rem;
 }
 
-/* 🔥 Индивидуальное оформление топ-3 */
+/* 🥇 1-е место */
 .top-card.gold {
   background: #fffbea;
   grid-column: span 3;
-  height: 480px;
 }
 .top-card.gold img {
-  height: 280px;
+  height: 300px;
 }
-.top-card.silver,
-.top-card.bronze {
-  grid-column: span 1.5;
-  height: 420px;
-}
-.top-card.silver img,
-.top-card.bronze img {
-  height: 240px;
+.top-card.gold .rank {
+  background: gold;
+  color: #000;
 }
 
-.top-card.gold .rank { background: gold; color: #000; }
-.top-card.silver .rank { background: silver; color: #000; }
-.top-card.bronze .rank { background: #cd7f32; color: #fff; }
+/* 🥈 2-е место */
+.top-card.silver {
+  background: #f1f1f1;
+  grid-column: span 1;
+  grid-row: 2;
+}
+.top-card.silver img {
+  height: 250px;
+}
+.top-card.silver .rank {
+  background: silver;
+  color: #000;
+}
+
+/* 🥉 3-е место */
+.top-card.bronze {
+  background: #fbe5d0;
+  grid-column: span 1;
+  grid-row: 2;
+}
+.top-card.bronze img {
+  height: 250px;
+}
+.top-card.bronze .rank {
+  background: #cd7f32;
+  color: #fff;
+}
+
+/* 🏅 4 место и дальше */
+.top-card.fourth {
+  grid-column-start: 1;
+}
 
 /* 🔁 Responsive */
 @media (max-width: 768px) {
