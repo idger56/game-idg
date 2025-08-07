@@ -79,10 +79,10 @@
   font-size: 1.1rem;
 }
 
-/* 🥇 1-е место */
+/* 🥇 1 место — на всю строку */
 .top-card.gold {
+  grid-column: span 6;
   background: #fffbea;
-  grid-column: span 3;
 }
 .top-card.gold img {
   height: 300px;
@@ -92,38 +92,37 @@
   color: #000;
 }
 
-/* 🥈 2-е место */
+/* 🥈 2 место */
 .top-card.silver {
+  grid-column: span 3;
   background: #f1f1f1;
-  grid-column: span 1;
-  grid-row: 2;
 }
 .top-card.silver img {
-  height: 250px;
+  height: 260px;
 }
 .top-card.silver .rank {
   background: silver;
   color: #000;
 }
 
-/* 🥉 3-е место */
+/* 🥉 3 место */
 .top-card.bronze {
+  grid-column: span 3;
   background: #fbe5d0;
-  grid-column: span 1;
-  grid-row: 2;
 }
 .top-card.bronze img {
-  height: 250px;
+  height: 260px;
 }
 .top-card.bronze .rank {
   background: #cd7f32;
   color: #fff;
 }
 
-/* 🏅 4 место и дальше */
-.top-card.fourth {
-  grid-column-start: 1;
+/* 🏅 Остальные */
+.top-card {
+  grid-column: span 2;
 }
+
 
 /* 🔁 Responsive */
 @media (max-width: 768px) {
@@ -154,9 +153,10 @@
 /* Сетка */
 #top-games-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+  grid-template-columns: repeat(6, 1fr); /* 🔄 6 колонок вместо 3 */
   gap: 20px;
 }
+
 
   </style>
 </head>
@@ -291,10 +291,10 @@ gamesToShow.forEach((game, index) => {
   card.className = "top-card";
 
   // Добавление классов
-  if (rank === 1) card.classList.add("gold", "wide");
-  if (rank === 2) card.classList.add("silver", "half");
-  if (rank === 3) card.classList.add("bronze", "half");
-  if (rank === 4) card.classList.add("fourth");
+if (rank === 1) card.classList.add("gold");
+if (rank === 2) card.classList.add("silver");
+if (rank === 3) card.classList.add("bronze");
+
 
   card.innerHTML = `
     <span class="rank">#${rank}</span>
