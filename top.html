@@ -5,6 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Топ игр</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    .top-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 30px;
+    }
+
+    .top-game-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 16px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+      position: relative;
+    }
+
+    .top-game-card img {
+      width: 120px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .top-info {
+      flex: 1;
+    }
+
+    .top-info h3 {
+      margin: 0 0 6px;
+      font-size: 1.3rem;
+      color: #333;
+    }
+
+    .top-info p {
+      margin: 0;
+      color: #555;
+    }
+
+    .rank-badge {
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.4rem;
+      font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 30px;
+      background: #ddd;
+      color: #fff;
+    }
+
+    .gold .rank-badge {
+      background: gold;
+      color: #000;
+    }
+
+    .silver .rank-badge {
+      background: silver;
+      color: #000;
+    }
+
+    .bronze .rank-badge {
+      background: #cd7f32;
+    }
+  </style>
 </head>
 <body>
 
@@ -12,8 +81,8 @@
   <header>
     <nav class="top-menu">
       <div class="menu-left">
-        <button id="games-btn" onclick="window.location.href='index.html'">Игры</button>
-        <button id="top-btn" class="active">Топ игр</button>
+        <button onclick="window.location.href='index.html'">Игры</button>
+        <button class="active">🏆 Топ игр</button>
       </div>
       <div class="menu-right">
         <span id="user-nickname" class="user-nickname" style="display: none;"></span>
@@ -22,7 +91,7 @@
     </nav>
   </header>
 
-  <!-- 🔽 Контент Топа -->
+  <!-- 🔽 Контент -->
   <section class="container">
     <h1>🏆 Топ игр по оценкам</h1>
     <div id="top-games-list" class="top-list"></div>
@@ -63,8 +132,6 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         authBtn.textContent = "Выход";
-
-        // Загрузка ника
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("uid", "==", user.uid));
         const snapshot = await getDocs(q);
@@ -73,7 +140,6 @@
           nicknameSpan.textContent = `👤 ${userData.nickname}`;
           nicknameSpan.style.display = "inline-block";
         }
-
         loadTopGames();
       } else {
         authBtn.textContent = "Вход";
@@ -102,7 +168,7 @@
         const game = doc.data();
         const id = doc.id;
         const ratings = ratingMap[id] || [];
-        const avg = ratings.length ? (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(2) : null;
+        const avg = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2) : null;
         return { id, ...game, avgRating: avg };
       }).filter(game => game.avgRating !== null);
 
@@ -116,68 +182,25 @@
       list.innerHTML = "";
 
       games.forEach((game, index) => {
-        const div = document.createElement("div");
-        div.className = "top-game-item";
+        const card = document.createElement("div");
+        card.className = "top-game-card";
 
-        if (index === 0) div.classList.add("gold");
-        if (index === 1) div.classList.add("silver");
-        if (index === 2) div.classList.add("bronze");
+        if (index === 0) card.classList.add("gold");
+        if (index === 1) card.classList.add("silver");
+        if (index === 2) card.classList.add("bronze");
 
-        div.innerHTML = `
-          <span class="rank">${index + 1}.</span>
-          <span class="title">${game.title}</span>
-          <span class="avg">${game.avgRating} ⭐</span>
+        card.innerHTML = `
+          <div class="rank-badge">${index + 1}</div>
+          <img src="${game.image}" alt="${game.title}">
+          <div class="top-info">
+            <h3>${game.title}</h3>
+            <p>Средняя оценка: ${game.avgRating} ⭐</p>
+          </div>
         `;
-
-        list.appendChild(div);
+        list.appendChild(card);
       });
     }
   </script>
 
-  <style>
-    .top-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    .top-game-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 16px 20px;
-      background: #f9f9f9;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: #555;
-    }
-
-    .top-game-item.gold {
-      background: #fff7db;
-      border-left: 6px solid gold;
-    }
-
-    .top-game-item.silver {
-      background: #f1f1f1;
-      border-left: 6px solid silver;
-    }
-
-    .top-game-item.bronze {
-      background: #fbe5d0;
-      border-left: 6px solid #cd7f32;
-    }
-
-    .rank {
-      font-weight: bold;
-      width: 40px;
-    }
-
-    .avg {
-      font-weight: bold;
-      color: #2a7ae2;
-    }
-  </style>
 </body>
 </html>
