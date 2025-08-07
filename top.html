@@ -2,50 +2,155 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Топ игр</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .filters {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .filters input,
+    .filters select {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      min-width: 220px;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .top-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .top-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .top-card h3 {
+      margin: 14px 0 6px;
+      font-size: 1.3rem;
+      color: #444;
+    }
+
+    .top-card .rank {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: #2a7ae2;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .top-card.gold .rank { background: gold; color: #000; }
+    .top-card.silver .rank { background: silver; color: #000; }
+    .top-card.bronze .rank { background: #cd7f32; color: #fff; }
+
+    .top-card .avg-rating {
+      margin-top: 6px;
+      font-weight: bold;
+      color: #2a7ae2;
+      font-size: 1.1rem;
+    }
+
+    /* Широкая карточка 1 места */
+    .wide {
+      grid-column: span 3;
+    }
+
+    /* Две на 2-й строке */
+    .half {
+      grid-column: span 1.5;
+    }
+
+    @media(max-width: 768px) {
+      .top-grid {
+        grid-template-columns: repeat(1, 1fr);
+      }
+
+      .wide,
+      .half {
+        grid-column: span 1 !important;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
     <nav class="top-menu">
       <div class="menu-left">
-        <button id="games-btn" onclick="window.location.href='index.html'">Игры</button>
-        <button id="top-btn" class="active">Топ игр</button>
+        <button onclick="window.location.href='index.html'">Игры</button>
+        <button class="active">Топ игр</button>
       </div>
       <div class="menu-right">
-        <span id="user-nickname" class="user-nickname" style="display: none;"></span>
+        <span id="user-nickname" class="user-nickname" style="display:none;"></span>
         <button id="auth-btn">Вход</button>
       </div>
     </nav>
   </header>
 
-  <div class="filters container">
-    <input type="text" id="search-input" placeholder="Поиск по названию..." />
-    <select id="filter-category">
-      <option value="">Все жанры</option>
-      <option value="Экшен">Экшен</option>
-      <option value="Приключения">Приключения</option>
-      <option value="RPG">RPG</option>
-      <option value="Стратегия">Стратегия</option>
-      <option value="Симулятор">Симулятор</option>
-      <option value="Головоломка">Головоломка</option>
-      <option value="Выживание">Выживание</option>
-      <option value="Хоррор">Хоррор</option>
-      <option value="Зомби">Зомби</option>
-      <option value="Песочница">Песочница</option>
-    </select>
-  </div>
-
   <section class="container">
     <h1>🏆 Топ игр по оценкам</h1>
-    <div id="top-games-list" class="games-grid"></div>
+
+    <!-- 🔍 Фильтры -->
+    <div class="filters">
+      <input type="text" id="search-input" placeholder="Поиск по названию..." />
+      <select id="category-filter">
+        <option value="">Все категории</option>
+        <option value="RPG">RPG</option>
+        <option value="Экшен">Экшен</option>
+        <option value="Приключения">Приключения</option>
+        <option value="Стратегия">Стратегия</option>
+        <option value="Симулятор">Симулятор</option>
+        <option value="Головоломка">Головоломка</option>
+        <option value="Выживание">Выживание</option>
+        <option value="Хоррор">Хоррор</option>
+        <option value="Зомби">Зомби</option>
+        <option value="Песочница">Песочница</option>
+      </select>
+    </div>
+
+    <div id="top-games-list" class="top-grid"></div>
   </section>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBNuHz-OPbVWHoc7gtuxHU21-CC5TbYKbw",
@@ -63,12 +168,14 @@
 
     const nicknameSpan = document.getElementById("user-nickname");
     const authBtn = document.getElementById("auth-btn");
+    const list = document.getElementById("top-games-list");
 
-    let allGames = [];
+    let rankedGames = [];
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         authBtn.textContent = "Выход";
+
         const q = query(collection(db, "users"), where("uid", "==", user.uid));
         const snapshot = await getDocs(q);
         if (!snapshot.empty) {
@@ -76,8 +183,8 @@
           nicknameSpan.textContent = `👤 ${userData.nickname}`;
           nicknameSpan.style.display = "inline-block";
         }
+
         await loadTopGames();
-        applyTopFilters();
       } else {
         authBtn.textContent = "Вход";
         nicknameSpan.style.display = "none";
@@ -88,9 +195,6 @@
       if (auth.currentUser) signOut(auth);
       else window.location.href = "index.html";
     });
-
-    document.getElementById("search-input").addEventListener("input", applyTopFilters);
-    document.getElementById("filter-category").addEventListener("change", applyTopFilters);
 
     async function loadTopGames() {
       const gamesSnapshot = await getDocs(collection(db, "games"));
@@ -103,73 +207,63 @@
         ratingMap[gameId].push(rating);
       });
 
-      allGames = gamesSnapshot.docs.map(doc => {
-        const game = doc.data();
+      rankedGames = gamesSnapshot.docs.map(doc => {
+        const data = doc.data();
         const id = doc.id;
         const ratings = ratingMap[id] || [];
         const avg = ratings.length ? (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(2) : null;
-        return { id, ...game, avgRating: avg };
-      }).filter(game => game.avgRating !== null);
+        return { id, ...data, avgRating: avg };
+      }).filter(g => g.avgRating !== null);
 
-      allGames.sort((a, b) => b.avgRating - a.avgRating);
+      rankedGames.sort((a, b) => b.avgRating - a.avgRating);
+
+      renderGames(rankedGames);
     }
 
-    function applyTopFilters() {
-      const title = document.getElementById("search-input").value.toLowerCase();
-      const category = document.getElementById("filter-category").value;
-
-      const filtered = allGames.filter(game => {
-        const matchesTitle = game.title.toLowerCase().includes(title);
-        const matchesCategory = category ? (Array.isArray(game.category) ? game.category.includes(category) : game.category === category) : true;
-        return matchesTitle && matchesCategory;
-      });
-
-      renderTopList(filtered);
-    }
-
-    function renderTopList(games) {
-      const list = document.getElementById("top-games-list");
+    function renderGames(gamesToShow) {
       list.innerHTML = "";
+      gamesToShow.forEach(game => {
+        const realIndex = rankedGames.findIndex(g => g.id === game.id);
+        const rank = realIndex + 1;
 
-      games.forEach((game, index) => {
         const card = document.createElement("div");
-        card.className = "game-card";
-
-        if (index === 0) card.classList.add("gold", "first-place");
-        else if (index === 1) card.classList.add("silver", "second-place");
-        else if (index === 2) card.classList.add("bronze", "third-place");
+        card.className = "top-card";
+        if (rank === 1) card.classList.add("gold", "wide");
+        else if (rank === 2) card.classList.add("silver", "half");
+        else if (rank === 3) card.classList.add("bronze", "half");
 
         card.innerHTML = `
+          <span class="rank">#${rank}</span>
           <img src="${game.image}" alt="${game.title}" />
-          <div class="game-content">
-            <h3>#${index + 1} — ${game.title}</h3>
-            <p>Категория: ${Array.isArray(game.category) ? game.category.join(", ") : game.category}</p>
-            <p>Статус: ${game.status}</p>
-            <p><strong>Средняя оценка:</strong> ${game.avgRating} ⭐</p>
-          </div>
+          <h3>${game.title}</h3>
+          <p class="avg-rating">${game.avgRating} ⭐</p>
         `;
 
         list.appendChild(card);
       });
     }
+
+    // 🔍 Фильтры
+    document.getElementById("search-input").addEventListener("input", applyFilters);
+    document.getElementById("category-filter").addEventListener("change", applyFilters);
+
+    function applyFilters() {
+      const titleFilter = document.getElementById("search-input").value.toLowerCase();
+      const categoryFilter = document.getElementById("category-filter").value;
+
+      const filtered = rankedGames.filter(game => {
+        const matchesTitle = game.title.toLowerCase().includes(titleFilter);
+        const matchesCategory = categoryFilter
+          ? Array.isArray(game.category)
+            ? game.category.includes(categoryFilter)
+            : game.category === categoryFilter
+          : true;
+
+        return matchesTitle && matchesCategory;
+      });
+
+      renderGames(filtered);
+    }
   </script>
-
-  <style>
-    .first-place { transform: scale(1.08); }
-    .second-place, .third-place { transform: scale(1.04); }
-
-    .game-card.gold {
-      border-left: 6px solid gold;
-      background-color: #fff9e0;
-    }
-    .game-card.silver {
-      border-left: 6px solid silver;
-      background-color: #f1f1f1;
-    }
-    .game-card.bronze {
-      border-left: 6px solid #cd7f32;
-      background-color: #fbe5d0;
-    }
-  </style>
 </body>
 </html>
