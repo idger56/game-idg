@@ -264,19 +264,32 @@ if (user && game.status === "Пройдена" && userRating === null) {
       editBtn.className = "edit-button mt-10";
 
       editBtn.addEventListener("click", () => {
-        const formHtml = `
-          <form class="edit-form">
-            <input type="text" name="title" value="${game.title}" required class="form-input" />
-            <input type="text" name="image" value="${game.image}" required class="form-input" />
-            <input type="text" name="link" value="${game.link}" required class="form-input" />
-            <select name="status" required class="form-select">
-              <option value="Пройдена" ${game.status === "Пройдена" ? "selected" : ""}>Пройдена</option>
-              <option value="В процессе" ${game.status === "В процессе" ? "selected" : ""}>В процессе</option>
-              <option value="В планах" ${game.status === "В планах" ? "selected" : ""}>В планах</option>
-            </select>
-            <button type="submit" class="save-button">Сохранить</button>
-          </form>
-        `;
+const allGenres = [
+  "Экшен", "Шутер от первого лица", "Шутер от третьего лица", "Battle Royale", "RPG", "MMORPG",
+  "Выживание", "Песочница", "Приключения", "Хоррор", "Файтинг", "Гонки", "Платформер",
+  "Стратегия", "Тактический шутер", "Моба", "Симулятор", "Головоломка", "Зомби", "Тактическая стратегия"
+];
+
+const formHtml = `
+  <form class="edit-form">
+    <input type="text" name="title" value="${game.title}" required class="form-input" />
+    <input type="text" name="image" value="${game.image}" required class="form-input" />
+    <input type="text" name="link" value="${game.link}" required class="form-input" />
+    <select name="status" required class="form-select">
+      <option value="Пройдена" ${game.status === "Пройдена" ? "selected" : ""}>Пройдена</option>
+      <option value="В процессе" ${game.status === "В процессе" ? "selected" : ""}>В процессе</option>
+      <option value="В планах" ${game.status === "В планах" ? "selected" : ""}>В планах</option>
+    </select>
+    <label>Жанры:</label>
+    <select name="category" multiple size="6" class="form-select">
+      ${allGenres.map(genre => `
+        <option value="${genre}" ${game.category.includes(genre) ? "selected" : ""}>${genre}</option>
+      `).join('')}
+    </select>
+    <button type="submit" class="save-button">Сохранить</button>
+  </form>
+`;
+
         content.innerHTML += formHtml;
 
         const editForm = card.querySelector(".edit-form");
@@ -286,6 +299,8 @@ if (user && game.status === "Пройдена" && userRating === null) {
           const updatedImage = editForm.image.value.trim();
           const updatedLink = editForm.link.value.trim();
           const updatedStatus = editForm.status.value;
+          const updatedCategory = Array.from(editForm.category.selectedOptions).map(o => o.value);
+
 
           try {
             const gameRef = doc(db, "games", gameId);
@@ -293,7 +308,8 @@ if (user && game.status === "Пройдена" && userRating === null) {
               title: updatedTitle,
               image: updatedImage,
               link: updatedLink,
-              status: updatedStatus
+              status: updatedStatus,
+              category: updatedCategory
             });
             alert("Игра обновлена!");
             loadGames();
