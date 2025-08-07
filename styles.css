@@ -573,8 +573,8 @@ header {
 
 .multi-select {
   height: auto;
-  min-height: 160px;
-  max-height: 250px;
+  min-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
   padding: 10px;
   border-radius: 8px;

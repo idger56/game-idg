@@ -281,7 +281,7 @@ const formHtml = `
       <option value="В планах" ${game.status === "В планах" ? "selected" : ""}>В планах</option>
     </select>
     <label>Жанры:</label>
-    <select name="category" multiple size="6" class="form-select">
+    <select name="category" multiple size="8" class="multi-select">
       ${allGenres.map(genre => `
         <option value="${genre}" ${game.category.includes(genre) ? "selected" : ""}>${genre}</option>
       `).join('')}
