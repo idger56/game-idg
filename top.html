@@ -272,9 +272,11 @@
 
         const card = document.createElement("div");
         card.className = "top-card";
-        if (rank === 1) card.classList.add("gold", "wide");
-        else if (rank === 2) card.classList.add("silver", "half");
-        else if (rank === 3) card.classList.add("bronze", "half");
+if (index === 0) div.classList.add("gold");
+if (index === 1) div.classList.add("silver");
+if (index === 2) div.classList.add("bronze");
+if (index === 3) div.classList.add("fourth");
+
 
         card.innerHTML = `
           <span class="rank">#${rank}</span>
