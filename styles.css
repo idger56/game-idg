@@ -571,3 +571,19 @@ header {
   background-color: #444;
 }
 
+.multi-select {
+  height: auto;
+  min-height: 160px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+.multi-select option {
+  padding: 6px;
+  cursor: pointer;
+}
