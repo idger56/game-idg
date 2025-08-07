@@ -572,18 +572,17 @@ header {
 }
 
 .multi-select {
-  height: auto;
   min-height: 200px;
-  max-height: 300px;
-  overflow-y: auto;
+  max-height: 320px;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 1rem;
   background-color: #fff;
+  overflow-y: auto;
   box-sizing: border-box;
 }
 .multi-select option {
-  padding: 6px;
+  padding: 6px 10px;
   cursor: pointer;
 }
