@@ -129,21 +129,7 @@ window.register = async function () {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-const nicknameId = nickname.toLowerCase().replace(/\s+/g, "_"); // или slugify
-const userRef = doc(db, "users", nicknameId);
-
-const userSnap = await getDoc(userRef);
-if (userSnap.exists()) {
-  authMessage.textContent = "Такой ник уже занят. Выберите другой.";
-  return;
-}
-
-await setDoc(userRef, {
-  uid: user.uid,
-  email: user.email,
-  nickname
-});
-
+    await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, nickname });
     authMessage.textContent = "Регистрация успешна! Теперь войдите.";
   } catch (error) {
     authMessage.textContent = error.message;
