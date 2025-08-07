@@ -201,11 +201,23 @@ async function renderGames(games, user) {
     const ratingsSnapshot = await getDocs(query(collection(db, "ratings"), where("gameId", "==", gameId)));
     const ratings = [];
     let userRating = null;
-    ratingsSnapshot.forEach(r => {
-      const data = r.data();
-      ratings.push(data.rating);
-      if (user && data.userId === user.uid) userRating = data.rating;
-    });
+const userRatingsMap = {}; // userId => { nickname, rating }
+
+for (const docSnap of ratingsSnapshot.docs) {
+  const data = docSnap.data();
+  ratings.push(data.rating);
+
+  if (user && data.userId === user.uid) {
+    userRating = data.rating;
+  }
+
+  const userSnapshot = await getDocs(query(collection(db, "users"), where("uid", "==", data.userId)));
+  if (!userSnapshot.empty) {
+    const nickname = userSnapshot.docs[0].data().nickname || "Неизвестно";
+    userRatingsMap[data.userId] = { nickname, rating: data.rating };
+  }
+}
+
     const avgRating = ratings.length ? (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(1) : null;
 
     const card = document.createElement("div");
@@ -229,7 +241,7 @@ async function renderGames(games, user) {
 
     const content = card.querySelector(".game-content");
 
-if (user && game.status === "Пройдена" && userRating === null) {
+if (user && game.status === "Пройдена") {
   const ratingWrapper = document.createElement("div");
   ratingWrapper.className = "rating-form";
   ratingWrapper.innerHTML = `
@@ -237,7 +249,12 @@ if (user && game.status === "Пройдена" && userRating === null) {
       Оцените:
       <select data-game-id="${gameId}" class="rating-select">
         <option value="">Выберите</option>
-        ${Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1} ⭐</option>`).join('')}
+        ${Array.from({ length: 10 }, (_, i) => {
+  const val = i + 1;
+  const selected = userRating === val ? "selected" : "";
+  return `<option value="${val}" ${selected}>${val} ⭐</option>`;
+}).join('')}
+
       </select>
     </label>
   `;
@@ -247,11 +264,23 @@ if (user && game.status === "Пройдена" && userRating === null) {
     const rating = parseInt(e.target.value);
     if (!user || isNaN(rating)) return;
 
-    await addDoc(collection(db, "ratings"), {
-      userId: user.uid,
-      gameId,
-      rating
-    });
+const q = query(
+  collection(db, "ratings"),
+  where("gameId", "==", gameId),
+  where("userId", "==", user.uid)
+);
+const snapshot = await getDocs(q);
+
+if (!snapshot.empty) {
+  await updateDoc(snapshot.docs[0].ref, { rating });
+} else {
+  await addDoc(collection(db, "ratings"), {
+    userId: user.uid,
+    gameId,
+    rating
+  });
+}
+
 
     loadGames(); // перерисовка без alert
   });
@@ -262,6 +291,24 @@ if (user && game.status === "Пройдена" && userRating === null) {
       const editBtn = document.createElement("button");
       editBtn.textContent = "✏️ Редактировать";
       editBtn.className = "edit-button mt-10";
+const showRatingsBtn = document.createElement("button");
+showRatingsBtn.textContent = "📋 Оценки";
+showRatingsBtn.className = "edit-button mt-10";
+
+showRatingsBtn.addEventListener("click", () => {
+  const ratingsList = Object.values(userRatingsMap).map(
+    (entry) => `<li><strong>${entry.nickname}:</strong> ${entry.rating} ⭐</li>`
+  ).join("");
+
+  const ratingHtml = `
+    <div class="ratings-popup">
+      <h4>Оценки пользователей</h4>
+      <ul>${ratingsList || "<li>Нет оценок</li>"}</ul>
+    </div>
+  `;
+  content.innerHTML += ratingHtml;
+});
+content.appendChild(showRatingsBtn);
 
       editBtn.addEventListener("click", () => {
 const allGenres = [
