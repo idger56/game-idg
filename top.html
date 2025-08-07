@@ -24,79 +24,99 @@
     }
 
     .top-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-top: 30px;
-    }
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 30px;
+}
 
-    .top-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      position: relative;
-    }
+.top-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  transition: transform 0.3s ease;
+}
 
-    .top-card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
+.top-card:hover {
+  transform: translateY(-5px);
+}
 
-    .top-card h3 {
-      margin: 14px 0 6px;
-      font-size: 1.3rem;
-      color: #444;
-    }
+.top-card img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: 10px;
+}
 
-    .top-card .rank {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      background: #2a7ae2;
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-weight: bold;
-    }
+.top-card h3 {
+  margin: 14px 0 6px;
+  font-size: 1.4rem;
+  color: #444;
+}
 
-    .top-card.gold .rank { background: gold; color: #000; }
-    .top-card.silver .rank { background: silver; color: #000; }
-    .top-card.bronze .rank { background: #cd7f32; color: #fff; }
+.top-card .rank {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #2a7ae2;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+}
 
-    .top-card .avg-rating {
-      margin-top: 6px;
-      font-weight: bold;
-      color: #2a7ae2;
-      font-size: 1.1rem;
-    }
+.top-card .avg-rating {
+  margin-top: 6px;
+  font-weight: bold;
+  color: #2a7ae2;
+  font-size: 1.1rem;
+}
 
-    /* Широкая карточка 1 места */
-    .wide {
-      grid-column: span 3;
-    }
+/* 🔥 Индивидуальное оформление топ-3 */
+.top-card.gold {
+  background: #fffbea;
+  grid-column: span 3;
+  height: 480px;
+}
+.top-card.gold img {
+  height: 280px;
+}
+.top-card.silver,
+.top-card.bronze {
+  grid-column: span 1.5;
+  height: 420px;
+}
+.top-card.silver img,
+.top-card.bronze img {
+  height: 240px;
+}
 
-    /* Две на 2-й строке */
-    .half {
-      grid-column: span 1.5;
-    }
+.top-card.gold .rank { background: gold; color: #000; }
+.top-card.silver .rank { background: silver; color: #000; }
+.top-card.bronze .rank { background: #cd7f32; color: #fff; }
 
-    @media(max-width: 768px) {
-      .top-grid {
-        grid-template-columns: repeat(1, 1fr);
-      }
-
-      .wide,
-      .half {
-        grid-column: span 1 !important;
-      }
-    }
+/* 🔁 Responsive */
+@media (max-width: 768px) {
+  .top-grid {
+    grid-template-columns: 1fr;
+  }
+  .top-card,
+  .top-card.gold,
+  .top-card.silver,
+  .top-card.bronze {
+    grid-column: span 1 !important;
+    height: auto;
+  }
+  .top-card img {
+    height: 220px;
+  }
+}
   </style>
 </head>
 <body>
