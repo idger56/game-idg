@@ -124,14 +124,14 @@ searchInput?.addEventListener("input", applyFilters);
 filterCategory?.addEventListener("change", applyFilters);
 filterStatus?.addEventListener("change", applyFilters);
 
-// функция регистрации
+// Функция регистрации с параметрами
 async function register(email, password, nickname) {
   try {
     // Создание пользователя
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const createdUser = userCredential.user;
 
-    // Ждём, пока Firebase подтвердит auth
+    // Ждём подтверждения аутентификации Firebase
     await new Promise((resolve) => {
       const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user && user.uid === createdUser.uid) {
@@ -142,21 +142,34 @@ async function register(email, password, nickname) {
       });
     });
 
-    // Пишем в Firestore
+    // Запись в Firestore
     await setDoc(doc(db, "users", createdUser.uid), {
       uid: createdUser.uid,
       email: createdUser.email,
       nickname
     });
 
-    console.log("✅ Пользователь успешно зарегистрирован и добавлен в Firestore.");
+    alert("Регистрация прошла успешно! Теперь войдите.");
   } catch (error) {
-    console.error("🔥 Ошибка при регистрации:", error.code, error.message);
+    console.error("Ошибка при регистрации:", error.code, error.message);
     alert("Ошибка: " + error.message);
   }
 }
 
 
+// Глобальная функция, вызываемая из HTML кнопки
+window.register = function () {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const nickname = document.getElementById("nickname").value.trim();
+
+  if (!email || !password || !nickname) {
+    alert("Пожалуйста, заполните все поля (ник, email, пароль)");
+    return;
+  }
+
+  register(email, password, nickname);
+};
 
 
 window.login = async function () {
