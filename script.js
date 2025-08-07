@@ -71,17 +71,24 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById("toggle-add-form").style.display = "block";
     }
     
-    try {
-      const q = query(collection(db, "users"), where("uid", "==", user.uid));
-      const snapshot = await getDocs(q);
-      if (!snapshot.empty) {
-        const userData = snapshot.docs[0].data();
-        nicknameSpan.textContent = `👤 ${userData.nickname}`;
-        nicknameSpan.style.display = "inline-block";
-      }
-    } catch (error) {
-      console.error("Ошибка при загрузке ника:", error.message);
+try {
+  const usersSnapshot = await getDocs(collection(db, "users"));
+  let userNickname = null;
+
+  usersSnapshot.forEach((doc) => {
+    if (doc.data().uid === user.uid) {
+      userNickname = doc.data().nickname;
     }
+  });
+
+  if (userNickname) {
+    nicknameSpan.textContent = `👤 ${userNickname}`;
+    nicknameSpan.style.display = "inline-block";
+  }
+} catch (error) {
+  console.error("Ошибка при загрузке ника:", error.message);
+}
+
 
     if (user.email === adminEmail) {
   const toggleAddFormBtn = document.getElementById("toggle-add-form");
@@ -121,20 +128,37 @@ window.register = async function () {
   clearAuthMessage();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
-  const nickname = document.getElementById("nickname").value.trim();
-  if (!email || !password || !nickname) {
+  const nicknameRaw = document.getElementById("nickname").value.trim();
+
+  if (!email || !password || !nicknameRaw) {
     authMessage.textContent = "Пожалуйста, заполните все поля";
     return;
   }
+
+  const nickname = nicknameRaw.toLowerCase().replace(/\s+/g, "_");
+
   try {
+    const existingUser = await getDocs(query(collection(db, "users"), where("nickname", "==", nickname)));
+    if (!existingUser.empty) {
+      authMessage.textContent = "Этот ник уже используется.";
+      return;
+    }
+
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-    await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, nickname });
+
+    await setDoc(doc(db, "users", nickname), {
+      uid: user.uid,
+      email: user.email,
+      nickname
+    });
+
     authMessage.textContent = "Регистрация успешна! Теперь войдите.";
   } catch (error) {
     authMessage.textContent = error.message;
   }
 };
+
 
 window.login = async function () {
   clearAuthMessage();
@@ -214,11 +238,17 @@ for (const docSnap of ratingsSnapshot.docs) {
     userRating = data.rating;
   }
 
-  const userSnapshot = await getDocs(query(collection(db, "users"), where("uid", "==", data.userId)));
-  if (!userSnapshot.empty) {
-    const nickname = userSnapshot.docs[0].data().nickname || "Неизвестно";
-    userRatingsMap[data.userId] = { nickname, rating: data.rating };
+const usersSnapshot = await getDocs(collection(db, "users"));
+let nickname = "Неизвестно";
+
+usersSnapshot.forEach((doc) => {
+  if (doc.data().uid === data.userId) {
+    nickname = doc.data().nickname || "Неизвестно";
   }
+});
+
+userRatingsMap[data.userId] = { nickname, rating: data.rating };
+
 }
 
     const avgRating = ratings.length ? (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(1) : null;
