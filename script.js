@@ -167,7 +167,10 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  await addDoc(collection(db, "games"), { title, category, link, image, status });
+const customId = title.toLowerCase().replace(/\s+/g, "_"); // или slugify-функцию для чистоты
+const gameRef = doc(db, "games", customId);
+
+await setDoc(gameRef, { title, category, link, image, status });
   form.reset();
   loadGames();
 });
