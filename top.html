@@ -7,8 +7,6 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <!-- 🔼 Шапка -->
   <header>
     <nav class="top-menu">
       <div class="menu-left">
@@ -22,7 +20,6 @@
     </nav>
   </header>
 
-  <!-- 🔽 Фильтры -->
   <div class="filters container">
     <input type="text" id="search-input" placeholder="Поиск по названию..." />
     <select id="filter-category">
@@ -38,15 +35,8 @@
       <option value="Зомби">Зомби</option>
       <option value="Песочница">Песочница</option>
     </select>
-    <select id="filter-status">
-      <option value="">Все статусы</option>
-      <option value="Пройдена">Пройдена</option>
-      <option value="В процессе">В процессе</option>
-      <option value="В планах">В планах</option>
-    </select>
   </div>
 
-  <!-- 🔽 Контент Топа -->
   <section class="container">
     <h1>🏆 Топ игр по оценкам</h1>
     <div id="top-games-list" class="games-grid"></div>
@@ -54,18 +44,8 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      getDocs,
-      query,
-      where
-    } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBNuHz-OPbVWHoc7gtuxHU21-CC5TbYKbw",
@@ -111,7 +91,6 @@
 
     document.getElementById("search-input").addEventListener("input", applyTopFilters);
     document.getElementById("filter-category").addEventListener("change", applyTopFilters);
-    document.getElementById("filter-status").addEventListener("change", applyTopFilters);
 
     async function loadTopGames() {
       const gamesSnapshot = await getDocs(collection(db, "games"));
@@ -138,13 +117,11 @@
     function applyTopFilters() {
       const title = document.getElementById("search-input").value.toLowerCase();
       const category = document.getElementById("filter-category").value;
-      const status = document.getElementById("filter-status").value;
 
       const filtered = allGames.filter(game => {
         const matchesTitle = game.title.toLowerCase().includes(title);
         const matchesCategory = category ? (Array.isArray(game.category) ? game.category.includes(category) : game.category === category) : true;
-        const matchesStatus = status ? game.status === status : true;
-        return matchesTitle && matchesCategory && matchesStatus;
+        return matchesTitle && matchesCategory;
       });
 
       renderTopList(filtered);
@@ -158,12 +135,12 @@
         const card = document.createElement("div");
         card.className = "game-card";
 
-        if (index === 0) card.classList.add("gold");
-        else if (index === 1) card.classList.add("silver");
-        else if (index === 2) card.classList.add("bronze");
+        if (index === 0) card.classList.add("gold", "first-place");
+        else if (index === 1) card.classList.add("silver", "second-place");
+        else if (index === 2) card.classList.add("bronze", "third-place");
 
         card.innerHTML = `
-          <img src="${game.image}" alt="${game.title}" style="height: 300px; object-fit: cover;" />
+          <img src="${game.image}" alt="${game.title}" />
           <div class="game-content">
             <h3>#${index + 1} — ${game.title}</h3>
             <p>Категория: ${Array.isArray(game.category) ? game.category.join(", ") : game.category}</p>
@@ -178,25 +155,20 @@
   </script>
 
   <style>
-    /* Цвета призовых мест */
+    .first-place { transform: scale(1.08); }
+    .second-place, .third-place { transform: scale(1.04); }
+
     .game-card.gold {
       border-left: 6px solid gold;
       background-color: #fff9e0;
     }
-
     .game-card.silver {
       border-left: 6px solid silver;
       background-color: #f1f1f1;
     }
-
     .game-card.bronze {
       border-left: 6px solid #cd7f32;
       background-color: #fbe5d0;
-    }
-
-    /* Увеличенные карточки для топа */
-    .game-card img {
-      height: 300px !important;
     }
   </style>
 </body>
