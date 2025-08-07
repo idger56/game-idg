@@ -141,6 +141,23 @@
     height: 220px;
   }
 }
+/* 1 место */
+.top-card.wide {
+  grid-column: span 3;
+}
+
+/* 2 и 3 место */
+.top-card.half {
+  grid-column: span 1.5; /* Или span 2, если у тебя 6 колонок */
+}
+
+/* Сетка */
+#top-games-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+  gap: 20px;
+}
+
   </style>
 </head>
 <body>
