@@ -124,40 +124,38 @@ searchInput?.addEventListener("input", applyFilters);
 filterCategory?.addEventListener("change", applyFilters);
 filterStatus?.addEventListener("change", applyFilters);
 
-window.register = async function () {
-  clearAuthMessage();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const nicknameRaw = document.getElementById("nickname").value.trim();
-
-  if (!email || !password || !nicknameRaw) {
-    authMessage.textContent = "Пожалуйста, заполните все поля";
-    return;
-  }
-
-  const nickname = nicknameRaw.toLowerCase().replace(/\s+/g, "_");
-
+// функция регистрации
+async function register(email, password, nickname) {
   try {
-    const existingUser = await getDocs(query(collection(db, "users"), where("nickname", "==", nickname)));
-    if (!existingUser.empty) {
-      authMessage.textContent = "Этот ник уже используется.";
-      return;
-    }
-
+    // Создание пользователя
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    const createdUser = userCredential.user;
 
-    await setDoc(doc(db, "users", user.uid), {
-      uid: user.uid,
-      email: user.email,
+    // Ждём, пока Firebase подтвердит auth
+    await new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user && user.uid === createdUser.uid) {
+          console.log("✅ Аутентификация подтверждена:", user.uid);
+          resolve();
+          unsubscribe();
+        }
+      });
+    });
+
+    // Пишем в Firestore
+    await setDoc(doc(db, "users", createdUser.uid), {
+      uid: createdUser.uid,
+      email: createdUser.email,
       nickname
     });
 
-    authMessage.textContent = "Регистрация успешна! Теперь войдите.";
+    console.log("✅ Пользователь успешно зарегистрирован и добавлен в Firestore.");
   } catch (error) {
-    authMessage.textContent = error.message;
+    console.error("🔥 Ошибка при регистрации:", error.code, error.message);
+    alert("Ошибка: " + error.message);
   }
-};
+}
+
 
 
 
