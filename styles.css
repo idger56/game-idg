@@ -586,3 +586,35 @@ header {
   padding: 6px 10px;
   cursor: pointer;
 }
+
+.styled-select {
+  appearance: none;
+  background-color: #ffffff;
+  border: 2px solid #27ae60;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #2e8d57;
+  cursor: pointer;
+  max-width: 160px;
+  transition: 0.2s ease;
+}
+
+.styled-select:focus {
+  border-color: #1e874b;
+  box-shadow: 0 0 4px rgba(39, 174, 96, 0.5);
+  outline: none;
+}
+
+.rating-block {
+  margin-top: 15px;
+  background-color: #f6fdf9;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #d6ecd6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+

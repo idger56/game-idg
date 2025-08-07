@@ -244,20 +244,22 @@ for (const docSnap of ratingsSnapshot.docs) {
 if (user && game.status === "Пройдена") {
   const ratingWrapper = document.createElement("div");
   ratingWrapper.className = "rating-form";
-  ratingWrapper.innerHTML = `
+ratingWrapper.innerHTML = `
+  <div class="rating-block">
     <label class="rating-label">
-      Оцените:
-      <select data-game-id="${gameId}" class="rating-select">
+      Ваша оценка:
+      <select data-game-id="${gameId}" class="rating-select styled-select">
         <option value="">Выберите</option>
         ${Array.from({ length: 10 }, (_, i) => {
-  const val = i + 1;
-  const selected = userRating === val ? "selected" : "";
-  return `<option value="${val}" ${selected}>${val} ⭐</option>`;
-}).join('')}
-
+          const val = i + 1;
+          const selected = userRating === val ? "selected" : "";
+          return `<option value="${val}" ${selected}>${val} ⭐</option>`;
+        }).join('')}
       </select>
     </label>
-  `;
+  </div>
+`;
+
   content.appendChild(ratingWrapper);
 
   ratingWrapper.querySelector("select").addEventListener("change", async (e) => {
@@ -291,6 +293,7 @@ if (!snapshot.empty) {
       const editBtn = document.createElement("button");
       editBtn.textContent = "✏️ Редактировать";
       editBtn.className = "edit-button mt-10";
+      editBtn.style.marginBottom = "10px";
 const showRatingsBtn = document.createElement("button");
 showRatingsBtn.textContent = "📋 Оценки";
 showRatingsBtn.className = "edit-button mt-10";
