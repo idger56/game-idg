@@ -147,7 +147,7 @@ window.register = async function () {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    await setDoc(doc(db, "users", nickname), {
+    await setDoc(doc(db, "users", user.uid), {
       uid: user.uid,
       email: user.email,
       nickname
@@ -158,6 +158,7 @@ window.register = async function () {
     authMessage.textContent = error.message;
   }
 };
+
 
 
 window.login = async function () {
