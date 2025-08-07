@@ -266,27 +266,29 @@
 
     function renderGames(gamesToShow) {
       list.innerHTML = "";
-      gamesToShow.forEach(game => {
-        const realIndex = rankedGames.findIndex(g => g.id === game.id);
-        const rank = realIndex + 1;
+gamesToShow.forEach((game, index) => {
+  const realIndex = rankedGames.findIndex(g => g.id === game.id);
+  const rank = realIndex + 1;
 
-        const card = document.createElement("div");
-        card.className = "top-card";
-if (index === 0) div.classList.add("gold");
-if (index === 1) div.classList.add("silver");
-if (index === 2) div.classList.add("bronze");
-if (index === 3) div.classList.add("fourth");
+  const card = document.createElement("div");
+  card.className = "top-card";
 
+  // Добавление классов
+  if (rank === 1) card.classList.add("gold", "wide");
+  if (rank === 2) card.classList.add("silver", "half");
+  if (rank === 3) card.classList.add("bronze", "half");
+  if (rank === 4) card.classList.add("fourth");
 
-        card.innerHTML = `
-          <span class="rank">#${rank}</span>
-          <img src="${game.image}" alt="${game.title}" />
-          <h3>${game.title}</h3>
-          <p class="avg-rating">${game.avgRating} ⭐</p>
-        `;
+  card.innerHTML = `
+    <span class="rank">#${rank}</span>
+    <img src="${game.image}" alt="${game.title}" />
+    <h3>${game.title}</h3>
+    <p class="avg-rating">${game.avgRating} ⭐</p>
+  `;
 
-        list.appendChild(card);
-      });
+  list.appendChild(card);
+});
+
     }
 
     // 🔍 Фильтры
