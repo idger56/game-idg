@@ -131,7 +131,7 @@ async function loadOtherUsers(currentUserId, totalGames) {
   const ratingsSnapshot = await getDocs(collection(db, "ratings"));
   const gamesSnapshot = await getDocs(collection(db, "games"));
 
-  const games = gamesSnapshot.docs.map(doc => doc.data());
+  const games = gamesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   const ratingMap = {};
   for (const doc of ratingsSnapshot.docs) {
     const r = doc.data();
@@ -143,7 +143,6 @@ async function loadOtherUsers(currentUserId, totalGames) {
 
   for (const docSnap of usersSnapshot.docs) {
     const user = docSnap.data();
-    if (user.uid === currentUserId) continue;
 
     const ratings = ratingMap[user.uid] || [];
     const percentComplete = totalGames ? Math.round((ratings.length / totalGames) * 100) : 0;
@@ -207,6 +206,11 @@ async function loadOtherUsers(currentUserId, totalGames) {
     });
     medalsHTML += `</div>`;
 
+        // Кнопка перехода на профиль
+    const profileBtn = `<button class="view-profile" onclick="window.location.href='profile.html?uid=${user.uid}'">
+                          ${user.uid === currentUserId ? "Открыть мой профиль" : "Посмотреть профиль"}
+                        </button>`;
+                        
     // --- Карточка пользователя ---
     const card = document.createElement("div");
     card.className = "game-card hover-animate";
