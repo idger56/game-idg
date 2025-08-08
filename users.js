@@ -15,13 +15,6 @@ import {
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyBNuHz-OPbVWHoc7gtuxHU21-CC5TbYKbw",
   authDomain: "game-idg.firebaseapp.com",
@@ -35,7 +28,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 const nicknameSpan = document.getElementById("user-nickname");
 const myProfileDiv = document.getElementById("my-profile");
@@ -52,28 +44,25 @@ if (authBtn) {
   });
 }
 
-
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     myProfileDiv.innerHTML = "<p>Войдите, чтобы увидеть свой профиль.</p>";
     return;
   }
 
-const q = query(collection(db, "users"), where("uid", "==", user.uid));
-const snapshot = await getDocs(q);
-if (!snapshot.empty) {
-  const userData = snapshot.docs[0].data();
+  const q = query(collection(db, "users"), where("uid", "==", user.uid));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) {
+    myProfileDiv.innerHTML = "<p>Профиль не найден.</p>";
+    return;
+  }
+
+  const userDoc = snapshot.docs[0];
+  const userData = userDoc.data();
+  const userDocId = userDoc.id;
 
   nicknameSpan.textContent = `👤 ${userData.nickname}`;
   nicknameSpan.style.display = "inline-block";
-
-  // Загружаем аватар
-  const avatarImg = document.getElementById("profile-avatar"); // в HTML добавь <img id="profile-avatar">
-  if (avatarImg) {
-    avatarImg.src = userData.avatar || "https://via.placeholder.com/150";
-  }
-}
-
 
   const allGames = await getDocs(collection(db, "games"));
   const totalGames = allGames.size;
@@ -89,7 +78,7 @@ if (!snapshot.empty) {
 
   myProfileDiv.innerHTML = `
     <div class="game-card">
-      <img src="${userData.avatar || 'https://via.placeholder.com/300x300?text=Аватар'}" alt="Аватар">
+      <img id="profile-avatar" src="${userData.avatar || 'https://via.placeholder.com/300x300?text=Аватар'}" alt="Аватар">
       <div class="game-content">
         <h3>${userData.nickname}</h3>
         <p><strong>Средняя оценка:</strong> ${avgRating}</p>
@@ -104,39 +93,26 @@ if (!snapshot.empty) {
     </div>
   `;
 
-  document.getElementById("avatar-upload").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const avatarRef = ref(storage, `avatars/${user.uid}`);
-    await uploadBytes(avatarRef, file);
-    const url = await getDownloadURL(avatarRef);
-
-    await updateDoc(doc(db, "users", userDocId), {
-      avatar: url
-    });
-
-    alert("Аватар обновлён!");
-    location.reload();
-  });
+  const profileAvatar = document.getElementById("profile-avatar");
+  profileAvatar.onerror = () => {
+    profileAvatar.src = "https://via.placeholder.com/300x300?text=Аватар";
+  };
 
   document.getElementById("save-profile").addEventListener("click", async () => {
     const quote = document.getElementById("quote-input").value.trim();
     const genre = document.getElementById("genre-input").value.trim();
-const avatarUrl = document.getElementById("avatar-url").value.trim();
+    const avatarUrl = document.getElementById("avatar-url").value.trim();
 
-await updateDoc(doc(db, "users", userDocId), {
-  avatar: avatarUrl,
-  quote,
-  favoriteGenre: genre
-});
-
+    await updateDoc(doc(db, "users", userDocId), {
+      avatar: avatarUrl,
+      quote,
+      favoriteGenre: genre
+    });
 
     alert("Профиль обновлён!");
     location.reload();
   });
 
-  // 👉 Загрузка других пользователей
   await loadOtherUsers(user.uid, totalGames);
 });
 
@@ -161,7 +137,7 @@ async function loadOtherUsers(currentUserId, totalGames) {
     const card = document.createElement("div");
     card.className = "game-card";
     card.innerHTML = `
-      <img src="${user.avatar || 'https://via.placeholder.com/300x300?text=Аватар'}" alt="Аватар">
+      <img src="${user.avatar || 'https://via.placeholder.com/300x300?text=Аватар'}" alt="Аватар" onerror="this.src='https://via.placeholder.com/300x300?text=Аватар'">
       <div class="game-content">
         <h3>${user.nickname}</h3>
         <p><strong>Пройдено:</strong> ${percentComplete}%</p>
