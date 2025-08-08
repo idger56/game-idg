@@ -778,3 +778,80 @@ header {
   gap: 20px;
 }
 
+/* Контейнер страницы пользователей */
+#my-profile, #users-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* Карточка профиля / пользователя */
+.game-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 320px;
+  width: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* Аватар */
+.game-card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  background-color: #f0f0f0;
+}
+
+/* Контент карточки */
+.game-content {
+  padding: 15px;
+  text-align: center;
+}
+
+.game-content h3 {
+  font-size: 1.4em;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.game-content p {
+  margin: 4px 0;
+  font-size: 0.95em;
+  color: #555;
+}
+
+/* Поля ввода и кнопки в профиле */
+#my-profile input[type="text"],
+#my-profile input[type="url"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95em;
+}
+
+#my-profile button {
+  background: #4cafef;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  margin-top: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s ease;
+}
+
+#my-profile button:hover {
+  background: #399ad9;
+}

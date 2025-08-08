@@ -160,7 +160,7 @@ window.register = async function () {
       uid: user.uid,
       email: user.email,
       nickname,
-      avatar: "https://via.placeholder.com/150" // дефолтная картинка
+      avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqC_yhD78I6_2FimsgVxdwYiRabiJkqd4jvg&s" // дефолтная картинка
     });
 
     authMessage.textContent = "Регистрация успешна! Теперь войдите.";
