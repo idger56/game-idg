@@ -142,32 +142,35 @@ window.register = async function () {
   }
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    // Проверка: есть ли пользователь с таким ником
+    // Проверка ника до создания аккаунта
     const q = query(collection(db, "users"), where("nickname", "==", nickname));
     const snapshot = await getDocs(q);
     if (!snapshot.empty) {
       authMessage.textContent = "Такой ник уже занят. Выберите другой.";
-      await user.delete(); // удалим аккаунт, если регистрация прошла, но ник занят
       return;
     }
 
-    // Правильный путь: users/{uid}
-    const userRef = doc(db, "users", user.uid);
-    await setDoc(userRef, {
+    // Создание пользователя в Auth
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Создание профиля в Firestore
+    await setDoc(doc(db, "users", user.uid), {
       uid: user.uid,
       email: user.email,
       nickname,
-      avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqC_yhD78I6_2FimsgVxdwYiRabiJkqd4jvg&s" // дефолтная картинка
+      avatar: "https://via.placeholder.com/300x300?text=Аватар",
+      quote: "",
+      favoriteGenre: ""
     });
 
     authMessage.textContent = "Регистрация успешна! Теперь войдите.";
+    await signOut(auth); // чтобы вернуть на форму входа
   } catch (error) {
     authMessage.textContent = error.message;
   }
 };
+
 
 
 window.login = async function () {
