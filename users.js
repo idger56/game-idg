@@ -54,6 +54,14 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+if (user) {
+  setInterval(async () => {
+    await updateDoc(doc(db, "users", user.uid), {
+      lastActive: new Date()
+    });
+  }, 30000); // каждые 30 секунд
+}
+
   const q = query(collection(db, "users"), where("uid", "==", user.uid));
   const snapshot = await getDocs(q);
   if (snapshot.empty) {
@@ -79,7 +87,7 @@ onAuthStateChanged(auth, async (user) => {
 
   myProfileDiv.innerHTML = `
     <div class="game-card">
-      <img id="profile-avatar" src="${userData.avatar || 'https://via.placeholder.com/300x300?text=Аватар'}" alt="Аватар">
+      <img id="profile-avatar" src="${userData.avatar || 'https://cdn-images.dzcdn.net/images/cover/8b685b46bec333da34a4f17c7a3e4fc9/1900x1900-000000-80-0-0.jpg'}" alt="Аватар">
       <div class="game-content">
         <h3>${userData.nickname}</h3>
         <p><strong>Средняя оценка:</strong> ${avgRating}</p>
@@ -96,7 +104,7 @@ onAuthStateChanged(auth, async (user) => {
 
   const profileAvatar = document.getElementById("profile-avatar");
   profileAvatar.onerror = () => {
-    profileAvatar.src = "https://via.placeholder.com/300x300?text=Аватар";
+    profileAvatar.src = "https://cdn-images.dzcdn.net/images/cover/8b685b46bec333da34a4f17c7a3e4fc9/1900x1900-000000-80-0-0.jpg";
   };
 
   document.getElementById("save-profile").addEventListener("click", async () => {
@@ -121,12 +129,14 @@ onAuthStateChanged(auth, async (user) => {
 async function loadOtherUsers(currentUserId, totalGames) {
   const usersSnapshot = await getDocs(collection(db, "users"));
   const ratingsSnapshot = await getDocs(collection(db, "ratings"));
+  const gamesSnapshot = await getDocs(collection(db, "games"));
 
+  const games = gamesSnapshot.docs.map(doc => doc.data());
   const ratingMap = {};
   for (const doc of ratingsSnapshot.docs) {
     const r = doc.data();
     if (!ratingMap[r.userId]) ratingMap[r.userId] = [];
-    ratingMap[r.userId].push(r.rating);
+    ratingMap[r.userId].push(r);
   }
 
   const now = Date.now();
@@ -138,7 +148,7 @@ async function loadOtherUsers(currentUserId, totalGames) {
     const ratings = ratingMap[user.uid] || [];
     const percentComplete = totalGames ? Math.round((ratings.length / totalGames) * 100) : 0;
 
-    // Онлайн-статус
+    // --- Онлайн статус ---
     let statusText = "Оффлайн";
     let statusClass = "offline";
     if (user.lastActive && now - user.lastActive.toMillis() < 5 * 60 * 1000) {
@@ -149,42 +159,83 @@ async function loadOtherUsers(currentUserId, totalGames) {
       statusText = `Был в сети ${minsAgo} мин назад`;
     }
 
-    // Любимые игры
-    let favoriteGamesHTML = "";
-    if (user.favoriteGames && user.favoriteGames.length > 0) {
-      favoriteGamesHTML = `
-        <div class="favorite-games">
-          ${user.favoriteGames.map(url => `<img src="${url}" alt="game" />`).join("")}
-        </div>
-      `;
-    }
+    // --- Подсчёт достижений ---
+    const medals = [];
 
-    // Достижения
-    let achievementsHTML = `<div class="achievements">`;
-    if (percentComplete >= 100) achievementsHTML += "🏆 Мастер прохождений ";
-    if (ratings.length >= 50) achievementsHTML += "⭐ Критик ";
-    if (user.favoriteGenre) achievementsHTML += `🎯 Любитель ${user.favoriteGenre} `;
-    achievementsHTML += `</div>`;
+    // 1. Мастер прохождений
+    const m1 = getMedalLevel(percentComplete, 50, 80, 100);
+    if (m1) medals.push({ ...m1, name: "Мастер прохождений" });
 
-    // Кнопка профиля
-    const viewProfileBtn = `<button class="view-profile" onclick="window.location.href='profile.html?uid=${user.uid}'">Посмотреть профиль</button>`;
+    // 2. Критик
+    const m2 = getMedalLevel(ratings.length, 10, 30, 50);
+    if (m2) medals.push({ ...m2, name: "Критик" });
 
-    // Карточка
+    // 3. Коллекционер жанров
+    const genresPlayed = new Set();
+    ratings.forEach(r => {
+      const game = games.find(g => g.id === r.gameId);
+      if (game && game.category) {
+        if (Array.isArray(game.category)) {
+          game.category.forEach(c => genresPlayed.add(c));
+        } else {
+          genresPlayed.add(game.category);
+        }
+      }
+    });
+    const m3 = getMedalLevel(genresPlayed.size, 3, 5, 8);
+    if (m3) medals.push({ ...m3, name: "Коллекционер жанров" });
+
+    // 4. Любимчик жанра
+    const genreCount = {};
+    ratings.forEach(r => {
+      const game = games.find(g => g.id === r.gameId);
+      if (game && game.category) {
+        const categories = Array.isArray(game.category) ? game.category : [game.category];
+        categories.forEach(cat => {
+          genreCount[cat] = (genreCount[cat] || 0) + 1;
+        });
+      }
+    });
+    const favGenrePercent = Math.max(...Object.values(genreCount).map(v => (v / ratings.length) * 100 || 0));
+    const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
+    if (m4) medals.push({ ...m4, name: "Любимчик жанра" });
+
+    // --- Вертикальная колонка с медалями ---
+    let medalsHTML = `<div class="achievements-bar">`;
+    medals.forEach(m => {
+      medalsHTML += `<div class="medal" title="${m.name} — Уровень ${m.level}">${m.icon}</div>`;
+    });
+    medalsHTML += `</div>`;
+
+    // --- Карточка пользователя ---
     const card = document.createElement("div");
     card.className = "game-card hover-animate";
     card.innerHTML = `
-      <img src="${user.avatar || 'https://via.placeholder.com/300x300?text=Аватар'}" alt="Аватар" onerror="this.src='https://via.placeholder.com/300x300?text=Аватар'">
-      <div class="game-content">
-        <h3>${user.nickname}</h3>
-        <p class="status ${statusClass}">${statusText}</p>
-        <p><strong>Пройдено:</strong> ${percentComplete}%</p>
-        ${achievementsHTML}
-        <p><em>${user.quote || '—'}</em></p>
-        ${favoriteGamesHTML}
-        ${viewProfileBtn}
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div style="flex: 1;">
+          <img src="${user.avatar || 'https://via.placeholder.com/300x300?text=Аватар'}" 
+               alt="Аватар" 
+               onerror="this.src='https://via.placeholder.com/300x300?text=Аватар'">
+          <div class="game-content">
+            <h3>${user.nickname}</h3>
+            <p class="status ${statusClass}">${statusText}</p>
+            <p><strong>Пройдено:</strong> ${percentComplete}%</p>
+            <p><em>${user.quote || '—'}</em></p>
+          </div>
+        </div>
+        ${medalsHTML}
       </div>
     `;
 
     usersList.appendChild(card);
   }
 }
+
+// Вспомогательная функция
+function getMedalLevel(value, bronze, silver, gold) {
+  if (value >= gold) return { icon: "🥇", level: "Золото" };
+  if (value >= silver) return { icon: "🥈", level: "Серебро" };
+  if (value >= bronze) return { icon: "🥉", level: "Бронза" };
+  return null;
+}
+

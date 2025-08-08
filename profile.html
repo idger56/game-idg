@@ -52,6 +52,43 @@
       border-radius: 6px;
       object-fit: cover;
     }
+
+    .achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.achievement-item .medal {
+  font-size: 2em;
+}
+
+.achievement-info h4 {
+  margin: 0;
+}
+
+.progress-bar {
+  background: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  height: 8px;
+  margin: 4px 0;
+}
+
+.progress-bar .progress {
+  background: linear-gradient(to right, gold, orange);
+  height: 100%;
+}
   </style>
 </head>
 <body>

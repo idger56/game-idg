@@ -83,7 +83,7 @@ async function loadProfile(uid) {
   // Рендер профиля
   document.getElementById("profile-content").innerHTML = `
     <div class="profile-header">
-      <img src="${userData.avatar || 'https://via.placeholder.com/150x150?text=Аватар'}" alt="Аватар" onerror="this.src='https://via.placeholder.com/150x150?text=Аватар'">
+      <img src="${userData.avatar || 'https://cdn-images.dzcdn.net/images/cover/8b685b46bec333da34a4f17c7a3e4fc9/1900x1900-000000-80-0-0.jpg'}" alt="Аватар" onerror="this.src='https://via.placeholder.com/150x150?text=Аватар'">
       <div>
         <h2>${userData.nickname}</h2>
         <p><em>${userData.quote || "—"}</em></p>
@@ -100,3 +100,82 @@ async function loadProfile(uid) {
     </div>
   `;
 }
+
+function getAchievementData(name, value, bronze, silver, gold, unit = "") {
+  let level = null;
+  let nextTarget = null;
+  if (value >= gold) {
+    level = { icon: "🥇", levelName: "Золото", target: gold };
+  } else if (value >= silver) {
+    level = { icon: "🥈", levelName: "Серебро", target: gold };
+    nextTarget = gold;
+  } else if (value >= bronze) {
+    level = { icon: "🥉", levelName: "Бронза", target: silver };
+    nextTarget = silver;
+  } else {
+    level = { icon: "⬜", levelName: "Нет", target: bronze };
+    nextTarget = bronze;
+  }
+
+  return {
+    name,
+    icon: level.icon,
+    levelName: level.levelName,
+    description: getAchievementDescription(name),
+    progressText: nextTarget 
+      ? `${value}${unit} из ${nextTarget}${unit}`
+      : `${value}${unit} (макс уровень)`,
+    progressPercent: nextTarget ? Math.min(100, Math.round((value / nextTarget) * 100)) : 100
+  };
+}
+
+function getAchievementDescription(name) {
+  const descriptions = {
+    "Мастер прохождений": "Пройди как можно больше игр",
+    "Критик": "Оценивай игры и становись признанным критиком",
+    "Коллекционер жанров": "Играй в разные жанры и расширяй кругозор",
+    "Любимчик жанра": "Будь преданным фанатом своего любимого жанра"
+  };
+  return descriptions[name] || "";
+}
+
+function renderProfileAchievements(container, userStats) {
+  const achievements = [];
+
+  achievements.push(
+    getAchievementData("Мастер прохождений", userStats.percentComplete, 50, 80, 100, "%")
+  );
+
+  achievements.push(
+    getAchievementData("Критик", userStats.ratingsCount, 10, 30, 50, "")
+  );
+
+  achievements.push(
+    getAchievementData("Коллекционер жанров", userStats.genresCount, 3, 5, 8, "")
+  );
+
+  achievements.push(
+    getAchievementData("Любимчик жанра", userStats.favGenrePercent, 50, 70, 90, "%")
+  );
+
+  let html = `<div class="achievements-list">`;
+  achievements.forEach(a => {
+    html += `
+      <div class="achievement-item">
+        <span class="medal">${a.icon}</span>
+        <div class="achievement-info">
+          <h4>${a.name} — ${a.levelName}</h4>
+          <p>${a.description}</p>
+          <div class="progress-bar">
+            <div class="progress" style="width:${a.progressPercent}%;"></div>
+          </div>
+          <small>${a.progressText}</small>
+        </div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+
+  container.innerHTML = html;
+}
+
