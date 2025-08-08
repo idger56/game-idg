@@ -159,7 +159,8 @@ window.register = async function () {
     await setDoc(userRef, {
       uid: user.uid,
       email: user.email,
-      nickname
+      nickname,
+      avatar: "https://via.placeholder.com/150" // дефолтная картинка
     });
 
     authMessage.textContent = "Регистрация успешна! Теперь войдите.";

@@ -59,15 +59,21 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const q = query(collection(db, "users"), where("uid", "==", user.uid));
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) return;
+const q = query(collection(db, "users"), where("uid", "==", user.uid));
+const snapshot = await getDocs(q);
+if (!snapshot.empty) {
   const userData = snapshot.docs[0].data();
-  const userDocId = snapshot.docs[0].id;
 
   nicknameSpan.textContent = `👤 ${userData.nickname}`;
   nicknameSpan.style.display = "inline-block";
+
+  // Загружаем аватар
+  const avatarImg = document.getElementById("profile-avatar"); // в HTML добавь <img id="profile-avatar">
+  if (avatarImg) {
+    avatarImg.src = userData.avatar || "https://via.placeholder.com/150";
+  }
+}
+
 
   const allGames = await getDocs(collection(db, "games"));
   const totalGames = allGames.size;
