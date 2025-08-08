@@ -45,8 +45,12 @@ if (authBtn) {
 }
 
 onAuthStateChanged(auth, async (user) => {
+  const allGamesSnapshot = await getDocs(collection(db, "games"));
+  const totalGames = allGamesSnapshot.size;
+
   if (!user) {
-    myProfileDiv.innerHTML = "<p>Войдите, чтобы увидеть свой профиль.</p>";
+    myProfileDiv.innerHTML = "<p>Войдите, чтобы увидеть и редактировать свой профиль.</p>";
+    await loadOtherUsers(null, totalGames);
     return;
   }
 
@@ -63,9 +67,6 @@ onAuthStateChanged(auth, async (user) => {
 
   nicknameSpan.textContent = `👤 ${userData.nickname}`;
   nicknameSpan.style.display = "inline-block";
-
-  const allGames = await getDocs(collection(db, "games"));
-  const totalGames = allGames.size;
 
   const userRatingsSnapshot = await getDocs(query(collection(db, "ratings"), where("userId", "==", user.uid)));
   const userRatings = userRatingsSnapshot.docs.map(d => d.data());
@@ -106,7 +107,8 @@ onAuthStateChanged(auth, async (user) => {
     await updateDoc(doc(db, "users", userDocId), {
       avatar: avatarUrl,
       quote,
-      favoriteGenre: genre
+      favoriteGenre: genre,
+      lastActive: new Date()
     });
 
     alert("Профиль обновлён!");
@@ -136,7 +138,7 @@ async function loadOtherUsers(currentUserId, totalGames) {
     const ratings = ratingMap[user.uid] || [];
     const percentComplete = totalGames ? Math.round((ratings.length / totalGames) * 100) : 0;
 
-    // 1. Онлайн-статус
+    // Онлайн-статус
     let statusText = "Оффлайн";
     let statusClass = "offline";
     if (user.lastActive && now - user.lastActive.toMillis() < 5 * 60 * 1000) {
@@ -147,7 +149,7 @@ async function loadOtherUsers(currentUserId, totalGames) {
       statusText = `Был в сети ${minsAgo} мин назад`;
     }
 
-    // 2. Любимые игры (мини-обложки)
+    // Любимые игры
     let favoriteGamesHTML = "";
     if (user.favoriteGames && user.favoriteGames.length > 0) {
       favoriteGamesHTML = `
@@ -157,17 +159,17 @@ async function loadOtherUsers(currentUserId, totalGames) {
       `;
     }
 
-    // 3. Достижения
+    // Достижения
     let achievementsHTML = `<div class="achievements">`;
     if (percentComplete >= 100) achievementsHTML += "🏆 Мастер прохождений ";
     if (ratings.length >= 50) achievementsHTML += "⭐ Критик ";
     if (user.favoriteGenre) achievementsHTML += `🎯 Любитель ${user.favoriteGenre} `;
     achievementsHTML += `</div>`;
 
-    // 8. Кнопка "Посмотреть профиль"
+    // Кнопка профиля
     const viewProfileBtn = `<button class="view-profile" onclick="window.location.href='profile.html?uid=${user.uid}'">Посмотреть профиль</button>`;
 
-    // Карточка с анимацией
+    // Карточка
     const card = document.createElement("div");
     card.className = "game-card hover-animate";
     card.innerHTML = `
@@ -186,4 +188,3 @@ async function loadOtherUsers(currentUserId, totalGames) {
     usersList.appendChild(card);
   }
 }
-
