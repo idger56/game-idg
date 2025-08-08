@@ -159,7 +159,7 @@ window.register = async function () {
       uid: user.uid,
       email: user.email,
       nickname,
-      avatar: "https://cdn-images.dzcdn.net/images/cover/8b685b46bec333da34a4f17c7a3e4fc9/1900x1900-000000-80-0-0.jpg",
+      avatar: "https://via.placeholder.com/300x300?text=Аватар",
       quote: "",
       favoriteGenre: ""
     });

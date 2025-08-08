@@ -127,6 +127,8 @@ async function loadOtherUsers(currentUserId, totalGames) {
     ratingMap[r.userId].push(r.rating);
   }
 
+  const now = Date.now();
+
   for (const docSnap of usersSnapshot.docs) {
     const user = docSnap.data();
     if (user.uid === currentUserId) continue;
@@ -134,17 +136,54 @@ async function loadOtherUsers(currentUserId, totalGames) {
     const ratings = ratingMap[user.uid] || [];
     const percentComplete = totalGames ? Math.round((ratings.length / totalGames) * 100) : 0;
 
+    // 1. Онлайн-статус
+    let statusText = "Оффлайн";
+    let statusClass = "offline";
+    if (user.lastActive && now - user.lastActive.toMillis() < 5 * 60 * 1000) {
+      statusText = "Онлайн";
+      statusClass = "online";
+    } else if (user.lastActive) {
+      const minsAgo = Math.floor((now - user.lastActive.toMillis()) / 60000);
+      statusText = `Был в сети ${minsAgo} мин назад`;
+    }
+
+    // 2. Любимые игры (мини-обложки)
+    let favoriteGamesHTML = "";
+    if (user.favoriteGames && user.favoriteGames.length > 0) {
+      favoriteGamesHTML = `
+        <div class="favorite-games">
+          ${user.favoriteGames.map(url => `<img src="${url}" alt="game" />`).join("")}
+        </div>
+      `;
+    }
+
+    // 3. Достижения
+    let achievementsHTML = `<div class="achievements">`;
+    if (percentComplete >= 100) achievementsHTML += "🏆 Мастер прохождений ";
+    if (ratings.length >= 50) achievementsHTML += "⭐ Критик ";
+    if (user.favoriteGenre) achievementsHTML += `🎯 Любитель ${user.favoriteGenre} `;
+    achievementsHTML += `</div>`;
+
+    // 8. Кнопка "Посмотреть профиль"
+    const viewProfileBtn = `<button class="view-profile" onclick="window.location.href='profile.html?uid=${user.uid}'">Посмотреть профиль</button>`;
+
+    // Карточка с анимацией
     const card = document.createElement("div");
-    card.className = "game-card";
+    card.className = "game-card hover-animate";
     card.innerHTML = `
       <img src="${user.avatar || 'https://via.placeholder.com/300x300?text=Аватар'}" alt="Аватар" onerror="this.src='https://via.placeholder.com/300x300?text=Аватар'">
       <div class="game-content">
         <h3>${user.nickname}</h3>
+        <p class="status ${statusClass}">${statusText}</p>
         <p><strong>Пройдено:</strong> ${percentComplete}%</p>
+        ${achievementsHTML}
         <p><em>${user.quote || '—'}</em></p>
+        ${favoriteGamesHTML}
+        ${viewProfileBtn}
       </div>
     `;
 
     usersList.appendChild(card);
   }
 }
+

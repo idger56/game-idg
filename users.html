@@ -55,6 +55,54 @@
   font-size: 0.95em;
   color: #555;
 }
+
+.hover-animate {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-animate:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+}
+
+.status.online {
+  color: green;
+  font-weight: bold;
+}
+.status.offline {
+  color: gray;
+}
+
+.favorite-games {
+  margin-top: 10px;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+.favorite-games img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.achievements {
+  margin: 8px 0;
+  font-size: 1.2em;
+}
+
+.view-profile {
+  margin-top: 10px;
+  background: #4cafef;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+}
+.view-profile:hover {
+  background: #399ad9;
+}
+
   </style>
 </head>
 <body>
