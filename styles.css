@@ -248,18 +248,18 @@ header {
 .game-content h3 {
   margin: 0 0 14px;
   font-size: 1.7rem;
-  color: #ebebeb;
+  color: #000000;
 }
 
 .game-content p {
   margin: 8px 0;
-  color: #ebebeb;
+  color: #000000;
   font-size: 1.05rem;
 }
 
 .game-content a {
   margin-top: auto;
-  color: #ffffff;
+  color: #000000;
   text-decoration: none;
   font-weight: bold;
   font-size: 1.05rem;
