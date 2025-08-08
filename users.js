@@ -35,6 +35,15 @@ const myProfileDiv = document.getElementById("my-profile");
 const usersList = document.getElementById("users-list");
 
 onAuthStateChanged(auth, async (user) => {
+  
+  const nicknameSpan = document.getElementById("user-nickname");
+
+  if (!snapshot.empty) {
+  const userData = snapshot.docs[0].data();
+  nicknameSpan.textContent = `👤 ${userData.nickname}`;
+  nicknameSpan.style.display = "inline-block";
+}
+
   if (!user) {
     myProfileDiv.innerHTML = "<p>Войдите, чтобы увидеть свой профиль.</p>";
     return;
