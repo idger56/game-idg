@@ -43,8 +43,13 @@ const myProfileDiv = document.getElementById("my-profile");
 const usersList = document.getElementById("users-list");
 
 authBtn.addEventListener("click", () => {
-  if (auth.currentUser) signOut(auth);
+  if (auth.currentUser) {
+    signOut(auth).then(() => {
+      window.location.href = "index.html"; // ⬅️ переход на главную
+    });
+  }
 });
+
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -83,7 +88,7 @@ onAuthStateChanged(auth, async (user) => {
         <p><strong>Пройдено:</strong> ${percentComplete}%</p>
         <p><strong>Любимый жанр:</strong> ${userData.favoriteGenre || '—'}</p>
         <p><em>${userData.quote || '—'}</em></p>
-        <input type="file" id="avatar-upload" />
+        <input type="url" id="avatar-url" placeholder="Ссылка на аватарку" value="${userData.avatar || ''}" />
         <input type="text" id="quote-input" placeholder="Цитата" value="${userData.quote || ''}" />
         <input type="text" id="genre-input" placeholder="Любимый жанр" value="${userData.favoriteGenre || ''}" />
         <button id="save-profile">Сохранить профиль</button>
@@ -110,11 +115,14 @@ onAuthStateChanged(auth, async (user) => {
   document.getElementById("save-profile").addEventListener("click", async () => {
     const quote = document.getElementById("quote-input").value.trim();
     const genre = document.getElementById("genre-input").value.trim();
+const avatarUrl = document.getElementById("avatar-url").value.trim();
 
-    await updateDoc(doc(db, "users", userDocId), {
-      quote,
-      favoriteGenre: genre
-    });
+await updateDoc(doc(db, "users", userDocId), {
+  avatar: avatarUrl,
+  quote,
+  favoriteGenre: genre
+});
+
 
     alert("Профиль обновлён!");
     location.reload();

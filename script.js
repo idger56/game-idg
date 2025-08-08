@@ -14,6 +14,7 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
   query,
   where,
   doc,
@@ -66,6 +67,9 @@ onAuthStateChanged(auth, async (user) => {
     const addBtn = document.getElementById("toggle-add-form");
     form.style.display = (user.email === adminEmail) ? "block" : "none";
     addBtn.style.display = (user.email === adminEmail) ? "inline-block" : "none";
+     document.getElementById("games-btn").style.display = "inline-block";
+  document.querySelector(".top-btn[href='top.html']").style.display = "inline-block";
+  document.querySelector(".top-btn[href='users.html']").style.display = "inline-block";
 
 
      if (user.email === adminEmail) {
@@ -106,12 +110,20 @@ onAuthStateChanged(auth, async (user) => {
     authBtn.textContent = "Вход";
     nicknameSpan.style.display = "none";
     nicknameSpan.textContent = "";
+     document.getElementById("games-btn").style.display = "none";
+  document.querySelector(".top-btn[href='top.html']").style.display = "none";
+  document.querySelector(".top-btn[href='users.html']").style.display = "none";
   }
 });
 
 authBtn.addEventListener("click", () => {
-  if (auth.currentUser) signOut(auth);
+  if (auth.currentUser) {
+    signOut(auth).then(() => {
+      window.location.href = "index.html";
+    });
+  }
 });
+
 
 document.getElementById("games-btn")?.addEventListener("click", () => applyFilters());
 searchInput?.addEventListener("input", applyFilters);
