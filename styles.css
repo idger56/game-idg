@@ -246,12 +246,12 @@ header {
 .game-content h3 {
   margin: 0 0 14px;
   font-size: 1.7rem;
-  color: #555;
+  color: ##ebebeb;
 }
 
 .game-content p {
   margin: 8px 0;
-  color: #555;
+  color: ##ebebeb;
   font-size: 1.05rem;
 }
 
@@ -402,7 +402,7 @@ header {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  color: #555
+  color: ##ebebeb
 }
 
 .rating-select {
@@ -424,7 +424,7 @@ header {
 .user-rating-info {
   margin-top: 10px;
   font-weight: 500;
-  color: #555;
+  color: ##ebebeb;
   font-size: 1rem;
 }
 
@@ -509,7 +509,7 @@ header {
 .rating-block .avg-rating {
   font-size: 1rem;
   font-weight: 500;
-  color: #555;
+  color: ##ebebeb;
 }
 
 /* Блок оценок в карточке */
