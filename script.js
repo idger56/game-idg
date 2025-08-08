@@ -217,7 +217,7 @@ function applyFilters() {
 }
 
 
-async function renderGames(games, user, renderToken) {
+async function renderGames(games, user, renderToken = currentRenderToken) {
   gamesList.innerHTML = "";
   for (const game of games) {
     if (renderToken !== currentRenderToken) return;
