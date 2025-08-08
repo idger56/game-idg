@@ -163,10 +163,12 @@
 <body>
   <header>
     <nav class="top-menu">
-      <div class="menu-left">
-        <button onclick="window.location.href='index.html'">Игры</button>
-        <button class="active">Топ игр</button>
-      </div>
+    <div class="menu-left">
+      <button id="games-btn">Игры</button>
+      <a href="top.html" class="top-btn">Топ игр</a>
+      <a href="users.html" class="top-btn">Пользователи</a>
+      <!-- 🔜 Здесь будут другие кнопки -->
+    </div>
       <div class="menu-right">
         <span id="user-nickname" class="user-nickname" style="display:none;"></span>
         <button id="auth-btn">Вход</button>

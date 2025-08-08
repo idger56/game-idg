@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Пользователи</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <nav class="top-menu">
+    <div class="menu-left">
+      <button id="games-btn">Игры</button>
+      <a href="top.html" class="top-btn">Топ игр</a>
+      <a href="users.html" class="top-btn">Пользователи</a>
+      <!-- 🔜 Здесь будут другие кнопки -->
+    </div>
+          <div class="menu-right">
+        <span id="user-nickname" class="user-nickname" style="display:none;"></span>
+        <button id="auth-btn">Вход</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="users-section" class="container">
+    <div id="my-profile" class="user-profile-block"></div>
+    <h2 style="margin-top:40px;">Другие пользователи</h2>
+    <div id="users-list" class="games-grid"></div>
+  </main>
+
+  <script type="module" src="users.js"></script>
+</body>
+</html>

@@ -404,7 +404,7 @@ header {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  color: #000000
+  color: #ebebeb
 }
 
 .rating-select {
