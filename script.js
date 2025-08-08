@@ -135,33 +135,39 @@ window.register = async function () {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
   const nickname = document.getElementById("nickname").value.trim();
+
   if (!email || !password || !nickname) {
     authMessage.textContent = "Пожалуйста, заполните все поля";
     return;
   }
+
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-const nicknameId = nickname.toLowerCase().replace(/\s+/g, "_"); // или slugify
-const userRef = doc(db, "users", nicknameId);
 
-const userSnap = await getDoc(userRef);
-if (userSnap.exists()) {
-  authMessage.textContent = "Такой ник уже занят. Выберите другой.";
-  return;
-}
+    // Проверка: есть ли пользователь с таким ником
+    const q = query(collection(db, "users"), where("nickname", "==", nickname));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      authMessage.textContent = "Такой ник уже занят. Выберите другой.";
+      await user.delete(); // удалим аккаунт, если регистрация прошла, но ник занят
+      return;
+    }
 
-await setDoc(userRef, {
-  uid: user.uid,
-  email: user.email,
-  nickname
-});
+    // Правильный путь: users/{uid}
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(userRef, {
+      uid: user.uid,
+      email: user.email,
+      nickname
+    });
 
     authMessage.textContent = "Регистрация успешна! Теперь войдите.";
   } catch (error) {
     authMessage.textContent = error.message;
   }
 };
+
 
 window.login = async function () {
   clearAuthMessage();

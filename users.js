@@ -38,17 +38,19 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 const nicknameSpan = document.getElementById("user-nickname");
-const authBtn = document.getElementById("auth-btn");
 const myProfileDiv = document.getElementById("my-profile");
 const usersList = document.getElementById("users-list");
+const authBtn = document.getElementById("auth-btn");
 
-authBtn.addEventListener("click", () => {
-  if (auth.currentUser) {
-    signOut(auth).then(() => {
-      window.location.href = "index.html"; // ⬅️ переход на главную
-    });
-  }
-});
+if (authBtn) {
+  authBtn.addEventListener("click", () => {
+    if (auth.currentUser) {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    }
+  });
+}
 
 
 onAuthStateChanged(auth, async (user) => {
