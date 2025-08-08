@@ -246,12 +246,12 @@ header {
 .game-content h3 {
   margin: 0 0 14px;
   font-size: 1.7rem;
-  color: ##ebebeb;
+  color: #ebebeb;
 }
 
 .game-content p {
   margin: 8px 0;
-  color: ##ebebeb;
+  color: #ebebeb;
   font-size: 1.05rem;
 }
 
@@ -402,7 +402,7 @@ header {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  color: ##ebebeb
+  color: #ebebeb
 }
 
 .rating-select {
@@ -424,7 +424,7 @@ header {
 .user-rating-info {
   margin-top: 10px;
   font-weight: 500;
-  color: ##ebebeb;
+  color: #ebebeb;
   font-size: 1rem;
 }
 
@@ -509,7 +509,7 @@ header {
 .rating-block .avg-rating {
   font-size: 1rem;
   font-weight: 500;
-  color: ##ebebeb;
+  color: #ebebeb;
 }
 
 /* Блок оценок в карточке */
@@ -559,23 +559,6 @@ header {
 
 .download-btn:hover {
   background-color: #1e5bbf;
-}
-
-.top-btn {
-  background: none;
-  border: 2px solid #fff;
-  color: #fff;
-  font-weight: bold;
-  padding: 8px 16px;
-  border-radius: 30px;
-  transition: background-color 0.3s ease;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.top-btn:hover {
-  background-color: #444;
 }
 
 .multi-select {
