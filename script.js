@@ -1,3 +1,5 @@
+let currentRenderToken = 0;
+
 // Обновлённый script.js с поддержкой фильтрации и сохранением всех игр в памяти
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
@@ -196,6 +198,7 @@ async function loadGames() {
 }
 
 function applyFilters() {
+  const renderToken = ++currentRenderToken;
   const user = auth.currentUser;
   const title = searchInput?.value.toLowerCase() || "";
   const category = filterCategory?.value || "";
@@ -211,11 +214,13 @@ function applyFilters() {
   renderGames(filtered, user);
 }
 
-async function renderGames(games, user) {
+async function renderGames(games, user, renderToken) {
   gamesList.innerHTML = "";
   for (const game of games) {
+    if (renderToken !== currentRenderToken) return;
     const gameId = game.id;
     const ratingsSnapshot = await getDocs(query(collection(db, "ratings"), where("gameId", "==", gameId)));
+    if (renderToken !== currentRenderToken) return;
     const ratings = [];
     let userRating = null;
 const userRatingsMap = {}; // userId => { nickname, rating }
@@ -388,6 +393,7 @@ const formHtml = `
       content.appendChild(editBtn);
     }
 
+    if (renderToken !== currentRenderToken) return;
     gamesList.appendChild(card);
 
   }
