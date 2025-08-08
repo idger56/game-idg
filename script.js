@@ -1,5 +1,3 @@
-let currentRenderToken = 0;
-
 // Обновлённый script.js с поддержкой фильтрации и сохранением всех игр в памяти
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
@@ -53,6 +51,7 @@ const filterCategory = document.getElementById("filter-category");
 const filterStatus = document.getElementById("filter-status");
 
 let allGames = [];
+let currentRenderToken = 0;
 
 function clearAuthMessage() {
   authMessage.textContent = "";
@@ -197,8 +196,8 @@ async function loadGames() {
   applyFilters();
 }
 
+
 function applyFilters() {
-  const renderToken = ++currentRenderToken;
   const user = auth.currentUser;
   const title = searchInput?.value.toLowerCase() || "";
   const category = filterCategory?.value || "";
@@ -206,13 +205,17 @@ function applyFilters() {
 
   const filtered = allGames.filter(game => {
     const matchesTitle = game.title.toLowerCase().includes(title);
-    const matchesCategory = category ? (Array.isArray(game.category) ? game.category.includes(category) : game.category === category) : true;
+    const matchesCategory = category
+      ? (Array.isArray(game.category) ? game.category.includes(category) : game.category === category)
+      : true;
     const matchesStatus = status ? game.status === status : true;
     return matchesTitle && matchesCategory && matchesStatus;
   });
 
-  renderGames(filtered, user);
+  const renderToken = ++currentRenderToken;
+  renderGames(filtered, user, renderToken);
 }
+
 
 async function renderGames(games, user, renderToken) {
   gamesList.innerHTML = "";
