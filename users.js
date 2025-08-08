@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
 import {
   getAuth,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
 import {
@@ -21,46 +22,57 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js";
 
-const storage = getStorage(app);
-
 const firebaseConfig = {
-  // вставь свою конфигурацию
+  apiKey: "AIzaSyBNuHz-OPbVWHoc7gtuxHU21-CC5TbYKbw",
+  authDomain: "game-idg.firebaseapp.com",
+  projectId: "game-idg",
+  storageBucket: "game-idg.appspot.com",
+  messagingSenderId: "987199066254",
+  appId: "1:987199066254:web:ed82cea15f4a7b7a4279df",
+  measurementId: "G-QLLFXDHX51"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
+const nicknameSpan = document.getElementById("user-nickname");
+const authBtn = document.getElementById("auth-btn");
 const myProfileDiv = document.getElementById("my-profile");
 const usersList = document.getElementById("users-list");
 
+authBtn.addEventListener("click", () => {
+  if (auth.currentUser) signOut(auth);
+});
+
 onAuthStateChanged(auth, async (user) => {
-  
-  const nicknameSpan = document.getElementById("user-nickname");
-
-  if (!snapshot.empty) {
-  const userData = snapshot.docs[0].data();
-  nicknameSpan.textContent = `👤 ${userData.nickname}`;
-  nicknameSpan.style.display = "inline-block";
-}
-
   if (!user) {
     myProfileDiv.innerHTML = "<p>Войдите, чтобы увидеть свой профиль.</p>";
     return;
   }
 
-  const userSnapshot = await getDocs(query(collection(db, "users"), where("uid", "==", user.uid)));
-  const userData = userSnapshot.empty ? null : userSnapshot.docs[0].data();
+  const q = query(collection(db, "users"), where("uid", "==", user.uid));
+  const snapshot = await getDocs(q);
 
-  if (!userData) return;
+  if (snapshot.empty) return;
+  const userData = snapshot.docs[0].data();
+  const userDocId = snapshot.docs[0].id;
+
+  nicknameSpan.textContent = `👤 ${userData.nickname}`;
+  nicknameSpan.style.display = "inline-block";
 
   const allGames = await getDocs(collection(db, "games"));
   const totalGames = allGames.size;
 
   const userRatingsSnapshot = await getDocs(query(collection(db, "ratings"), where("userId", "==", user.uid)));
   const userRatings = userRatingsSnapshot.docs.map(d => d.data());
-  const avgRating = userRatings.length ? (userRatings.reduce((a, b) => a + b.rating, 0) / userRatings.length).toFixed(1) : "—";
-  const percentComplete = totalGames ? Math.round((userRatings.length / totalGames) * 100) : 0;
+  const avgRating = userRatings.length
+    ? (userRatings.reduce((a, b) => a + b.rating, 0) / userRatings.length).toFixed(1)
+    : "—";
+  const percentComplete = totalGames
+    ? Math.round((userRatings.length / totalGames) * 100)
+    : 0;
 
   myProfileDiv.innerHTML = `
     <div class="game-card">
@@ -69,8 +81,8 @@ onAuthStateChanged(auth, async (user) => {
         <h3>${userData.nickname}</h3>
         <p><strong>Средняя оценка:</strong> ${avgRating}</p>
         <p><strong>Пройдено:</strong> ${percentComplete}%</p>
-        <p><strong>Любимый жанр:</strong> ${userData.favoriteGenre || 'Не выбран'}</p>
-        <p><em>${userData.quote || 'Нет цитаты'}</em></p>
+        <p><strong>Любимый жанр:</strong> ${userData.favoriteGenre || '—'}</p>
+        <p><em>${userData.quote || '—'}</em></p>
         <input type="file" id="avatar-upload" />
         <input type="text" id="quote-input" placeholder="Цитата" value="${userData.quote || ''}" />
         <input type="text" id="genre-input" placeholder="Любимый жанр" value="${userData.favoriteGenre || ''}" />
@@ -80,27 +92,26 @@ onAuthStateChanged(auth, async (user) => {
   `;
 
   document.getElementById("avatar-upload").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-  const avatarRef = ref(storage, `avatars/${auth.currentUser.uid}`);
-  await uploadBytes(avatarRef, file);
+    const avatarRef = ref(storage, `avatars/${user.uid}`);
+    await uploadBytes(avatarRef, file);
+    const url = await getDownloadURL(avatarRef);
 
-  const url = await getDownloadURL(avatarRef);
-  await updateDoc(doc(db, "users", userData.nickname.toLowerCase().replace(/\s+/g, "_")), {
-    avatar: url
+    await updateDoc(doc(db, "users", userDocId), {
+      avatar: url
+    });
+
+    alert("Аватар обновлён!");
+    location.reload();
   });
-
-  alert("Аватар обновлён!");
-  location.reload();
-});
-
 
   document.getElementById("save-profile").addEventListener("click", async () => {
     const quote = document.getElementById("quote-input").value.trim();
     const genre = document.getElementById("genre-input").value.trim();
 
-    await updateDoc(doc(db, "users", userData.nickname.toLowerCase().replace(/\s+/g, "_")), {
+    await updateDoc(doc(db, "users", userDocId), {
       quote,
       favoriteGenre: genre
     });
@@ -109,8 +120,8 @@ onAuthStateChanged(auth, async (user) => {
     location.reload();
   });
 
-  // 👉 загрузка других пользователей
-  loadOtherUsers(user.uid, totalGames);
+  // 👉 Загрузка других пользователей
+  await loadOtherUsers(user.uid, totalGames);
 });
 
 async function loadOtherUsers(currentUserId, totalGames) {
@@ -138,7 +149,7 @@ async function loadOtherUsers(currentUserId, totalGames) {
       <div class="game-content">
         <h3>${user.nickname}</h3>
         <p><strong>Пройдено:</strong> ${percentComplete}%</p>
-        <p><em>${user.quote || 'Нет цитаты'}</em></p>
+        <p><em>${user.quote || '—'}</em></p>
       </div>
     `;
 
