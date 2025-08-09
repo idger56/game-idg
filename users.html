@@ -26,25 +26,28 @@
 
     main.container{ max-width:1200px; margin:18px auto; padding:0 16px; }
 
-    /* Grid: my-profile + users grid */
-    .users-grid{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap:20px;
-      align-items:start;
-    }
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
 
-    /* "Сам пользователь" блок должен занимать 3 колонки */
-    .my-profile-block > .my-profile-expanded{
-      grid-column: 1 / -1; /* span all 3 cols */
-      display:flex;
-      gap:18px;
-      padding:18px;
-      background:var(--card-bg);
-      border-radius:12px;
-      box-shadow: var(--shadow);
-      align-items:flex-start;
-    }
+/* Сам пользователь занимает всю ширину */
+#my-profile {
+  grid-column: 1 / -1;
+}
+
+/* Карточка "сам пользователь" */
+.my-profile-expanded {
+  display: flex;
+  gap: 18px;
+  padding: 18px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  align-items: flex-start;
+}
+
 
     /* avatar column */
     .profile-avatar { flex: 0 0 220px; display:flex; flex-direction:column; align-items:center; gap:10px; }

@@ -442,7 +442,8 @@ async function loadOtherUsers(currentUserId, totalGames) {
         </div>
       </div>
     `;
-    usersList.appendChild(card);
+    usersGrid.appendChild(card);
+
   }
 }
 
