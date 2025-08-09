@@ -1,2 +1,867 @@
-/* Здесь будет новый styles.css */
-/* Обновлённая версия с изменениями */
+/* Общий контейнер */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  background-color: #fff;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  margin-top: 30px;
+}
+
+/* Общие стили страницы */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #121212;
+  color: #333;
+}
+
+/* Хедер */
+header {
+  background-color: #1f1f1f;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Верхнее меню */
+.top-menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 25px;
+  background-color: #222;
+}
+
+.menu-left,
+.menu-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+
+.menu-left button,
+.menu-right button {
+  background: none;
+  border: 2px solid #fff;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.menu-left button:hover,
+.menu-right button:hover {
+  background-color: #444;
+}
+
+.user-nickname {
+  color: #fff;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Секция авторизации */
+.auth-card {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  max-width: 420px;
+  margin: 60px auto;
+  text-align: center;
+  border: 1px solid #eee;
+}
+
+.auth-card h2 {
+  margin-bottom: 25px;
+  color: #333;
+  font-size: 1.6rem;
+}
+
+.auth-fields input {
+  width: calc(100% - 2px); /* ⬅️ немного уменьшаем ширину */
+  padding: 14px 18px;
+  margin: 12px 0;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border 0.3s, box-shadow 0.3s;
+  background-color: #fefefe;
+  box-sizing: border-box; /* гарантирует, что padding не раздует элемент */
+}
+
+
+.auth-fields input:focus {
+  border-color: #2a7ae2;
+  outline: none;
+  box-shadow: 0 0 6px rgba(42, 122, 226, 0.3);
+}
+
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.auth-buttons button {
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s ease;
+}
+
+.auth-buttons button:first-child {
+  background-color: #2a7ae2;
+  color: white;
+}
+
+.auth-buttons button:last-child {
+  background-color: #27ae60;
+  color: white;
+}
+
+.auth-buttons button:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.95rem;
+  margin-top: 15px;
+}
+
+
+/* Ошибки */
+#error-message,
+.error-message {
+  color: #e74c3c;
+  margin-top: 15px;
+}
+
+/* Секция контента */
+#main-section h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Форма добавления */
+#add-game-form {
+  background-color: #fafafa;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+#add-game-form h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#add-game-form input,
+#add-game-form select {
+  margin: 10px auto;
+}
+
+#add-game-form input,
+#add-game-form select,
+#add-game-form button {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  display: block;
+}
+
+/* Кнопка "Добавить игру" */
+#add-game-form button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+  margin: auto;
+}
+
+#add-game-form button:hover {
+  background-color: #1e874b;
+}
+
+/* Сетка карточек */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 🔥 3 карточки в ряд */
+  gap: 30px; /* расстояние между карточками */
+  padding: 0 40px; /* отступы по краям */
+  margin-top: 40px;
+  box-sizing: border-box;
+}
+
+/* Карточка */
+.game-card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+  height: 100%;
+  margin-bottom: 20px;
+  min-height: 520px; /* 🔥 делаем выше */
+}
+
+.game-card:hover {
+  transform: translateY(-7px);
+}
+
+.game-card img {
+  width: 100%;
+  height: 250px; /* 🔥 фиксированная высота */
+  object-fit: cover;
+}
+
+.game-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.game-content h3 {
+  margin: 0 0 14px;
+  font-size: 1.7rem;
+  color: #000000;
+}
+
+.game-content p {
+  margin: 8px 0;
+  color: #000000;
+  font-size: 1.05rem;
+}
+
+.game-content a {
+  margin-top: auto;
+  color: #000000;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.05rem;
+}
+
+.game-content a:hover {
+  text-decoration: underline;
+}
+
+
+/* Кнопка редактирования */
+.edit-form {
+  margin-top: 15px;
+  padding: 20px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.edit-form .form-input,
+.edit-form .form-select {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 100%;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.edit-form .form-input:focus,
+.edit-form .form-select:focus {
+  border-color: #2a7ae2;
+  outline: none;
+}
+
+.edit-form .save-button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-form .save-button:hover {
+  background-color: #219150;
+}
+
+.mt-10 {
+  background-color: #2e8d57;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.form-input,
+.form-select {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-select:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 4px #3498db;
+}
+
+.submit-button {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #27ae60;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.filter-bar input,
+.filter-bar select {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  min-width: 200px;
+}
+
+.filters {
+  margin-top: 30px; /* ⬅️ Добавляет отступ от шапки */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Центрируем по горизонтали */
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filters input,
+.filters select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  min-width: 200px;
+}
+
+.rating-wrapper {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+}
+
+.rating-label {
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #ebebeb
+}
+
+.rating-select {
+  padding: 8px 10px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  width: 100%;
+  max-width: 180px;
+}
+
+.rating-select:focus {
+  border-color: #2a7ae2;
+  outline: none;
+  box-shadow: 0 0 4px #2a7ae2;
+}
+
+.user-rating-info {
+  margin-top: 10px;
+  font-weight: 500;
+  color: #ebebeb;
+  font-size: 1rem;
+}
+
+/* Центрирование кнопки */
+#toggle-add-form {
+  display: block;
+  margin: 30px auto 20px auto;  /* отступ сверху и снизу + центрирование */
+  padding: 12px 24px;
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#toggle-add-form:hover {
+  background-color: #1e874b;
+}
+
+/* Контейнер формы */
+#add-form-container {
+  max-width: 600px;
+  margin: 0 auto 30px auto;  /* центр и отступ снизу */
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Поля ввода */
+#add-game-form input,
+#add-game-form select,
+#add-game-form button {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+#add-game-form button {
+  background-color: #2ecc71;
+  color: white;
+  font-weight: bold;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+#add-game-form button:hover {
+  background-color: #27ae60;
+}
+
+.rating-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9f9f9;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-top: 16px;
+  gap: 20px;
+}
+
+.rating-select-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-block .rating-select {
+  min-width: 100px;
+}
+
+.rating-block .user-rating,
+.rating-block .avg-rating {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ebebeb;
+}
+
+/* Блок оценок в карточке */
+.rating-summary {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.05rem;
+  color: #555;
+  margin: 10px 0;
+  font-weight: normal;
+}
+
+.rating-form {
+  margin-top: 10px;
+}
+
+.rating-form .rating-label {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.rating-form .rating-select {
+  padding: 6px 10px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+/* Стилизация кнопки "Скачать / Перейти" */
+.download-btn-wrapper {
+  margin-top: auto;
+  text-align: center;
+}
+
+.download-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background-color: #2a7ae2;
+  color: white;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.05rem;
+  transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+  background-color: #1e5bbf;
+}
+
+.top-btn {
+  background: none;
+  border: 2px solid #fff;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.top-btn:hover {
+  background-color: #444;
+}
+
+.multi-select {
+  min-height: 200px;
+  max-height: 320px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background-color: #fff;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.multi-select option {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.styled-select {
+  appearance: none;
+  background-color: #ffffff;
+  border: 2px solid #27ae60;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #2e8d57;
+  cursor: pointer;
+  max-width: 160px;
+  transition: 0.2s ease;
+}
+
+.styled-select:focus {
+  border-color: #1e874b;
+  box-shadow: 0 0 4px rgba(39, 174, 96, 0.5);
+  outline: none;
+}
+
+.rating-block {
+  margin-top: 15px;
+  background-color: #f6fdf9;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #d6ecd6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+    .filters {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .filters input,
+    .filters select {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      min-width: 220px;
+    }
+
+   .top-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 30px;
+}
+
+/* Общий стиль карточек */
+.top-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.top-card:hover {
+  transform: translateY(-5px);
+}
+
+.top-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.top-card h3 {
+  margin: 14px 0 6px;
+  font-size: 1.4rem;
+  color: #444;
+}
+
+.top-card .rank {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #2a7ae2;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.top-card .avg-rating {
+  margin-top: 6px;
+  font-weight: bold;
+  color: #2a7ae2;
+  font-size: 1.1rem;
+}
+
+/* 🥇 1 место — на всю строку */
+.top-card.gold {
+  grid-column: span 6;
+  background: #fffbea;
+}
+.top-card.gold img {
+  height: 300px;
+}
+.top-card.gold .rank {
+  background: gold;
+  color: #000;
+}
+
+/* 🥈 2 место */
+.top-card.silver {
+  grid-column: span 3;
+  background: #f1f1f1;
+}
+.top-card.silver img {
+  height: 260px;
+}
+.top-card.silver .rank {
+  background: silver;
+  color: #000;
+}
+
+/* 🥉 3 место */
+.top-card.bronze {
+  grid-column: span 3;
+  background: #fbe5d0;
+}
+.top-card.bronze img {
+  height: 260px;
+}
+.top-card.bronze .rank {
+  background: #cd7f32;
+  color: #fff;
+}
+
+/* 🏅 Остальные */
+.top-card {
+  grid-column: span 2;
+}
+
+
+/* 🔁 Responsive */
+@media (max-width: 768px) {
+  .top-grid {
+    grid-template-columns: 1fr;
+  }
+  .top-card,
+  .top-card.gold,
+  .top-card.silver,
+  .top-card.bronze {
+    grid-column: span 1 !important;
+    height: auto;
+  }
+  .top-card img {
+    height: 220px;
+  }
+}
+/* 1 место */
+.top-card.wide {
+  grid-column: span 3;
+}
+
+/* 2 и 3 место */
+.top-card.half {
+  grid-column: span 1.5; /* Или span 2, если у тебя 6 колонок */
+}
+
+/* Сетка */
+#top-games-list {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 🔄 6 колонок вместо 3 */
+  gap: 20px;
+}
+
+/* Контейнер страницы пользователей */
+#my-profile, #users-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+
+/* Поля ввода и кнопки в профиле */
+#my-profile input[type="text"],
+#my-profile input[type="url"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95em;
+}
+
+#my-profile button {
+  background: #4cafef;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  margin-top: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s ease;
+}
+
+#my-profile button:hover {
+  background: #399ad9;
+}
+
+/* --- steam-style achievements --- */
+.steam-achievements, .achievements-list { display:flex; flex-direction:column; gap:12px; }
+.steam-achievement { display:flex; gap:12px; background: rgba(255,255,255,0.02); padding:10px; border-radius:8px; align-items:center; }
+.medal-icon { width:64px; height:64px; object-fit:cover; border-radius:8px; background:#222; flex:0 0 64px; }
+.achievement-details h4 { margin:0 0 6px 0; color:#fff; font-size:1rem; }
+.achievement-details p { margin:0 0 8px 0; color:#cfcfcf; font-size:0.9rem; }
+.progress-bar { height:8px; background:#2b2b2b; border-radius:4px; overflow:hidden; margin-bottom:6px; }
+.progress-bar .progress { height:100%; background:linear-gradient(90deg,#4caf50,#81c784); }
+
+/* compact achievements in my-profile column */
+.steam-achievement-compact { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
+.medal-icon-compact { width:48px; height:48px; border-radius:6px; }
+.mini-progress { height:6px; background:#333; border-radius:3px; overflow:hidden; margin-top:6px; }
+.mini-progress-bar { height:100%; background:#4caf50; }
+
+/* compact users list */
+.user-compact { padding:12px; margin:10px 0; display:block; }
+
+/* achievements bar compact on right of cards */
+.achievements-bar-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* чуть меньше, чтобы экономить место */
+  align-items: center;
+}
+
+.medal-compact img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+}
+
+/* белый текст для процента */
+.achievement-details small {
+  color: #fff;
+}
+
+
+/* profile header layout */
+.profile-header.steam-profile { display:flex; gap:20px; align-items:flex-start; background:transparent; padding:12px; }
+.profile-left img { width:220px; height:220px; object-fit:cover; border-radius:8px; }
+.profile-mid { flex:1; color:#fff; }
+.profile-right { width:420px; }
+
+/* badges row */
+.profile-badges { display:flex; gap:8px; margin-top:8px; }
+.profile-badges img { width:40px; height:40px; }
+
+/* some small utilities */
+.submit-button { background:#2ecc71; color:#fff; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; }
