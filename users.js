@@ -451,30 +451,28 @@ if (user.lastActive && typeof user.lastActive.toMillis === "function") {
     if (m2.level !== "Нет") medals.push({ key: "critic", name: "Критик", level: m2.level, value: ratings.length });
 
   const genresPlayed = new Set();
-  const genreCount = {};
-  ratings.forEach(r => {
-    const g = games.find(x => x.id === r.gameId);
-    if (g && g.category) {
-      const cats = Array.isArray(g.category) ? g.category : [g.category];
-      cats.forEach(cat => {
-        genresPlayed.add(cat);
-        genreCount[cat] = (genreCount[cat] || 0) + 1;
-      });
-    }
-  });
+const genreCount = {};
+ratings.forEach(r => {
+  const g = games.find(x => x.id === r.gameId);
+  if (g && g.category) {
+    const cats = Array.isArray(g.category) ? g.category : [g.category];
+    cats.forEach(cat => {
+      genresPlayed.add(cat);
+      genreCount[cat] = (genreCount[cat] || 0) + 1;
+    });
+  }
+});
 
-  const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
-  if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
-
+const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
+if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
 // загружаем userData ...
-  let favGenrePercent = 0;
-  if (userData.favoriteGenre && ratings.length) {
-    favGenrePercent = Math.round(((genreCount[userData.favoriteGenre] || 0) / ratings.length) * 100);
+
+ let favGenrePercent = 0;
+if (userData.favoriteGenre && ratings.length) {
+  favGenrePercent = Math.round(((genreCount[userData.favoriteGenre] || 0) / ratings.length) * 100);
 }
-
 const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
-  if (m4.level !== "Нет") medals.push({ key: "favgenre", name: "Любимчик жанра", level: m4.level, value: favGenrePercent });
-
+if (m4.level !== "Нет") medals.push({ key: "favgenre", name: "Любимчик жанра", level: m4.level, value: favGenrePercent });
     // medals column HTML (small icons) limited to show "важные" ранги
     let medalsHTML = `<div class="achievements-bar-compact" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">`;
     // order gold -> silver -> bronze
