@@ -22,8 +22,9 @@
 }
 
 #my-profile {
-  grid-column: 1 / -1;
+  grid-column: 1 / -1; /* растянуть на все 3 колонки */
 }
+
 
 
 /* Карточка "сам пользователь" */
@@ -113,15 +114,13 @@
     </nav>
   </header>
 
-  <main id="users-section" class="container">
-    <div class="users-grid">
-<div class="users-grid" id="users-grid">
-  <div id="my-profile" class="user-profile-block"></div>
-  <!-- Остальные пользователи пойдут сюда -->
-</div>
+<main id="users-section" class="container">
+  <div class="users-grid" id="users-grid">
+    <div id="my-profile"></div>
+    <!-- Другие пользователи пойдут сюда -->
+  </div>
+</main>
 
-    </div>
-  </main>
 
   <script type="module" src="users.js"></script>
 </body>
