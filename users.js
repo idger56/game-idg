@@ -422,7 +422,12 @@ for (const docSnap of usersSnapshot.docs) {
   const user = docSnap.data();
   if (user.uid === currentUserId) continue;
 
-  const ratings = ratingMap[user.uid] || [];
+// вместо использования ratingMap — делаем запрос как в profile.html
+const ratingsSnapshot = await getDocs(
+  query(collection(db, "ratings"), where("userId", "==", user.uid))
+);
+const ratings = ratingsSnapshot.docs.map(d => d.data());
+
   const percentComplete = totalGames ? Math.round((ratings.length / totalGames) * 100) : 0;
 
    const userDocSnap = await getDoc(doc(db, "users", user.uid));
