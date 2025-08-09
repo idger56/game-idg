@@ -10,6 +10,7 @@ import {
   getFirestore,
   collection,
   getDocs,
+  getDoc,
   query,
   where,
   doc,
@@ -459,16 +460,21 @@ if (user.lastActive && typeof user.lastActive.toMillis === "function") {
     const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
     if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
 
+// загружаем userData для текущего пользователя из Firestore (коллекция "users", документ user.uid)
+const userDocSnap = await getDoc(doc(db, "users", user.uid));
+const userData = userDocSnap.exists() ? userDocSnap.data() : user;
+
 let favGenrePercent = 0;
 if (userData.favoriteGenre && ratings.length) {
   const favCount = ratings.filter(r => {
-    const g = gamesArr.find(x => x.id === r.gameId);
+    const g = games.find(x => x.id === r.gameId);
     if (!g || !g.category) return false;
     const cats = Array.isArray(g.category) ? g.category : [g.category];
     return cats.includes(userData.favoriteGenre);
   }).length;
   favGenrePercent = Math.round((favCount / ratings.length) * 100);
 }
+
 
     const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
     if (m4.level !== "Нет") medals.push({ key: "favgenre", name: "Любимчик жанра", level: m4.level, value: favGenrePercent });
