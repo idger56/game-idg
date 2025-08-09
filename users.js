@@ -177,10 +177,10 @@ window.addEventListener("beforeunload", async () => {
   }
 
   const myDoc = snapshot.docs[0];
-  const userData = myDoc.data();
+  const myData = myDoc.data();
   const myDocId = myDoc.id;
 
-  nicknameSpan.textContent = `👤 ${userData.nickname || user.email}`;
+  nicknameSpan.textContent = `👤 ${myData.nickname || user.email}`;
   nicknameSpan.style.display = "inline-block";
 
   // user ratings to compute average & percent
@@ -193,20 +193,20 @@ const percentComplete = totalGames ? Math.round((userRatings.length / totalGames
 
   // compute genre count
 const gamesSnap = allGamesSnapshot; // already fetched
-const games = gamesSnap.docs.map(g => ({ id: g.id, ...g.data() }));
-const genresPlayed = new Set();
-  Ratings.forEach(r => {
-    const g = games.find(x => x.id === r.gameId);
+const gamesArr = gamesSnap.docs.map(g => ({ id: g.id, ...g.data() }));
+const genresSet = new Set();
+  userRatings.forEach(r => {
+    const g = gamesArr.find(x => x.id === r.gameId);
     if (g && g.category) {
-      if (Array.isArray(g.category)) g.category.forEach(c => genresPlayed.add(c));
-      else genresPlayed.add(g.category);
+      if (Array.isArray(g.category)) g.category.forEach(c => genresSet.add(c));
+      else genresSet.add(g.category);
     }
   });
 
   // Подсчёт процента любимого жанра
 const genreCount = {};
-Ratings.forEach(r => {
-  const g = games.find(x => x.id === r.gameId);
+userRatings.forEach(r => {
+  const g = gamesArr.find(x => x.id === r.gameId);
   if (g && g.category) {
     const cats = Array.isArray(g.category) ? g.category : [g.category];
     cats.forEach(cat => {
@@ -216,16 +216,16 @@ Ratings.forEach(r => {
 });
 
 let favGenrePercent = 0;
-if (userData.favoriteGenre && userRatings.length) {
-  favGenrePercent = Math.round(((genreCount[userData.favoriteGenre] || 0) / userRatings.length) * 100);
+if (myData.favoriteGenre && userRatings.length) {
+  favGenrePercent = Math.round(((genreCount[myData.favoriteGenre] || 0) / userRatings.length) * 100);
 }
 
 
-renderMyProfile(userData, {
+renderMyProfile(myData, {
   avgRating,
   percentComplete,
   ratingsCount: userRatings.length,
-  genresCount: genresPlayed.size,
+  genresCount: genresSet.size,
   favGenrePercent,
   totalGames
 }, myDocId);
@@ -490,12 +490,12 @@ if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекци�
 
 // Подсчёт любимого жанра
 const genreCount = {};
-Ratings.forEach(r => {
+userRatings.forEach(r => {
   const g = gamesArr.find(x => x.id === r.gameId);
   if (g && g.category) {
     const cats = Array.isArray(g.category) ? g.category : [g.category];
     cats.forEach(cat => {
-      genresPlayed.add(cat);
+      genresSet.add(cat);
       genreCount[cat] = (genreCount[cat] || 0) + 1;
     });
   }
