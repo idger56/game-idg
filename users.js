@@ -466,6 +466,15 @@ if (user.lastActive && typeof user.lastActive.toMillis === "function") {
   statusClass = (statusText === "Онлайн") ? "online" : "offline";
 }
 
+// Подсчёт уникальных жанров
+const genresPlayed = new Set();
+ratings.forEach(r => {
+  const game = games.find(g => g.id === r.gameId);
+  if (game && game.category) {
+    const cats = Array.isArray(game.category) ? game.category : [game.category];
+    cats.forEach(cat => genresPlayed.add(cat));
+  }
+});
 
     // medals
     const medals = [];
@@ -500,7 +509,7 @@ if (myData.favoriteGenre && userRatings.length) {
 
 
 
-const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
+const m4 = getMedalLevel(favGenrePercent, 25, 50, 80);
 if (m4.level !== "Нет") medals.push({ key: "favgenre", name: "Любимчик жанра", level: m4.level, value: favGenrePercent });
     // medals column HTML (small icons) limited to show "важные" ранги
     let medalsHTML = `<div class="achievements-bar-compact" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">`;
@@ -552,7 +561,7 @@ function renderAchievementsColumn(container, stats) {
     { key: "master", name: "Мастер прохождений", desc: "Пройди как можно больше игр", value: stats.percentComplete, bronze:20, silver:50, gold:80, unit: "%" },
     { key: "critic", name: "Критик", desc: "Оценивай игры и становись признанным критиком", value: stats.ratingsCount, bronze:10, silver:30, gold:50, unit: "" },
     { key: "genres", name: "Коллекционер жанров", desc: "Играй в разные жанры", value: stats.genresCount, bronze:8, silver:13, gold:20, unit: "" },
-   { key: "favgenre", name: "Любимчик жанра", desc: "Будь преданным фанатом жанра", value: stats.favGenrePercent || 0, bronze:50, silver:70, gold:90, unit: "%" }
+   { key: "favgenre", name: "Любимчик жанра", desc: "Будь преданным фанатом жанра", value: stats.favGenrePercent || 0, bronze:25, silver:50, gold:80, unit: "%" }
 
   ];
 
