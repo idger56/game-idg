@@ -80,16 +80,6 @@ let lastSeenIntervalId = null;  // глобально вверху файла
 let userStatusIntervalId = null; // для обновления статуса онлайн
 let currentUserUid = null; // чтобы хранить uid текущего пользователя
 
-async function updateUserLastSeen(uid) {
-  if (!uid) return;
-  try {
-    const userRef = doc(db, "users", uid);
-    await updateDoc(userRef, { lastSeen: Date.now() });
-  } catch (e) {
-    console.error("Ошибка обновления lastSeen:", e);
-  }
-}
-
 async function updateUserStatus(uid, status) {
   if (!uid) return;
   try {
