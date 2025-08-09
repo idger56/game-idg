@@ -358,15 +358,19 @@ async function loadOtherUsers(currentUserId, totalGames) {
     const percentComplete = totalGames ? Math.round((ratings.length / totalGames) * 100) : 0;
 
     // online/offline
-    let statusText = "Оффлайн", statusClass = "offline";
-    if (user.lastActive && typeof user.lastActive.toMillis === "function") {
-      if (now - user.lastActive.toMillis() < 5 * 60 * 1000) {
-        statusText = "Онлайн"; statusClass = "online";
-      } else {
-        const mins = Math.floor((now - user.lastActive.toMillis()) / 60000);
-        statusText = `Был в сети ${mins} ${ruPlural(mins,['минута','минуты','минут'])} назад`;
-      }
-    }
+// Предполагается, что ruPlural и formatLastSeenFromMillis уже объявлены
+
+let statusText = "Оффлайн";
+let statusClass = "offline";
+
+if (user.lastActive && typeof user.lastActive.toMillis === "function") {
+  const lastMillis = user.lastActive.toMillis();
+  statusText = formatLastSeenFromMillis(lastMillis);
+
+  // Если статус "Онлайн" — класс online, иначе offline
+  statusClass = (statusText === "Онлайн") ? "online" : "offline";
+}
+
 
     // medals
     const medals = [];
