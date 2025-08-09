@@ -185,7 +185,7 @@ window.addEventListener("beforeunload", async () => {
 
   // user ratings to compute average & percent
 const userRatingsSnapshot = await getDocs(query(collection(db, "ratings"), where("userId", "==", user.uid)));
-const Ratings = userRatingsSnapshot.docs.map(d => d.data());
+const userRatings = userRatingsSnapshot.docs.map(d => d.data());
 const avgRating = userRatings.length
   ? (userRatings.reduce((a, b) => a + b.rating, 0) / userRatings.length).toFixed(1)
   : "—";
