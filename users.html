@@ -119,6 +119,92 @@
   margin-bottom: 20px;
   min-height: auto;
 }
+/* Обеспечим, что контейнер гридов учитывает padding и border */
+.users-grid {
+  box-sizing: border-box;
+  padding-bottom: 24px; /* Отступ снизу, чтобы карточки не упирались */
+  /* остальное без изменений */
+}
+
+/* Вертикальные и горизонтальные отступы уже есть gap:20px, хватит */
+
+/* Карточки пользователей (компакт) */
+.user-compact.game-card {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 12px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+/* Добавим эффект при наведении */
+.user-compact.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* Картинка в карточке */
+.user-compact img {
+  border-radius: 12px;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}
+
+/* Контейнер с кнопкой "Профиль" */
+.user-compact .btn {
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 4px 10px rgba(76,175,239,0.4);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+/* Эффект наведения для кнопки */
+.user-compact .btn:hover {
+  background: #3a90d8;
+  box-shadow: 0 6px 15px rgba(58,144,216,0.6);
+}
+
+/* Сделаем кнопку чуть шире, чтобы она выглядела аккуратнее */
+.user-compact .btn {
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Отступ сверху и снизу для блока кнопки, чтобы кнопка не слипалась с текстом */
+.user-compact > div > div:last-child {
+  margin-top: 10px;
+}
+
+/* Для мобильных — уменьшим размеры и перестроим */
+@media (max-width: 640px) {
+  .users-grid {
+    grid-template-columns: 1fr;
+    padding-bottom: 16px;
+  }
+
+  .user-compact img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .user-compact .btn {
+    min-width: 80px;
+    padding: 6px 12px;
+  }
+}
+
   </style>
 </head>
 <body>
