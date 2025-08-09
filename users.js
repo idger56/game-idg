@@ -57,13 +57,37 @@ function getMedalIconPath(key, level) {
   }
 }
 
-function safeImgAttrs(src, alt = "") {
-  // returns html-safe img attributes with onerror fallback (relative locked image)
-  const locked = `assets/medals/locked.png`;
-  return `src="${src}" alt="${alt}" onerror="this.onerror=null; this.src='${locked}';"`;
+/* ========== small util: russian plural (минут/часов) ========== */
+function ruPlural(n, forms){
+  // forms: [singular, paucal(2-4), plural]
+  n = Math.abs(n) % 100;
+  const n1 = n % 10;
+  if (n > 10 && n < 20) return forms[2];
+  if (n1 > 1 && n1 < 5) return forms[1];
+  if (n1 === 1) return forms[0];
+  return forms[2];
 }
 
-/* ========== AUTH BUTTON (LOGOUT -> index.html) ========== */
+/* format last seen from millis => human string */
+function formatLastSeenFromMillis(lastMillis){
+  if (!lastMillis) return "—";
+  const diff = Date.now() - lastMillis;
+  if (diff < 0) return "—";
+  // online threshold 5 minutes
+  if (diff < 5 * 60 * 1000) return "Онлайн";
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) {
+    return `Был в сети ${mins} ${ruPlural(mins,['минута','минуты','минут'])} назад`;
+  }
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) {
+    return `Был в сети ${hours} ${ruPlural(hours,['час','часа','часов'])} назад`;
+  }
+  const days = Math.floor(hours / 24);
+  return `Был в сети ${days} ${ruPlural(days,['день','дня','дней'])} назад`;
+}
+
+/* ========= AUTH BUTTON (LOGOUT -> index.html) ========== */
 if (authBtn) {
   authBtn.addEventListener("click", () => {
     if (auth.currentUser) {
@@ -74,7 +98,6 @@ if (authBtn) {
         window.location.href = "index.html";
       });
     } else {
-      // if not signed in, maybe open login on index — keep default behavior
       window.location.href = "index.html";
     }
   });
@@ -87,21 +110,20 @@ onAuthStateChanged(auth, async (user) => {
   const totalGames = allGamesSnapshot.size || 0;
 
   if (!user) {
-    // not signed in: show message and still render other users
-    myProfileDiv.innerHTML = `<div class="full-width-msg">Войдите, чтобы увидеть и редактировать свой профиль.</div>`;
+    myProfileDiv.innerHTML = `<div class="my-profile-expanded game-card" style="grid-column:1 / -1; padding:18px;">
+      <div style="width:100%; text-align:center;">Войдите, чтобы увидеть и редактировать свой профиль.</div>
+    </div>`;
     await loadOtherUsers(null, totalGames);
     nicknameSpan.style.display = "none";
     return;
   }
 
   // update lastActive periodically in background (every 30s)
-  // NOTE: this only writes if security rules allow user to write their doc
   setInterval(async () => {
     try {
       await updateDoc(doc(db, "users", user.uid), { lastActive: serverTimestamp() });
     } catch (e) {
-      // ошибок не мешаем пользователю
-      // console.warn("Не удалось обновить lastActive:", e.message);
+      // иногда правила запрещают — игнорируем
     }
   }, 30000);
 
@@ -109,7 +131,9 @@ onAuthStateChanged(auth, async (user) => {
   const q = query(collection(db, "users"), where("uid", "==", user.uid));
   const snapshot = await getDocs(q);
   if (snapshot.empty) {
-    myProfileDiv.innerHTML = `<div class="full-width-msg">Профиль не найден в базе. Если вы только что зарегистрировались, попробуйте войти снова.</div>`;
+    myProfileDiv.innerHTML = `<div class="my-profile-expanded game-card" style="grid-column:1 / -1; padding:18px;">
+      <div style="width:100%; text-align:center;">Профиль не найден в базе. Если вы только что зарегистрировались, попробуйте войти снова.</div>
+    </div>`;
     await loadOtherUsers(user.uid, totalGames);
     return;
   }
@@ -149,56 +173,105 @@ onAuthStateChanged(auth, async (user) => {
     genresCount: genresSet.size,
     totalGames
   }, myDocId);
+
   // then list other users
   await loadOtherUsers(user.uid, totalGames);
 });
 
-/* ========== renderMyProfile ========== */
+/* ========== renderMyProfile (новая верстка / поведение) ========== */
 function renderMyProfile(userData, stats, docId) {
   const avatar = userData.avatar || "assets/default-avatar.png"; // local placeholder if you have it
-  // Left: avatar; center: info; right: achievements column
+
+  // lastActive in millis (if exists)
+  let lastActiveMillis = null;
+  if (userData.lastActive && typeof userData.lastActive.toMillis === "function") {
+    lastActiveMillis = userData.lastActive.toMillis();
+  } else if (typeof userData.lastActive === "number") {
+    lastActiveMillis = userData.lastActive;
+  }
+
   myProfileDiv.innerHTML = `
-    <div class="my-profile-expanded game-card" style="display:flex; gap:20px; padding:18px; align-items:flex-start;">
-      <div style="flex:0 0 280px;">
+    <div class="my-profile-expanded">
+      <div class="profile-avatar">
         <img id="my-avatar-img" src="${avatar}" alt="Аватар" onerror="this.onerror=null; this.src='assets/default-avatar.png'">
-        <div style="margin-top:10px; text-align:center;">
-          <button id="open-my-profile" class="top-btn">Открыть страницу профиля</button>
-          <button id="edit-my-profile" class="top-btn" style="margin-left:8px;">Редактировать</button>
+        <div class="avatar-actions">
+          <button id="open-my-profile" class="btn btn-primary">В профиль</button>
+          <button id="edit-my-profile" class="btn btn-ghost">Редактировать</button>
         </div>
       </div>
 
-      <div style="flex:1;">
-        <h2>${userData.nickname || "Пользователь"}</h2>
-        <p><strong>Средняя оценка:</strong> ${stats.avgRating}</p>
-        <p><strong>Пройдено:</strong> ${stats.percentComplete}% (${stats.ratingsCount}/${stats.totalGames || 0})</p>
-        <p><strong>Любимый жанр:</strong> ${userData.favoriteGenre || "—"}</p>
-        <p style="font-style:italic;">${userData.quote || "—"}</p>
+      <div class="profile-info">
+        <div>
+          <h2 id="self-nickname">${userData.nickname || "Пользователь"}</h2>
+          <div class="profile-meta">
+            <div class="mini-muted">Средняя оценка: <strong>${stats.avgRating}</strong></div>
+            <div class="mini-muted">Пройдено: <strong>${stats.percentComplete}%</strong></div>
+            <div id="self-status" class="self-status status ${ (lastActiveMillis && (Date.now() - lastActiveMillis) < 5*60*1000) ? 'online' : 'offline' }" data-lastactive="${ lastActiveMillis || '' }">
+              ${ formatLastSeenFromMillis(lastActiveMillis) }
+            </div>
+          </div>
+          <p class="profile-quote">${userData.quote || "—"}</p>
+        </div>
 
-        <div style="margin-top:12px;">
-          <label>Аватар (URL):</label>
-          <input id="avatar-url-input" type="url" value="${userData.avatar || ''}" style="width:100%; padding:8px; margin-top:6px;">
-          <label style="margin-top:8px; display:block;">Цитата:</label>
-          <input id="quote-input-top" type="text" value="${userData.quote || ''}" style="width:100%; padding:8px; margin-top:6px;">
-          <label style="margin-top:8px; display:block;">Любимый жанр:</label>
-          <input id="genre-input-top" type="text" value="${userData.favoriteGenre || ''}" style="width:100%; padding:8px; margin-top:6px;">
-          <div style="margin-top:10px;">
-            <button id="save-my-profile" class="submit-button">Сохранить профиль</button>
+        <div>
+          <div class="achievement-icons" id="self-achievement-icons" aria-hidden="false"></div>
+        </div>
+
+        <div class="profile-edit">
+          <label>Аватар (URL)</label>
+          <input id="avatar-url-input" type="url" value="${userData.avatar || ''}" placeholder="https://...">
+          <label>Цитата</label>
+          <input id="quote-input-top" type="text" value="${userData.quote || ''}" placeholder="Короткая цитата">
+          <label>Любимый жанр</label>
+          <input id="genre-input-top" type="text" value="${userData.favoriteGenre || ''}" placeholder="RPG, Action...">
+          <div style="display:flex; gap:8px;">
+            <button id="save-my-profile" class="btn btn-primary">Сохранить профиль</button>
+            <button id="cancel-edit" class="btn btn-ghost">Отмена</button>
           </div>
         </div>
       </div>
 
-      <div id="my-achievements-column" style="flex:0 0 320px;"></div>
+      <div id="my-achievements-column" class="profile-achievements-column"></div>
     </div>
   `;
 
-  // render achievements column (use same renderer as profile page)
-  const statsObj = {
+  // render achievements icons (compact) - example: показываем до 6 иконок (при наличии)
+  const iconsContainer = document.getElementById("self-achievement-icons");
+  const medalsArr = [];
+  // build same medals as elsewhere
+  const m1 = getMedalLevel(stats.percentComplete, 50, 80, 100);
+  if (m1.level !== "Нет") medalsArr.push({ key: "master", level: m1.level });
+  const m2 = getMedalLevel(stats.ratingsCount, 10, 30, 50);
+  if (m2.level !== "Нет") medalsArr.push({ key: "critic", level: m2.level });
+  const m3 = getMedalLevel(stats.genresCount, 3, 5, 8);
+  if (m3.level !== "Нет") medalsArr.push({ key: "genres", level: m3.level });
+  const m4 = getMedalLevel(stats.favGenrePercent || 0, 50, 70, 90);
+  if (m4.level !== "Нет") medalsArr.push({ key: "favgenre", level: m4.level });
+
+  // order: gold -> silver -> bronze -> locked (and limit to ~6 icons)
+  const ordered = [];
+  ["Золото","Серебро","Бронза","Нет"].forEach(lvl=>{
+    medalsArr.forEach(m=>{
+      if (m.level === lvl) ordered.push(m);
+    });
+  });
+  ordered.slice(0,6).forEach(m => {
+    const path = getMedalIconPath(m.key, m.level);
+    const img = document.createElement("img");
+    img.src = path;
+    img.alt = m.key;
+    img.title = `${m.key} — ${m.level}`;
+    img.onerror = function(){ this.onerror=null; this.src='assets/medals/locked.png' };
+    iconsContainer.appendChild(img);
+  });
+
+  // render achievements column (detailed)
+  renderAchievementsColumn(document.getElementById("my-achievements-column"), {
     percentComplete: stats.percentComplete,
     ratingsCount: stats.ratingsCount,
     genresCount: stats.genresCount,
-    favGenrePercent: computeFavGenrePercent(userData, stats.ratingsCount) // helper returns 0..100
-  };
-  renderAchievementsColumn(document.getElementById("my-achievements-column"), statsObj);
+    favGenrePercent: stats.favGenrePercent || 0
+  });
 
   // open my profile button -> profile.html?uid=<uid>
   document.getElementById("open-my-profile").addEventListener("click", () => {
@@ -206,18 +279,26 @@ function renderMyProfile(userData, stats, docId) {
     window.location.href = `profile.html?uid=${uid}`;
   });
 
-  // save profile click
+  // cancel edit just resets inputs to current values
+  document.getElementById("cancel-edit").addEventListener("click", () => {
+    document.getElementById("avatar-url-input").value = userData.avatar || '';
+    document.getElementById("quote-input-top").value = userData.quote || '';
+    document.getElementById("genre-input-top").value = userData.favoriteGenre || '';
+  });
+
+  // save profile click -> use docId to update correct document
   document.getElementById("save-my-profile").addEventListener("click", async () => {
     const avatarUrl = document.getElementById("avatar-url-input").value.trim();
     const quote = document.getElementById("quote-input-top").value.trim();
     const genre = document.getElementById("genre-input-top").value.trim();
     try {
-      await updateDoc(doc(db, "users", userData.uid), {
+      await updateDoc(doc(db, "users", docId), {
         avatar: avatarUrl || userData.avatar || null,
         quote,
         favoriteGenre: genre || null,
         lastActive: serverTimestamp()
       });
+      // обновляем UI — проще перезагрузить страницу чтобы всё синхронизировалось
       alert("Профиль успешно сохранён.");
       location.reload();
     } catch (e) {
@@ -225,14 +306,33 @@ function renderMyProfile(userData, stats, docId) {
       alert("Ошибка при сохранении профиля. Проверьте правила Firestore и сеть.");
     }
   });
+
+  // start live updater for "был в сети" каждые 60 секунд
+  startSelfLastActiveUpdater("self-status");
 }
 
-/* ========== helper computeFavGenrePercent (approx) ========== */
-function computeFavGenrePercent(userData, ratingsCount) {
-  // If userData.favoriteGenre exists, we cannot compute percentage precisely without fetching ratings by genre.
-  // For the column display we return 0..100 fallback using a simple heuristic (if unknown -> 0).
-  // Detailed percent is computed in profile page.
-  return 0;
+/* ========= updater for self lastActive (обновляет текст и класс) ========= */
+function startSelfLastActiveUpdater(elementId){
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  // clear existing interval if any
+  if (el._lastActiveInterval) clearInterval(el._lastActiveInterval);
+
+  function tick(){
+    const raw = el.getAttribute("data-lastactive");
+    const ms = raw ? parseInt(raw, 10) : null;
+    const txt = formatLastSeenFromMillis(ms);
+    el.textContent = txt;
+    if (ms && (Date.now() - ms) < 5*60*1000) {
+      el.classList.add("online");
+      el.classList.remove("offline");
+    } else {
+      el.classList.remove("online");
+      el.classList.add("offline");
+    }
+  }
+  tick();
+  el._lastActiveInterval = setInterval(tick, 60 * 1000);
 }
 
 /* ========== loadOtherUsers ========== */
@@ -267,7 +367,7 @@ async function loadOtherUsers(currentUserId, totalGames) {
         statusText = "Онлайн"; statusClass = "online";
       } else {
         const mins = Math.floor((now - user.lastActive.toMillis()) / 60000);
-        statusText = `Был в сети ${mins} мин назад`;
+        statusText = `Был в сети ${mins} ${ruPlural(mins,['минута','минуты','минут'])} назад`;
       }
     }
 
@@ -279,7 +379,6 @@ async function loadOtherUsers(currentUserId, totalGames) {
     const m2 = getMedalLevel(ratings.length, 10, 30, 50);
     if (m2.level !== "Нет") medals.push({ key: "critic", name: "Критик", level: m2.level, value: ratings.length });
 
-    // collection of genres
     const genresPlayed = new Set();
     ratings.forEach(r => {
       const g = games.find(x => x.id === r.gameId);
@@ -291,10 +390,8 @@ async function loadOtherUsers(currentUserId, totalGames) {
     const m3 = getMedalLevel(genresPlayed.size, 3, 5, 8);
     if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
 
-    // favorite genre percent
     let favGenrePercent = 0;
     if (user.favoriteGenre && ratings.length) {
-      // compute percent of ratings in favoriteGenre
       const favCount = ratings.filter(r => {
         const g = games.find(x => x.id === r.gameId);
         if (!g || !g.category) return false;
@@ -306,18 +403,22 @@ async function loadOtherUsers(currentUserId, totalGames) {
     const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
     if (m4.level !== "Нет") medals.push({ key: "favgenre", name: "Любимчик жанра", level: m4.level, value: favGenrePercent });
 
-    // medals column HTML (small icons)
-    let medalsHTML = `<div class="achievements-bar-compact">`;
-    medals.forEach(m => {
-      const iconPath = getMedalIconPath(m.key, m.level);
-      medalsHTML += `<div class="medal-compact" title="${m.name} — ${m.level}">
-                       <img src="${iconPath}" alt="${m.name}" onerror="this.onerror=null; this.src='assets/medals/locked.png'">
-                     </div>`;
+    // medals column HTML (small icons) limited to show "важные" ранги
+    let medalsHTML = `<div class="achievements-bar-compact" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">`;
+    // order gold -> silver -> bronze
+    const levelsOrder = ["Золото","Серебро","Бронза"];
+    levelsOrder.forEach(lvl => {
+      medals.filter(m => m.level === lvl).forEach(m => {
+        const iconPath = getMedalIconPath(m.key, m.level);
+        medalsHTML += `<div class="medal-compact" title="${m.name} — ${m.level}">
+                         <img src="${iconPath}" alt="${m.name}" style="width:28px;height:28px;border-radius:6px;" onerror="this.onerror=null; this.src='assets/medals/locked.png'">
+                       </div>`;
+      });
     });
     medalsHTML += `</div>`;
 
     // profile button
-    const profileBtn = `<button class="view-profile" onclick="window.location.href='profile.html?uid=${user.uid}'">Посмотреть профиль</button>`;
+    const profileBtn = `<button class="view-profile btn btn-primary" onclick="window.location.href='profile.html?uid=${user.uid}'">Профиль</button>`;
 
     // user card (compact)
     const card = document.createElement("div");
@@ -363,14 +464,15 @@ function renderAchievementsColumn(container, stats) {
       : medal.level === "Серебро" ? a.gold
       : medal.level === "Бронза" ? a.silver : a.bronze;
     const progressPercent = nextTarget ? Math.min(100, Math.round((a.value / nextTarget) * 100)) : 100;
-    const progressText = nextTarget ? `${a.value}${a.unit} из ${nextTarget}${a.unit}` : `${a.value}${a.unit} (макс)`;
+    const progressText = nextTarget ? `${a.value}${a.unit} из ${nextTarget}${a.unit}` : `${a.value}${a.unit} (макс)`; 
 
     html += `
-      <div class="steam-achievement-compact" title="${a.name}">
-        <img class="medal-icon-compact" src="${icon}" alt="${a.name}" onerror="this.onerror=null; this.src='assets/medals/locked.png'">
-        <div style="flex:1; margin-left:8px;">
-          <div style="display:flex; justify-content:space-between;"><strong style="font-size:0.95em">${a.name}</strong><span style="color:#ffcc00">${medal.level}</span></div>
-          <div class="mini-progress"><div class="mini-progress-bar" style="width:${progressPercent}%"></div></div>
+      <div class="steam-achievement" style="display:flex; gap:10px; align-items:flex-start; margin-bottom:12px;">
+        <img class="medal-icon" src="${icon}" alt="${a.name}" onerror="this.onerror=null; this.src='assets/medals/locked.png'" style="width:56px;height:56px;border-radius:8px;">
+        <div class="achievement-details" style="flex:1;">
+          <h4 style="margin:0 0 4px 0;">${a.name} <span class="level" style="color:#ffcc00">${medal.level}</span></h4>
+          <p style="margin:0 0 6px 0; color:#666;">${a.desc}</p>
+          <div class="mini-progress"><div class="mini-progress-bar" style="width:${progressPercent}%; height:8px; background:linear-gradient(90deg,#4cafef,#4c9ff0); border-radius:999px;"></div></div>
           <small style="color:#999">${progressText}</small>
         </div>
       </div>

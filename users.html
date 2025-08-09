@@ -6,132 +6,115 @@
   <title>Пользователи</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* Контейнер страницы пользователей */
-#my-profile, #users-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-}
+    :root{
+      --card-bg: #fff;
+      --accent: #4cafef;
+      --muted: #777;
+      --shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+    body{
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background:#f6f7fb;
+      margin:0;
+      padding:0;
+      color:#222;
+    }
+    header { background: #fff; box-shadow:0 1px 0 rgba(0,0,0,0.04); position:sticky; top:0; z-index:10; }
+    .top-menu{ display:flex; justify-content:space-between; align-items:center; padding:10px 18px; max-width:1200px; margin:0 auto; }
+    .top-btn{ background:transparent; border:none; padding:8px 12px; cursor:pointer; color:#333; border-radius:8px; }
+    .top-btn:hover{ background:#f0f5ff; }
 
-/* Карточка профиля / пользователя */
-.game-card {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  max-width: 320px;
-  width: 100%;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+    main.container{ max-width:1200px; margin:18px auto; padding:0 16px; }
 
-.game-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
-}
+    /* Grid: my-profile + users grid */
+    .users-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:20px;
+      align-items:start;
+    }
 
-/* Аватар */
-.game-card img {
-  width: 100%;
-  height: 300px;
-  object-fit: cover;
-  background-color: #f0f0f0;
-}
+    /* "Сам пользователь" блок должен занимать 3 колонки */
+    .my-profile-block > .my-profile-expanded{
+      grid-column: 1 / -1; /* span all 3 cols */
+      display:flex;
+      gap:18px;
+      padding:18px;
+      background:var(--card-bg);
+      border-radius:12px;
+      box-shadow: var(--shadow);
+      align-items:flex-start;
+    }
 
-/* Контент карточки */
-.game-content {
-  padding: 15px;
-  text-align: center;
-}
+    /* avatar column */
+    .profile-avatar { flex: 0 0 220px; display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .profile-avatar img{ width:180px; height:180px; object-fit:cover; border-radius:12px; background:#eee; }
+    .avatar-actions{ display:flex; gap:8px; }
+    .avatar-actions .btn { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; }
+    .btn-primary{ background:var(--accent); color:#fff; }
+    .btn-ghost{ background:transparent; color:var(--accent); border:1px solid rgba(0,0,0,0.06); }
 
-.game-content h3 {
-  font-size: 1.4em;
-  margin-bottom: 8px;
-  color: #333;
-}
+    /* middle info column */
+    .profile-info { flex:1; min-width:0; display:flex; flex-direction:column; gap:12px; }
+    .profile-info h2 { margin:0; font-size:1.5rem; }
+    .profile-meta { display:flex; gap:12px; align-items:center; flex-wrap:wrap; color:var(--muted); font-weight:600; }
+    .self-status { font-weight:700; }
+    .status.online{ color:#0b9f3b; }
+    .status.offline{ color:#999; }
 
-.game-content p {
-  margin: 4px 0;
-  font-size: 0.95em;
-  color: #555;
-}
+    .profile-quote { font-style:italic; color:#444; margin:0; }
 
-.hover-animate {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.hover-animate:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
-}
+    .achievement-icons { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+    .achievement-icons img { width:36px; height:36px; border-radius:6px; object-fit:cover; }
 
-.status.online {
-  color: green;
-  font-weight: bold;
-}
-.status.offline {
-  color: gray;
-}
+    /* right achievements column */
+    .profile-achievements-column { flex: 0 0 320px; min-width:200px; }
 
-.favorite-games {
-  margin-top: 10px;
-  display: flex;
-  gap: 5px;
-  justify-content: center;
-}
-.favorite-games img {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
-  object-fit: cover;
-}
+    /* compact inputs area */
+    .profile-edit { margin-top:8px; display:flex; flex-direction:column; gap:8px; }
+    .profile-edit input[type="text"], .profile-edit input[type="url"]{
+      padding:8px; border-radius:8px; border:1px solid #e6e6e6; width:100%;
+    }
 
-.achievements {
-  margin: 8px 0;
-  font-size: 1.2em;
-}
+    /* Other users header + grid */
+    h2.section-title{ margin:28px 0 8px 0; font-size:1.1rem; color:#222; }
 
-.view-profile {
-  margin-top: 10px;
-  background: #4cafef;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  color: white;
-}
-.view-profile:hover {
-  background: #399ad9;
-}
+    #users-list { margin-top:6px; display:grid; grid-template-columns: repeat(3, 1fr); gap:18px; }
 
-.achievements-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  padding: 10px;
-}
+    /* small card base (keeps compatibility) */
+    .game-card { background:var(--card-bg); border-radius:10px; padding:12px; box-shadow: var(--shadow); }
+    .user-compact img { border-radius:8px; }
 
-.medal {
-  font-size: 1.8em;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
+    /* little helpers */
+    .mini-muted{ color:var(--muted); font-size:0.95rem; }
+    .mini-progress{ height:8px; background:#eee; border-radius:999px; overflow:hidden; }
+    .mini-progress > div{ height:100%; background:var(--accent); width:40%; }
 
-.medal:hover {
-  transform: scale(1.3);
-}
+    @media (max-width:980px){
+      .users-grid{ grid-template-columns: repeat(2, 1fr); }
+      #users-list{ grid-template-columns: repeat(2, 1fr); }
+      .my-profile-block > .my-profile-expanded{ grid-column: 1 / -1; }
+      .profile-avatar{ flex:0 0 160px; }
+    }
+    @media (max-width:640px){
+      .users-grid{ grid-template-columns: 1fr; }
+      #users-list{ grid-template-columns: 1fr; }
+      .my-profile-expanded{ flex-direction:column; }
+      .profile-avatar{ flex-direction:row; gap:12px; align-items:center; }
+      .profile-avatar img{ width:120px; height:120px; }
+      .profile-achievements-column{ width:100%; }
+    }
   </style>
 </head>
 <body>
   <header>
     <nav class="top-menu">
-    <div class="menu-left">
-      <a href="index.html" class="top-btn">Игры</a>
-      <a href="top.html" class="top-btn">Топ игр</a>
-      <a href="users.html" class="top-btn">Пользователи</a>
-      <!-- 🔜 Здесь будут другие кнопки -->
-    </div>
-          <div class="menu-right">
+      <div class="menu-left">
+        <a href="index.html" class="top-btn">Игры</a>
+        <a href="top.html" class="top-btn">Топ игр</a>
+        <a href="users.html" class="top-btn">Пользователи</a>
+      </div>
+      <div class="menu-right">
         <span id="user-nickname" class="user-nickname" style="display:none;"></span>
         <button id="auth-btn">Вход</button>
       </div>
@@ -139,12 +122,12 @@
   </header>
 
   <main id="users-section" class="container">
-    <div id="my-profile" class="user-profile-block"></div>
-    <h2 style="margin-top:40px;">Другие пользователи</h2>
-    <div id="users-list" class="games-grid"></div>
+    <div class="users-grid">
+      <div id="my-profile" class="user-profile-block"></div>
+      <div style="grid-column: 1 / -1;"><h2 class="section-title">Другие пользователи</h2></div>
+      <div id="users-list"></div>
+    </div>
   </main>
-  
-<img id="profile-avatar" src="https://via.placeholder.com/150" alt="Аватар" width="150" height="150">
 
   <script type="module" src="users.js"></script>
 </body>
