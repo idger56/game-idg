@@ -203,6 +203,24 @@ const genresSet = new Set();
     }
   });
 
+  // Подсчёт процента любимого жанра
+const genreCount = {};
+userRatings.forEach(r => {
+  const g = gamesArr.find(x => x.id === r.gameId);
+  if (g && g.category) {
+    const cats = Array.isArray(g.category) ? g.category : [g.category];
+    cats.forEach(cat => {
+      genreCount[cat] = (genreCount[cat] || 0) + 1;
+    });
+  }
+});
+
+let favGenrePercent = 0;
+if (myData.favoriteGenre && userRatings.length) {
+  favGenrePercent = Math.round(((genreCount[myData.favoriteGenre] || 0) / userRatings.length) * 100);
+}
+
+
 renderMyProfile(myData, {
   avgRating,
   percentComplete,
