@@ -459,16 +459,17 @@ if (user.lastActive && typeof user.lastActive.toMillis === "function") {
     const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
     if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
 
-    let favGenrePercent = 0;
-    if (user.favoriteGenre && ratings.length) {
-      const favCount = ratings.filter(r => {
-        const g = games.find(x => x.id === r.gameId);
-        if (!g || !g.category) return false;
-        const cats = Array.isArray(g.category) ? g.category : [g.category];
-        return cats.includes(user.favoriteGenre);
-      }).length;
-      favGenrePercent = Math.round((favCount / ratings.length) * 100);
-    }
+let favGenrePercent = 0;
+if (userData.favoriteGenre && ratings.length) {
+  const favCount = ratings.filter(r => {
+    const g = gamesArr.find(x => x.id === r.gameId);
+    if (!g || !g.category) return false;
+    const cats = Array.isArray(g.category) ? g.category : [g.category];
+    return cats.includes(userData.favoriteGenre);
+  }).length;
+  favGenrePercent = Math.round((favCount / ratings.length) * 100);
+}
+
     const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
     if (m4.level !== "Нет") medals.push({ key: "favgenre", name: "Любимчик жанра", level: m4.level, value: favGenrePercent });
 
@@ -529,25 +530,25 @@ function renderAchievementsColumn(container, stats) {
   list.forEach(a => {
     const medal = getMedalLevel(a.value, a.bronze, a.silver, a.gold);
     const icon = getMedalIconPath(a.key, medal.level);
-        const nextTarget = medal.level === "Золото" ? null
-          : medal.level === "Серебро" ? a.gold
-          : medal.level === "Бронза" ? a.silver : a.bronze;
-        const progressPercent = nextTarget ? Math.min(100, Math.round((a.value / nextTarget) * 100)) : 100;
-        const progressText = nextTarget ? `${a.value}${a.unit} из ${nextTarget}${a.unit}` : `${a.value}${a.unit} (макс. уровень)`;
+    const nextTarget = medal.level === "Золото" ? null
+      : medal.level === "Серебро" ? a.gold
+      : medal.level === "Бронза" ? a.silver : a.bronze;
+    const progressPercent = nextTarget ? Math.min(100, Math.round((a.value / nextTarget) * 100)) : 100;
+    const progressText = nextTarget ? `${a.value}${a.unit} из ${nextTarget}${a.unit}` : `${a.value}${a.unit} (макс)`; 
 
-        html += `
-          <div class="steam-achievement">
-            <img class="medal-icon" src="${icon}" alt="${a.name}" onerror="this.onerror=null; this.src='assets/medals/locked.png'">
-            <div class="achievement-details">
-              <h4>${a.name} <span class="level">— ${medal.level}</span></h4>
-              <p>${a.desc}</p>
-              <div class="progress-bar"><div class="progress" style="width:${progressPercent}%"></div></div>
-              <small>${progressText}</small>
-            </div>
-          </div>
-        `;
-      });
-      html += `</div>`;
-      container.innerHTML = html;
-    }
+    html += `
+      <div class="steam-achievement" style="display:flex; gap:10px; align-items:flex-start; margin-bottom:12px;">
+        <img class="medal-icon" src="${icon}" alt="${a.name}" onerror="this.onerror=null; this.src='assets/medals/locked.png'" style="width:56px;height:56px;border-radius:8px;">
+        <div class="achievement-details" style="flex:1;">
+          <h4 style="margin:0 0 4px 0;">${a.name} <span class="level" style="color:#ffcc00">${medal.level}</span></h4>
+          <p style="margin:0 0 6px 0; color:#666;">${a.desc}</p>
+          <div class="mini-progress"><div class="mini-progress-bar" style="width:${progressPercent}%; height:8px; background:linear-gradient(90deg,#4cafef,#4c9ff0); border-radius:999px;"></div></div>
+          <small style="color:#999">${progressText}</small>
+        </div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+}
 
