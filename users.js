@@ -74,7 +74,7 @@ function formatLastSeenFromMillis(lastMillis){
   const diff = Date.now() - lastMillis;
   if (diff < 0) return "—";
   // online threshold 5 minutes
-  if (diff < 5 * 60 * 1000) return "Онлайн";
+  if (diff < 1 * 60 * 1000) return "Онлайн";
   const mins = Math.floor(diff / 60000);
   if (mins < 60) {
     return `Был в сети ${mins} ${ruPlural(mins,['минута','минуты','минут'])} назад`;
@@ -236,11 +236,11 @@ function renderMyProfile(userData, stats, docId) {
   const iconsContainer = document.getElementById("self-achievement-icons");
   const medalsArr = [];
   // build same medals as elsewhere
-  const m1 = getMedalLevel(stats.percentComplete, 50, 80, 100);
+  const m1 = getMedalLevel(stats.percentComplete, 20, 50, 80);
   if (m1.level !== "Нет") medalsArr.push({ key: "master", level: m1.level });
   const m2 = getMedalLevel(stats.ratingsCount, 10, 30, 50);
   if (m2.level !== "Нет") medalsArr.push({ key: "critic", level: m2.level });
-  const m3 = getMedalLevel(stats.genresCount, 3, 5, 8);
+  const m3 = getMedalLevel(stats.genresCount, 8, 13, 20);
   if (m3.level !== "Нет") medalsArr.push({ key: "genres", level: m3.level });
   const m4 = getMedalLevel(stats.favGenrePercent || 0, 50, 70, 90);
   if (m4.level !== "Нет") medalsArr.push({ key: "favgenre", level: m4.level });
@@ -374,7 +374,7 @@ if (user.lastActive && typeof user.lastActive.toMillis === "function") {
 
     // medals
     const medals = [];
-    const m1 = getMedalLevel(percentComplete, 50, 80, 100);
+    const m1 = getMedalLevel(percentComplete, 20, 50, 80);
     if (m1.level !== "Нет") medals.push({ key: "master", name: "Мастер прохождений", level: m1.level, value: percentComplete });
 
     const m2 = getMedalLevel(ratings.length, 10, 30, 50);
@@ -388,7 +388,7 @@ if (user.lastActive && typeof user.lastActive.toMillis === "function") {
         else genresPlayed.add(g.category);
       }
     });
-    const m3 = getMedalLevel(genresPlayed.size, 3, 5, 8);
+    const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
     if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
 
     let favGenrePercent = 0;
@@ -451,9 +451,9 @@ if (user.lastActive && typeof user.lastActive.toMillis === "function") {
 function renderAchievementsColumn(container, stats) {
   // build same-achievement list used in profile page
   const list = [
-    { key: "master", name: "Мастер прохождений", desc: "Пройди как можно больше игр", value: stats.percentComplete, bronze:50, silver:80, gold:100, unit: "%" },
+    { key: "master", name: "Мастер прохождений", desc: "Пройди как можно больше игр", value: stats.percentComplete, bronze:20, silver:50, gold:80, unit: "%" },
     { key: "critic", name: "Критик", desc: "Оценивай игры и становись признанным критиком", value: stats.ratingsCount, bronze:10, silver:30, gold:50, unit: "" },
-    { key: "genres", name: "Коллекционер жанров", desc: "Играй в разные жанры", value: stats.genresCount, bronze:3, silver:5, gold:8, unit: "" },
+    { key: "genres", name: "Коллекционер жанров", desc: "Играй в разные жанры", value: stats.genresCount, bronze:8, silver:13, gold:20, unit: "" },
     { key: "favgenre", name: "Любимчик жанра", desc: "Будь преданным фанатом жанра", value: stats.favGenrePercent || 0, bronze:50, silver:70, gold:90, unit: "%" }
   ];
 

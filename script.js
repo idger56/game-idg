@@ -32,6 +32,8 @@ const firebaseConfig = {
   measurementId: "G-QLLFXDHX51"
 };
 
+let intervalId = null;
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -54,13 +56,27 @@ const filterStatus = document.getElementById("filter-status");
 let allGames = [];
 let currentRenderToken = 0;
 
+async function updateUserLastSeen(uid) {
+  if (!uid) return;
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, { lastSeen: Date.now() });
+  } catch (e) {
+    console.error("Ошибка обновления lastSeen:", e);
+  }
+}
+
 function clearAuthMessage() {
   authMessage.textContent = "";
 }
 
+
+
 onAuthStateChanged(auth, async (user) => {
   clearAuthMessage();
   if (user) {
+    updateUserLastSeen(user.uid);
+    const intervalId = setInterval(() => updateUserLastSeen(user.uid), 60000); // потом обновляем каждую минуту
     authSection.style.display = "none";
     mainSection.style.display = "block";
     authBtn.textContent = "Выход";
@@ -105,6 +121,10 @@ onAuthStateChanged(auth, async (user) => {
 
     loadGames();
   } else {
+        if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
     authSection.style.display = "block";
     mainSection.style.display = "none";
     authBtn.textContent = "Вход";
@@ -116,13 +136,35 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
+let lastSeenIntervalId = null;  // объяви глобально (вверху файла)
+
+onAuthStateChanged(auth, async (user) => {
+  clearAuthMessage();
+  if (user) {
+    updateUserLastSeen(user.uid);
+    lastSeenIntervalId = setInterval(() => updateUserLastSeen(user.uid), 60000);
+    // ...
+  } else {
+    if (lastSeenIntervalId) {
+      clearInterval(lastSeenIntervalId);
+      lastSeenIntervalId = null;
+    }
+    // ...
+  }
+});
+
 authBtn.addEventListener("click", () => {
   if (auth.currentUser) {
+    if (lastSeenIntervalId) {
+      clearInterval(lastSeenIntervalId);
+      lastSeenIntervalId = null;
+    }
     signOut(auth).then(() => {
       window.location.href = "index.html";
     });
   }
 });
+
 
 
 document.getElementById("games-btn")?.addEventListener("click", () => applyFilters());

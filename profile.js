@@ -164,11 +164,11 @@ async function loadProfile(uid) {
 /* Render badges (compact, under header) */
 function renderProfileBadges(container, stats) {
   const badges = [];
-  const m1 = getMedalLevel(stats.percentComplete, 50, 80, 100);
+  const m1 = getMedalLevel(stats.percentComplete, 20, 50, 80);
   badges.push({ key: "master", name: "Мастер прохождений", level: m1.level });
   const m2 = getMedalLevel(stats.ratingsCount, 10, 30, 50);
   badges.push({ key: "critic", name: "Критик", level: m2.level });
-  const m3 = getMedalLevel(stats.genresCount, 3,5,8);
+  const m3 = getMedalLevel(stats.genresCount, 8,13,20);
   badges.push({ key: "genres", name: "Коллекционер жанров", level: m3.level });
   const m4 = getMedalLevel(stats.favGenrePercent, 50,70,90);
   badges.push({ key: "favgenre", name: "Любимчик жанра", level: m4.level });
@@ -187,9 +187,9 @@ function renderProfileBadges(container, stats) {
 /* Render detailed achievements (right column) */
 function renderProfileAchievements(container, userStats) {
   const achList = [
-    { key:"master", name:"Мастер прохождений", desc:"Пройди как можно больше игр", value:userStats.percentComplete, bronze:50, silver:80, gold:100, unit:"%" },
+    { key:"master", name:"Мастер прохождений", desc:"Пройди как можно больше игр", value:userStats.percentComplete, bronze:20, silver:50, gold:80, unit:"%" },
     { key:"critic", name:"Критик", desc:"Оценивай игры и становись признанным критиком", value:userStats.ratingsCount, bronze:10, silver:30, gold:50, unit:"" },
-    { key:"genres", name:"Коллекционер жанров", desc:"Играй в разные жанры и расширяй кругозор", value:userStats.genresCount, bronze:3, silver:5, gold:8, unit:"" },
+    { key:"genres", name:"Коллекционер жанров", desc:"Играй в разные жанры и расширяй кругозор", value:userStats.genresCount, bronze:8, silver:13, gold:20, unit:"" },
     { key:"favgenre", name:"Любимчик жанра", desc:"Будь преданным фанатом своего любимого жанра", value:userStats.favGenrePercent, bronze:50, silver:70, gold:90, unit:"%" }
   ];
 
