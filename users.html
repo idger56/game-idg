@@ -12,17 +12,6 @@
       --muted: #777;
       --shadow: 0 6px 18px rgba(0,0,0,0.08);
     }
-    body{
-      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      background:#f6f7fb;
-      margin:0;
-      padding:0;
-      color:#222;
-    }
-    header { background: #fff; box-shadow:0 1px 0 rgba(0,0,0,0.04); position:sticky; top:0; z-index:10; }
-    .top-menu{ display:flex; justify-content:space-between; align-items:center; padding:10px 18px; max-width:1200px; margin:0 auto; }
-    .top-btn{ background:transparent; border:none; padding:8px 12px; cursor:pointer; color:#333; border-radius:8px; }
-    .top-btn:hover{ background:#f0f5ff; }
 
     main.container{ max-width:1200px; margin:18px auto; padding:0 16px; }
 
@@ -32,10 +21,10 @@
   gap: 20px;
 }
 
-/* Сам пользователь занимает всю ширину */
 #my-profile {
   grid-column: 1 / -1;
 }
+
 
 /* Карточка "сам пользователь" */
 .my-profile-expanded {
@@ -126,9 +115,11 @@
 
   <main id="users-section" class="container">
     <div class="users-grid">
-      <div id="my-profile" class="user-profile-block"></div>
-      <div style="grid-column: 1 / -1;"><h2 class="section-title">Другие пользователи</h2></div>
-      <div id="users-list"></div>
+<div class="users-grid" id="users-grid">
+  <div id="my-profile" class="user-profile-block"></div>
+  <!-- Остальные пользователи пойдут сюда -->
+</div>
+
     </div>
   </main>
 
