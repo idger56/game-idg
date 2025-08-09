@@ -449,31 +449,27 @@ if (user.lastActive && typeof user.lastActive.toMillis === "function") {
     const m2 = getMedalLevel(ratings.length, 10, 30, 50);
     if (m2.level !== "Нет") medals.push({ key: "critic", name: "Критик", level: m2.level, value: ratings.length });
 
-    const genresPlayed = new Set();
-    ratings.forEach(r => {
-      const g = games.find(x => x.id === r.gameId);
-      if (g && g.category) {
-        if (Array.isArray(g.category)) g.category.forEach(c => genresPlayed.add(c));
-        else genresPlayed.add(g.category);
-      }
+const genresPlayed = new Set();
+const genreCount = {};
+ratings.forEach(r => {
+  const g = games.find(x => x.id === r.gameId);
+  if (g && g.category) {
+    const cats = Array.isArray(g.category) ? g.category : [g.category];
+    cats.forEach(cat => {
+      genresPlayed.add(cat);
+      genreCount[cat] = (genreCount[cat] || 0) + 1;
     });
-    const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
-    if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
+  }
+});
+const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
+if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
 
-// загружаем userData для текущего пользователя из Firestore (коллекция "users", документ user.uid)
-const userDocSnap = await getDoc(doc(db, "users", user.uid));
-const userData = userDocSnap.exists() ? userDocSnap.data() : user;
-
+// загружаем userData ...
 let favGenrePercent = 0;
 if (userData.favoriteGenre && ratings.length) {
-  const favCount = ratings.filter(r => {
-    const g = games.find(x => x.id === r.gameId);
-    if (!g || !g.category) return false;
-    const cats = Array.isArray(g.category) ? g.category : [g.category];
-    return cats.includes(userData.favoriteGenre);
-  }).length;
-  favGenrePercent = Math.round((favCount / ratings.length) * 100);
+  favGenrePercent = Math.round(((genreCount[userData.favoriteGenre] || 0) / ratings.length) * 100);
 }
+
 
 
     const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
