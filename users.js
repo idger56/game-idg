@@ -184,17 +184,17 @@ window.addEventListener("beforeunload", async () => {
   nicknameSpan.style.display = "inline-block";
 
   // user ratings to compute average & percent
-  const userRatingsSnapshot = await getDocs(query(collection(db, "ratings"), where("userId", "==", user.uid)));
-  const userRatings = userRatingsSnapshot.docs.map(d => d.data());
-  const avgRating = userRatings.length
-    ? (userRatings.reduce((a, b) => a + b.rating, 0) / userRatings.length).toFixed(1)
-    : "—";
-  const percentComplete = totalGames ? Math.round((userRatings.length / totalGames) * 100) : 0;
+const userRatingsSnapshot = await getDocs(query(collection(db, "ratings"), where("userId", "==", user.uid)));
+const userRatings = userRatingsSnapshot.docs.map(d => d.data());
+const avgRating = userRatings.length
+  ? (userRatings.reduce((a, b) => a + b.rating, 0) / userRatings.length).toFixed(1)
+  : "—";
+const percentComplete = totalGames ? Math.round((userRatings.length / totalGames) * 100) : 0;
 
   // compute genre count
-  const gamesSnap = allGamesSnapshot; // already fetched
-  const gamesArr = gamesSnap.docs.map(g => ({ id: g.id, ...g.data() }));
-  const genresSet = new Set();
+const gamesSnap = allGamesSnapshot; // already fetched
+const gamesArr = gamesSnap.docs.map(g => ({ id: g.id, ...g.data() }));
+const genresSet = new Set();
   userRatings.forEach(r => {
     const g = gamesArr.find(x => x.id === r.gameId);
     if (g && g.category) {
@@ -209,7 +209,7 @@ renderMyProfile(myData, {
   percentComplete,
   ratingsCount: userRatings.length,
   genresCount: genresSet.size,
-  favGenrePercent, // ← вот это
+  favGenrePercent, 
   totalGames
 }, myDocId);
 
@@ -457,38 +457,27 @@ if (user.lastActive && typeof user.lastActive.toMillis === "function") {
     const m2 = getMedalLevel(ratings.length, 10, 30, 50);
     if (m2.level !== "Нет") medals.push({ key: "critic", name: "Критик", level: m2.level, value: ratings.length });
 
-  const genresPlayed = new Set();
+const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
+if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
+// загружаем userData ...
+
 const genreCount = {};
-ratings.forEach(r => {
-  const g = games.find(x => x.id === r.gameId);
+userRatings.forEach(r => {
+  const g = gamesArr.find(x => x.id === r.gameId);
   if (g && g.category) {
     const cats = Array.isArray(g.category) ? g.category : [g.category];
     cats.forEach(cat => {
-      genresPlayed.add(cat);
+      genresSet.add(cat);
       genreCount[cat] = (genreCount[cat] || 0) + 1;
     });
   }
 });
 
-const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
-if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
-// загружаем userData ...
-
-// перед вызовом renderMyProfile
 let favGenrePercent = 0;
 if (myData.favoriteGenre && userRatings.length) {
-  const genreCount = {};
-  userRatings.forEach(r => {
-    const game = gamesArr.find(g => g.id === r.gameId);
-    if (game && game.category) {
-      const cats = Array.isArray(game.category) ? game.category : [game.category];
-      cats.forEach(cat => {
-        genreCount[cat] = (genreCount[cat] || 0) + 1;
-      });
-    }
-  });
   favGenrePercent = Math.round(((genreCount[myData.favoriteGenre] || 0) / userRatings.length) * 100);
 }
+
 
 const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
 if (m4.level !== "Нет") medals.push({ key: "favgenre", name: "Любимчик жанра", level: m4.level, value: favGenrePercent });
@@ -542,7 +531,8 @@ function renderAchievementsColumn(container, stats) {
     { key: "master", name: "Мастер прохождений", desc: "Пройди как можно больше игр", value: stats.percentComplete, bronze:20, silver:50, gold:80, unit: "%" },
     { key: "critic", name: "Критик", desc: "Оценивай игры и становись признанным критиком", value: stats.ratingsCount, bronze:10, silver:30, gold:50, unit: "" },
     { key: "genres", name: "Коллекционер жанров", desc: "Играй в разные жанры", value: stats.genresCount, bronze:8, silver:13, gold:20, unit: "" },
-    { key: "favgenre", name: "Любимчик жанра", desc: "Будь преданным фанатом жанра", value: stats.favGenrePercent || 0, bronze:50, silver:70, gold:90, unit: "%" }
+   { key: "favgenre", name: "Любимчик жанра", desc: "Будь преданным фанатом жанра", value: stats.favGenrePercent || 0, bronze:50, silver:70, gold:90, unit: "%" }
+
   ];
 
   let html = `<div class="steam-achievements-compact">`;
