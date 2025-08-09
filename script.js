@@ -56,20 +56,6 @@ const filterStatus = document.getElementById("filter-status");
 let allGames = [];
 let currentRenderToken = 0;
 
-async function updateUserStatus(uid, status) {
-  if (!uid) return;
-  try {
-    const userRef = doc(db, "users", uid);
-    await updateDoc(userRef, { 
-      status,
-      lastSeen: Date.now()
-    });
-  } catch (e) {
-    console.error("Ошибка обновления статуса:", e);
-  }
-}
-
-
 function clearAuthMessage() {
   authMessage.textContent = "";
 }
