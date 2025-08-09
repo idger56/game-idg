@@ -848,5 +848,4 @@ header {
 .profile-badges img { width:40px; height:40px; }
 
 /* some small utilities */
-.top-btn { background:#2a7ae2; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; }
 .submit-button { background:#2ecc71; color:#fff; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; }
