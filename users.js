@@ -204,13 +204,15 @@ window.addEventListener("beforeunload", async () => {
   });
 
   // render big expanded profile on top (full width)
-  renderMyProfile(myData, {
-    avgRating,
-    percentComplete,
-    ratingsCount: userRatings.length,
-    genresCount: genresSet.size,
-    totalGames
-  }, myDocId);
+renderMyProfile(myData, {
+  avgRating,
+  percentComplete,
+  ratingsCount: userRatings.length,
+  genresCount: genresSet.size,
+  favGenrePercent, // ← вот это
+  totalGames
+}, myDocId);
+
 
   // then list other users
   await loadOtherUsers(user.uid, totalGames);
@@ -472,10 +474,22 @@ const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
 if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
 // загружаем userData ...
 
- let favGenrePercent = 0;
-if (userData.favoriteGenre && ratings.length) {
-  favGenrePercent = Math.round(((genreCount[userData.favoriteGenre] || 0) / ratings.length) * 100);
+// перед вызовом renderMyProfile
+let favGenrePercent = 0;
+if (myData.favoriteGenre && userRatings.length) {
+  const genreCount = {};
+  userRatings.forEach(r => {
+    const game = gamesArr.find(g => g.id === r.gameId);
+    if (game && game.category) {
+      const cats = Array.isArray(game.category) ? game.category : [game.category];
+      cats.forEach(cat => {
+        genreCount[cat] = (genreCount[cat] || 0) + 1;
+      });
+    }
+  });
+  favGenrePercent = Math.round(((genreCount[myData.favoriteGenre] || 0) / userRatings.length) * 100);
 }
+
 const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
 if (m4.level !== "Нет") medals.push({ key: "favgenre", name: "Любимчик жанра", level: m4.level, value: favGenrePercent });
     // medals column HTML (small icons) limited to show "важные" ранги
