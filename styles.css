@@ -834,8 +834,24 @@ header {
 .user-compact { padding:12px; margin:10px 0; display:block; }
 
 /* achievements bar compact on right of cards */
-.achievements-bar-compact { display:flex; flex-direction:column; gap:8px; align-items:center; }
-.medal-compact img { width:48px; height:48px; object-fit:cover; }
+.achievements-bar-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* чуть меньше, чтобы экономить место */
+  align-items: center;
+}
+
+.medal-compact img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+}
+
+/* белый текст для процента */
+.achievement-details small {
+  color: #fff;
+}
+
 
 /* profile header layout */
 .profile-header.steam-profile { display:flex; gap:20px; align-items:flex-start; background:transparent; padding:12px; }
