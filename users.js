@@ -222,7 +222,8 @@ function renderMyProfile(userData, stats, docId) {
           <input id="genre-input-top" type="text" value="${userData.favoriteGenre || ''}" placeholder="RPG, Action...">
           <div style="display:flex; gap:8px;">
             <button id="save-my-profile" class="btn btn-primary">Сохранить профиль</button>
-                      <button id="open-my-profile" class="btn btn-primary">В профиль</button>
+            <button id="cancel-edit" class="btn btn-secondary">Отмена</button>
+            <button id="open-my-profile" class="btn btn-primary">В профиль</button>
           </div>
         </div>
       </div>
