@@ -125,6 +125,10 @@ if (authBtn) {
 /* ========== MAIN: onAuthStateChanged ========== */
 onAuthStateChanged(auth, async (user) => {
   // load total games count for percents
+  if (authBtn) {
+  authBtn.textContent = user ? "Выход" : "Вход";
+}
+
   const allGamesSnapshot = await getDocs(collection(db, "games"));
   const totalGames = allGamesSnapshot.size || 0;
 

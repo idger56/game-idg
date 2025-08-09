@@ -116,7 +116,9 @@ onAuthStateChanged(auth, async (user) => {
     mainSection.style.display = "block";
     authBtn.textContent = "Выход";
 
-    // ... (твой остальной код настройки UI)
+ document.getElementById("games-btn").style.display = "inline-block";
+  document.querySelector(".top-btn[href='top.html']").style.display = "inline-block";
+  document.querySelector(".top-btn[href='users.html']").style.display = "inline-block";
 
     // Обработчик закрытия вкладки или выхода с сайта
     window.addEventListener("beforeunload", async () => {
