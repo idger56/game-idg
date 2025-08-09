@@ -88,13 +88,31 @@ function formatLastSeenFromMillis(lastMillis){
 }
 
 /* ========= AUTH BUTTON (LOGOUT -> index.html) ========== */
+if (auth.currentUser) {
+  try {
+    await updateDoc(doc(db, "users", auth.currentUser.uid), { lastActive: serverTimestamp() });
+  } catch(e) {
+    console.warn("Не удалось обновить lastActive при выходе", e);
+  }
+  signOut(auth).then(() => {
+    window.location.href = "index.html";
+  }).catch(e => {
+    console.error("Sign out error:", e);
+    window.location.href = "index.html";
+  });
+}
+
 if (authBtn) {
-  authBtn.addEventListener("click", () => {
+  authBtn.addEventListener("click", async () => {
     if (auth.currentUser) {
+      try {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { lastActive: serverTimestamp() });
+      } catch (e) {
+        console.warn("Не удалось обновить lastActive при выходе", e);
+      }
       signOut(auth).then(() => {
         window.location.href = "index.html";
-      }).catch(e => {
-        console.error("Sign out error:", e);
+      }).catch(() => {
         window.location.href = "index.html";
       });
     } else {
@@ -102,6 +120,7 @@ if (authBtn) {
     }
   });
 }
+
 
 /* ========== MAIN: onAuthStateChanged ========== */
 onAuthStateChanged(auth, async (user) => {
@@ -118,14 +137,28 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  // update lastActive periodically in background (every 30s)
-  setInterval(async () => {
+ if (user) {
+    // обновляем сразу при входе
     try {
       await updateDoc(doc(db, "users", user.uid), { lastActive: serverTimestamp() });
-    } catch (e) {
-      // иногда правила запрещают — игнорируем
-    }
-  }, 30000);
+    } catch(e) {}
+
+    // уже есть setInterval, обновляющий каждые 30 сек
+    setInterval(async () => {
+      try {
+        await updateDoc(doc(db, "users", user.uid), { lastActive: serverTimestamp() });
+      } catch (e) {}
+    }, 30000);
+  }
+
+
+window.addEventListener("beforeunload", async () => {
+  if (auth.currentUser) {
+    try {
+      await updateDoc(doc(db, "users", auth.currentUser.uid), { lastActive: serverTimestamp() });
+    } catch (e) {}
+  }
+});
 
   // fetch my user doc by uid
   const q = query(collection(db, "users"), where("uid", "==", user.uid));
@@ -218,8 +251,34 @@ function renderMyProfile(userData, stats, docId) {
           <input id="avatar-url-input" type="url" value="${userData.avatar || ''}" placeholder="https://...">
           <label>Цитата</label>
           <input id="quote-input-top" type="text" value="${userData.quote || ''}" placeholder="Короткая цитата">
-          <label>Любимый жанр</label>
-          <input id="genre-input-top" type="text" value="${userData.favoriteGenre || ''}" placeholder="RPG, Action...">
+<label>Любимый жанр</label>
+<select id="genre-input-top">
+  <option value="">— Выберите жанр —</option>
+  <!-- Топовые жанры -->
+  <option value="Экшен">Экшен</option>
+  <option value="Шутер от первого лица">Шутер от первого лица</option>
+  <option value="Шутер от третьего лица">Шутер от третьего лица</option>
+  <option value="Battle Royale">Battle Royale</option>
+  <option value="RPG">RPG</option>
+  <option value="MMORPG">MMORPG</option>
+  <option value="Выживание">Выживание</option>
+  <option value="Песочница">Песочница</option>
+  <option value="Приключения">Приключения</option>
+  <option value="Хоррор">Хоррор</option>
+  <!-- Средняя популярность -->
+  <option value="Файтинг">Файтинг</option>
+  <option value="Гонки">Гонки</option>
+  <option value="Платформер">Платформер</option>
+  <option value="Стратегия">Стратегия</option>
+  <option value="Тактический шутер">Тактический шутер</option>
+  <option value="Моба">МОБА</option>
+  <option value="Симулятор">Симулятор</option>
+  <!-- Дополнительные/нишевые -->
+  <option value="Головоломка">Головоломка</option>
+  <option value="Зомби">Зомби</option>
+  <option value="Тактическая стратегия">Тактическая стратегия</option>
+</select>
+
           <div style="display:flex; gap:8px;">
             <button id="save-my-profile" class="btn btn-primary">Сохранить профиль</button>
             <button id="cancel-edit" class="btn btn-secondary">Отмена</button>
@@ -231,6 +290,11 @@ function renderMyProfile(userData, stats, docId) {
       <div id="my-achievements-column" class="profile-achievements-column"></div>
     </div>
   `;
+
+    const genreSelect = document.getElementById("genre-input-top");
+  if (genreSelect && userData.favoriteGenre) {
+    genreSelect.value = userData.favoriteGenre;
+  }
 
   // render achievements icons (compact) - example: показываем до 6 иконок (при наличии)
   const iconsContainer = document.getElementById("self-achievement-icons");
@@ -482,3 +546,4 @@ function renderAchievementsColumn(container, stats) {
   html += `</div>`;
   container.innerHTML = html;
 }
+

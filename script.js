@@ -56,6 +56,30 @@ const filterStatus = document.getElementById("filter-status");
 let allGames = [];
 let currentRenderToken = 0;
 
+async function updateUserStatus(uid, status) {
+  if (!uid) return;
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, { 
+      status,
+      lastSeen: Date.now()
+    });
+  } catch (e) {
+    console.error("Ошибка обновления статуса:", e);
+  }
+}
+
+
+function clearAuthMessage() {
+  authMessage.textContent = "";
+}
+
+
+
+let lastSeenIntervalId = null;  // глобально вверху файла
+let userStatusIntervalId = null; // для обновления статуса онлайн
+let currentUserUid = null; // чтобы хранить uid текущего пользователя
+
 async function updateUserLastSeen(uid) {
   if (!uid) return;
   try {
@@ -66,104 +90,109 @@ async function updateUserLastSeen(uid) {
   }
 }
 
-function clearAuthMessage() {
-  authMessage.textContent = "";
-}
-
-
-
-onAuthStateChanged(auth, async (user) => {
-  clearAuthMessage();
-  if (user) {
-    updateUserLastSeen(user.uid);
-    const intervalId = setInterval(() => updateUserLastSeen(user.uid), 60000); // потом обновляем каждую минуту
-    authSection.style.display = "none";
-    mainSection.style.display = "block";
-    authBtn.textContent = "Выход";
-    const addBtn = document.getElementById("toggle-add-form");
-    form.style.display = (user.email === adminEmail) ? "block" : "none";
-    addBtn.style.display = (user.email === adminEmail) ? "inline-block" : "none";
-     document.getElementById("games-btn").style.display = "inline-block";
-  document.querySelector(".top-btn[href='top.html']").style.display = "inline-block";
-  document.querySelector(".top-btn[href='users.html']").style.display = "inline-block";
-
-
-     if (user.email === adminEmail) {
-      document.getElementById("toggle-add-form").style.display = "block";
-    }
-    
-    try {
-      const q = query(collection(db, "users"), where("uid", "==", user.uid));
-      const snapshot = await getDocs(q);
-      if (!snapshot.empty) {
-        const userData = snapshot.docs[0].data();
-        nicknameSpan.textContent = `👤 ${userData.nickname}`;
-        nicknameSpan.style.display = "inline-block";
-      }
-    } catch (error) {
-      console.error("Ошибка при загрузке ника:", error.message);
-    }
-
-    if (user.email === adminEmail) {
-  const toggleAddFormBtn = document.getElementById("toggle-add-form");
-  const addFormContainer = document.getElementById("add-form-container");
-
-  if (toggleAddFormBtn && addFormContainer) {
-    toggleAddFormBtn.style.display = "inline-block";
-    addFormContainer.style.display = "none";
-
-    toggleAddFormBtn.addEventListener("click", () => {
-      const isVisible = addFormContainer.style.display === "block";
-      addFormContainer.style.display = isVisible ? "none" : "block";
+async function updateUserStatus(uid, status) {
+  if (!uid) return;
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, {
+      status,
+      lastSeen: Date.now()
     });
+  } catch (e) {
+    console.error("Ошибка обновления статуса:", e);
   }
 }
 
+// Главный обработчик авторизации
+onAuthStateChanged(auth, async (user) => {
+  clearAuthMessage();
+
+  // Если пользователь вошел
+  if (user) {
+    currentUserUid = user.uid;
+
+    await updateUserStatus(user.uid, "online");
+    await updateUserLastSeen(user.uid);
+
+    // Обновляем lastSeen каждую минуту
+    if (lastSeenIntervalId) clearInterval(lastSeenIntervalId);
+    lastSeenIntervalId = setInterval(() => updateUserLastSeen(user.uid), 60000);
+
+    // Обновляем статус онлайн каждую минуту (можно и реже)
+    if (userStatusIntervalId) clearInterval(userStatusIntervalId);
+    userStatusIntervalId = setInterval(() => updateUserStatus(user.uid, "online"), 60000);
+
+    // Обновляем UI
+    authSection.style.display = "none";
+    mainSection.style.display = "block";
+    authBtn.textContent = "Выход";
+
+    // ... (твой остальной код настройки UI)
+
+    // Обработчик закрытия вкладки или выхода с сайта
+    window.addEventListener("beforeunload", async () => {
+      await updateUserStatus(user.uid, "offline");
+    });
+
+    document.addEventListener("visibilitychange", async () => {
+      if (document.visibilityState === "hidden") {
+        await updateUserStatus(user.uid, "offline");
+      } else if (document.visibilityState === "visible") {
+        await updateUserStatus(user.uid, "online");
+      }
+    });
+
     loadGames();
+
   } else {
-        if (intervalId) {
-      clearInterval(intervalId);
-      intervalId = null;
+    // Пользователь вышел
+
+    if (lastSeenIntervalId) {
+      clearInterval(lastSeenIntervalId);
+      lastSeenIntervalId = null;
     }
+    if (userStatusIntervalId) {
+      clearInterval(userStatusIntervalId);
+      userStatusIntervalId = null;
+    }
+
+    // Обновляем статус оффлайн, если есть сохраненный uid
+    if (currentUserUid) {
+      await updateUserStatus(currentUserUid, "offline");
+      currentUserUid = null;
+    }
+
+    // Сброс UI
     authSection.style.display = "block";
     mainSection.style.display = "none";
     authBtn.textContent = "Вход";
     nicknameSpan.style.display = "none";
     nicknameSpan.textContent = "";
-     document.getElementById("games-btn").style.display = "none";
-  document.querySelector(".top-btn[href='top.html']").style.display = "none";
-  document.querySelector(".top-btn[href='users.html']").style.display = "none";
+    document.getElementById("games-btn").style.display = "none";
+    document.querySelector(".top-btn[href='top.html']").style.display = "none";
+    document.querySelector(".top-btn[href='users.html']").style.display = "none";
   }
 });
 
-let lastSeenIntervalId = null;  // объяви глобально (вверху файла)
-
-onAuthStateChanged(auth, async (user) => {
-  clearAuthMessage();
-  if (user) {
-    updateUserLastSeen(user.uid);
-    lastSeenIntervalId = setInterval(() => updateUserLastSeen(user.uid), 60000);
-    // ...
-  } else {
-    if (lastSeenIntervalId) {
-      clearInterval(lastSeenIntervalId);
-      lastSeenIntervalId = null;
-    }
-    // ...
-  }
-});
-
-authBtn.addEventListener("click", () => {
+// Обработчик выхода по кнопке
+authBtn.addEventListener("click", async () => {
   if (auth.currentUser) {
     if (lastSeenIntervalId) {
       clearInterval(lastSeenIntervalId);
       lastSeenIntervalId = null;
     }
-    signOut(auth).then(() => {
-      window.location.href = "index.html";
-    });
+    if (userStatusIntervalId) {
+      clearInterval(userStatusIntervalId);
+      userStatusIntervalId = null;
+    }
+
+    await updateUserStatus(auth.currentUser.uid, "offline");
+
+    await signOut(auth);
+    window.location.href = "index.html";
   }
 });
+
 
 
 
