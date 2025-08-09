@@ -209,7 +209,7 @@ renderMyProfile(myData, {
   percentComplete,
   ratingsCount: userRatings.length,
   genresCount: genresSet.size,
-  favGenrePercent, 
+  favGenrePercent, // теперь переменная объявлена
   totalGames
 }, myDocId);
 
@@ -461,6 +461,7 @@ const m3 = getMedalLevel(genresPlayed.size, 8, 13, 20);
 if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекционер жанров", level: m3.level, value: genresPlayed.size });
 // загружаем userData ...
 
+// compute genre count & fav genre percent
 const genreCount = {};
 userRatings.forEach(r => {
   const g = gamesArr.find(x => x.id === r.gameId);
@@ -477,6 +478,7 @@ let favGenrePercent = 0;
 if (myData.favoriteGenre && userRatings.length) {
   favGenrePercent = Math.round(((genreCount[myData.favoriteGenre] || 0) / userRatings.length) * 100);
 }
+
 
 
 const m4 = getMedalLevel(favGenrePercent, 50, 70, 90);
