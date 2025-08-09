@@ -194,6 +194,10 @@ function renderMyProfile(userData, stats, docId) {
     <div class="my-profile-expanded">
       <div class="profile-avatar">
         <img id="my-avatar-img" src="${avatar}" alt="Аватар" onerror="this.onerror=null; this.src='assets/default-avatar.png'">
+        <div class="avatar-actions">
+          <button id="open-my-profile" class="btn btn-primary">В профиль</button>
+          <button id="edit-my-profile" class="btn btn-ghost">Редактировать</button>
+        </div>
       </div>
 
       <div class="profile-info">
@@ -220,10 +224,10 @@ function renderMyProfile(userData, stats, docId) {
           <input id="quote-input-top" type="text" value="${userData.quote || ''}" placeholder="Короткая цитата">
           <label>Любимый жанр</label>
           <input id="genre-input-top" type="text" value="${userData.favoriteGenre || ''}" placeholder="RPG, Action...">
-<div style="display:flex; gap:8px;">
-  <button id="save-my-profile" class="btn btn-primary">Сохранить профиль</button>
-  <button id="open-my-profile" class="btn btn-ghost">В профиль</button>
-</div>
+          <div style="display:flex; gap:8px;">
+            <button id="save-my-profile" class="btn btn-primary">Сохранить профиль</button>
+            <button id="cancel-edit" class="btn btn-ghost">Отмена</button>
+          </div>
         </div>
       </div>
 
@@ -333,7 +337,7 @@ function startSelfLastActiveUpdater(elementId){
 
 /* ========== loadOtherUsers ========== */
 async function loadOtherUsers(currentUserId, totalGames) {
-document.querySelectorAll("#users-grid .user-compact").forEach(el => el.remove());
+  document.querySelectorAll("#users-grid .user-compact").forEach(el => el.remove());
   const usersSnapshot = await getDocs(collection(db, "users"));
   const ratingsSnapshot = await getDocs(collection(db, "ratings"));
   const gamesSnapshot = await getDocs(collection(db, "games"));
@@ -439,7 +443,6 @@ document.querySelectorAll("#users-grid .user-compact").forEach(el => el.remove()
       </div>
     `;
     usersGrid.appendChild(card);
-
   }
 }
 
