@@ -97,6 +97,28 @@
       .profile-avatar img{ width:120px; height:120px; }
       .profile-achievements-column{ width:100%; }
     }
+    .games-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 🔥 3 карточки в ряд */
+  gap: 30px; /* расстояние между карточками */
+  padding: 0 40px; /* отступы по краям */
+  margin-top: 40px;
+  box-sizing: border-box;
+}
+
+/* Карточка */
+.game-card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+  height: 100%;
+  margin-bottom: 20px;
+  min-height: auto;
+}
   </style>
 </head>
 <body>

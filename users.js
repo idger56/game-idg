@@ -194,10 +194,6 @@ function renderMyProfile(userData, stats, docId) {
     <div class="my-profile-expanded">
       <div class="profile-avatar">
         <img id="my-avatar-img" src="${avatar}" alt="Аватар" onerror="this.onerror=null; this.src='assets/default-avatar.png'">
-        <div class="avatar-actions">
-          <button id="open-my-profile" class="btn btn-primary">В профиль</button>
-          <button id="edit-my-profile" class="btn btn-ghost">Редактировать</button>
-        </div>
       </div>
 
       <div class="profile-info">
@@ -226,7 +222,7 @@ function renderMyProfile(userData, stats, docId) {
           <input id="genre-input-top" type="text" value="${userData.favoriteGenre || ''}" placeholder="RPG, Action...">
           <div style="display:flex; gap:8px;">
             <button id="save-my-profile" class="btn btn-primary">Сохранить профиль</button>
-            <button id="cancel-edit" class="btn btn-ghost">Отмена</button>
+                      <button id="open-my-profile" class="btn btn-primary">В профиль</button>
           </div>
         </div>
       </div>
