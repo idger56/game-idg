@@ -210,11 +210,6 @@ onAuthStateChanged(auth, async (user) => {
       }
     });
 
-    async function fetchComments(gameId) {
-  const q = query(collection(db, "soloComments"), where("gameId", "==", gameId), orderBy("createdAt", "asc"));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-}
 
     // Загружаем игры и отображаем
     await loadGames();
