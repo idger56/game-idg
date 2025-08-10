@@ -515,15 +515,23 @@ if (m4.level !== "Нет") medals.push({ key: "favgenre", name: "Любимчи�
     // medals column HTML (small icons) limited to show "важные" ранги
     let medalsHTML = `<div class="achievements-bar-compact" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">`;
     // order gold -> silver -> bronze
-    const levelsOrder = ["Золото","Серебро","Бронза"];
-    levelsOrder.forEach(lvl => {
-      medals.filter(m => m.level === lvl).forEach(m => {
-        const iconPath = getMedalIconPath(m.key, m.level);
-        medalsHTML += `<div class="medal-compact" title="${m.name} — ${m.level}">
-                         <img src="${iconPath}" alt="${m.name}" style="width:28px;height:28px;border-radius:6px;" onerror="this.onerror=null; this.src='assets/medals/locked.png'">
-                       </div>`;
-      });
-    });
+// order: gold -> silver -> bronze -> none
+const ordered = [];
+["Золото", "Серебро", "Бронза", "Нет"].forEach(lvl => {
+  medals.forEach(m => {
+    if (m.level === lvl) ordered.push(m);
+  });
+});
+
+// ограничиваем до 6 медалей
+ordered.slice(0, 6).forEach(m => {
+  const iconPath = getMedalIconPath(m.key, m.level);
+  medalsHTML += `<div class="medal-compact" title="${m.name} — ${m.level}">
+                   <img src="${iconPath}" alt="${m.name}" style="width:28px;height:28px;border-radius:6px;" 
+                        onerror="this.onerror=null; this.src='assets/medals/locked.png'">
+                 </div>`;
+});
+
     medalsHTML += `</div>`;
 
     // profile button
