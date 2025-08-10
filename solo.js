@@ -239,18 +239,6 @@ async function createGameCard(game) {
   });
 
 
-  // comments button
-  const commentsBtn = card.querySelector(".comments-btn");
-  const commentsSection = card.querySelector(".comments-section");
-  commentsBtn.addEventListener("click", async () => {
-    if (commentsSection.style.display === "none" || commentsSection.innerHTML === "") {
-      await loadComments(game.id, commentsSection);
-      commentsSection.style.display = "block";
-    } else {
-      commentsSection.style.display = "none";
-    }
-  });
-
   // кнопка мини-профиля
   const profileBtn = card.querySelector(".open-profile-btn");
   if (profileBtn) {
