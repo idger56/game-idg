@@ -202,7 +202,7 @@ async function createGameCard(game) {
         <div style="margin-top:auto; display:flex; gap:8px; align-items:center;">
           <a class="download-btn" href="${link}" target="_blank" style="margin-right:auto;">Скачать / Перейти</a>
           <div class="user-status-block"></div>
-          <button class="comments-btn">💬 Комментарии</button>
+          <button class="open-profile-btn">📄 Профиль</button>
           ${currentUser && currentUser.email === "boreko.ivan@gmail.com" ? '<button class="edit-game-btn">✏️ Редактировать</button>' : ''}
         </div>
         <div class="comments-section" style="display:none; margin-top:12px;"></div>
@@ -263,6 +263,11 @@ async function createGameCard(game) {
   }
 
   return card;
+}
+// открыть мини-профиль
+const profileBtn = card.querySelector(".open-profile-btn");
+if (profileBtn) {
+  profileBtn.addEventListener("click", () => openMiniProfile(game));
 }
 
 // load comments for a given game
@@ -518,3 +523,28 @@ searchInput?.addEventListener("input", () => renderGames());
 filterCategory?.addEventListener("change", () => renderGames());
 filterStatus?.addEventListener("change", () => renderGames());
 
+function openMiniProfile(game) {
+  const overlay = document.getElementById("mini-profile-overlay");
+  const content = overlay.querySelector(".mini-profile-content");
+
+  content.innerHTML = `
+    <img src="${game.image}" alt="${escapeHtml(game.title)}">
+    <h2>${escapeHtml(game.title)}</h2>
+    <div class="genres"><strong>Жанры:</strong> ${escapeHtml(Array.isArray(game.category) ? game.category.join(", ") : game.category)}</div>
+    <div class="avg-rating">Средняя оценка: ${game.avgRating || "—"}</div>
+    <p>${escapeHtml(game.description || "Описание отсутствует.")}</p>
+    <div id="mini-comments"></div>
+  `;
+
+  overlay.style.display = "flex";
+  
+  // Загрузим комментарии в мини-профиль
+  const commentsContainer = content.querySelector("#mini-comments");
+  loadComments(game.id, commentsContainer);
+}
+
+document.querySelector("#mini-profile-overlay").addEventListener("click", (e) => {
+  if (e.target.id === "mini-profile-overlay" || e.target.classList.contains("close-mini-profile")) {
+    e.currentTarget.style.display = "none";
+  }
+});
