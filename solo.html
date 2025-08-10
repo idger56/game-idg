@@ -10,7 +10,7 @@
   <header>
 <nav class="top-menu">
     <div class="menu-left">
-       <button id="games-btn">Игры</button>
+        <a href="index.html" class="top-btn">Игры</a>
         <a href="solo.html" class="top-btn">Соло игры</a>
         <a href="top.html" class="top-btn">Топ игр</a>
         <a href="users.html" class="top-btn">Пользователи</a>
@@ -21,39 +21,134 @@
     </div>
 </nav>
   </header>
+  
+<!-- 🔽 ОСНОВНАЯ ОБЛАСТЬ -->
+<section id="main-section" style="display:none;">
+  <!-- Только для админа -->
+  <div id="add-form-container" style="display: none;">
+  <form id="add-game-form">
+    <h3>Добавить игру</h3>
+    <input id="title" type="text" placeholder="Название игры" required />
+    <select id="category" multiple size="10" required class="multi-select">
+<!-- Топовые жанры -->
+<option value="Экшен">Экшен</option>
+<option value="Шутер от первого лица">Шутер от первого лица</option>
+<option value="Шутер от третьего лица">Шутер от третьего лица</option>
+<option value="Battle Royale">Battle Royale</option>
+<option value="RPG">RPG</option>
+<option value="MMORPG">MMORPG</option>
+<option value="Выживание">Выживание</option>
+<option value="Песочница">Песочница</option>
+<option value="Приключения">Приключения</option>
+<option value="Хоррор">Хоррор</option>
+<option value="Открытый мир">Открытый мир</option>
+<option value="Souls-like">Souls-like</option>
 
-<!-- Поиск и фильтры -->
-  <section style="padding: 10px; display:flex; gap:10px; flex-wrap:wrap;">
-    <input type="text" id="search-input" placeholder="Поиск по названию..." style="flex:1; min-width:200px;">
-    <select id="filter-genre">
-      <option value="">Все жанры</option>
+<!-- Средняя популярность -->
+<option value="Файтинг">Файтинг</option>
+<option value="Гонки">Гонки</option>
+<option value="Платформер">Платформер</option>
+<option value="Стратегия">Стратегия</option>
+<option value="Пошаговая стратегия">Пошаговая стратегия</option>
+<option value="Тактический шутер">Тактический шутер</option>
+<option value="МОБА">МОБА</option>
+<option value="Симулятор">Симулятор</option>
+<option value="Карточная игра">Карточная игра</option>
+<option value="Спорт">Спорт</option>
+<option value="Кооператив">Кооператив</option>
+<option value="Онлайн PvP">Онлайн PvP</option>
+
+<!-- Дополнительные/нишевые -->
+<option value="Головоломка">Головоломка</option>
+<option value="Зомби">Зомби</option>
+<option value="Тактическая стратегия">Тактическая стратегия</option>
+<option value="Roguelike">Roguelike</option>
+<option value="Roguelite">Roguelite</option>
+<option value="Метроидвания">Метроидвания</option>
+<option value="Визуальная новелла">Визуальная новелла</option>
+<option value="Музыкальная">Музыкальная</option>
+<option value="Квест">Квест</option>
+<option value="Киберпанк">Киберпанк</option>
+<option value="Фэнтези">Фэнтези</option>
+<option value="Историческая">Историческая</option>
+<option value="Менеджмент">Менеджмент</option>
+<option value="Стелс">Стелс</option>
+<option value="Хакерство">Хакерство</option>
+<option value="Космос">Космос</option>
+
     </select>
-  </section>
+    <input id="link" type="url" placeholder="Ссылка на скачивание" required />
+    <input id="image" type="url" placeholder="URL картинки" required />
+    <select id="status" required>
+      <option value="" disabled selected>Статус</option>
+    <option value="Пройдена">Пройдена</option>
+    <option value="В процессе">Прохожу</option>
+    <option value="В планах">Не пройдена</option>
+    </select>
+    <button type="submit">Добавить игру</button>
+  </form>
+</div>
 
-  <main id="main-section">
-    <div id="games-list" class="games-list"></div>
-  </main>
+  <!-- 🔍 ФИЛЬТРЫ -->
+<div class="filters">
+  <input id="search-input" type="text" placeholder="Поиск по названию..." />
+  <select id="filter-category">
+    <option value="">Все категории</option>
+<!-- Топовые жанры -->
+<option value="Экшен">Экшен</option>
+<option value="Шутер от первого лица">Шутер от первого лица</option>
+<option value="Шутер от третьего лица">Шутер от третьего лица</option>
+<option value="Battle Royale">Battle Royale</option>
+<option value="RPG">RPG</option>
+<option value="MMORPG">MMORPG</option>
+<option value="Выживание">Выживание</option>
+<option value="Песочница">Песочница</option>
+<option value="Приключения">Приключения</option>
+<option value="Хоррор">Хоррор</option>
+<option value="Открытый мир">Открытый мир</option>
+<option value="Souls-like">Souls-like</option>
 
-  <div id="auth-section" style="display:none; text-align:center;">
-    <p>Для просмотра этой страницы необходимо войти в аккаунт.</p>
-    <a href="index.html"><button>Войти</button></a>
-  </div>
+<!-- Средняя популярность -->
+<option value="Файтинг">Файтинг</option>
+<option value="Гонки">Гонки</option>
+<option value="Платформер">Платформер</option>
+<option value="Стратегия">Стратегия</option>
+<option value="Пошаговая стратегия">Пошаговая стратегия</option>
+<option value="Тактический шутер">Тактический шутер</option>
+<option value="МОБА">МОБА</option>
+<option value="Симулятор">Симулятор</option>
+<option value="Карточная игра">Карточная игра</option>
+<option value="Спорт">Спорт</option>
+<option value="Кооператив">Кооператив</option>
+<option value="Онлайн PvP">Онлайн PvP</option>
 
-  <!-- Модалка добавления игры -->
-  <div id="add-game-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-       background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
-    <div style="background:#fff; padding:20px; border-radius:8px; max-width:400px; width:100%;">
-      <h3>Добавить игру</h3>
-      <label>Название: <input type="text" id="new-title"></label><br><br>
-      <label>Картинка URL: <input type="text" id="new-image"></label><br><br>
-      <label>Описание: <textarea id="new-desc"></textarea></label><br><br>
-      <label>Жанр:
-        <select id="new-genre"></select>
-      </label><br><br>
-      <button id="save-game-btn">Сохранить</button>
-      <button id="close-modal-btn">Отмена</button>
-    </div>
-  </div>
+<!-- Дополнительные/нишевые -->
+<option value="Головоломка">Головоломка</option>
+<option value="Зомби">Зомби</option>
+<option value="Тактическая стратегия">Тактическая стратегия</option>
+<option value="Roguelike">Roguelike</option>
+<option value="Roguelite">Roguelite</option>
+<option value="Метроидвания">Метроидвания</option>
+<option value="Визуальная новелла">Визуальная новелла</option>
+<option value="Музыкальная">Музыкальная</option>
+<option value="Квест">Квест</option>
+<option value="Киберпанк">Киберпанк</option>
+<option value="Фэнтези">Фэнтези</option>
+<option value="Историческая">Историческая</option>
+<option value="Менеджмент">Менеджмент</option>
+<option value="Стелс">Стелс</option>
+<option value="Хакерство">Хакерство</option>
+<option value="Космос">Космос</option>
+
+
+  </select>
+  <select id="filter-status">
+    <option value="">Все статусы</option>
+    <option value="Пройдена">Пройдена</option>
+    <option value="В процессе">Прохожу</option>
+    <option value="В планах">Не пройдена</option>
+  </select>
+</div>
 
   <script type="module" src="solo.js"></script>
 </body>
