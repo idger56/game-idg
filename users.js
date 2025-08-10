@@ -489,22 +489,23 @@ if (m3.level !== "Нет") medals.push({ key: "genres", name: "Коллекци�
 // загружаем userData ...
 
 // Подсчёт любимого жанра
+// Подсчёт любимого жанра
 const genreCount = {};
-userRatings.forEach(r => {
-  const g = gamesArr.find(x => x.id === r.gameId);
+ratings.forEach(r => {
+  const g = games.find(x => x.id === r.gameId);
   if (g && g.category) {
     const cats = Array.isArray(g.category) ? g.category : [g.category];
     cats.forEach(cat => {
-      genresSet.add(cat);
       genreCount[cat] = (genreCount[cat] || 0) + 1;
     });
   }
 });
 
 let favGenrePercent = 0;
-if (myData.favoriteGenre && userRatings.length) {
-  favGenrePercent = Math.round(((genreCount[myData.favoriteGenre] || 0) / userRatings.length) * 100);
+if (userData.favoriteGenre && ratings.length) {
+  favGenrePercent = Math.round(((genreCount[userData.favoriteGenre] || 0) / ratings.length) * 100);
 }
+
 
 
 
