@@ -79,12 +79,6 @@
     </select>
     <input id="link" type="url" placeholder="Ссылка на скачивание" required />
     <input id="image" type="url" placeholder="URL картинки" required />
-    <select id="status" required>
-      <option value="" disabled selected>Статус</option>
-    <option value="Пройдена">Пройдена</option>
-    <option value="В процессе">Прохожу</option>
-    <option value="В планах">Не пройдена</option>
-    </select>
     <button type="submit">Добавить игру</button>
   </form>
 </div>
@@ -149,6 +143,8 @@
     <option value="В планах">Не пройдена</option>
   </select>
 </div>
+
+<div id="games-list" class="games-grid"></div>
 
   <script type="module" src="solo.js"></script>
 </body>
