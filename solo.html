@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Соло игры</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+<nav class="top-menu">
+    <div class="menu-left">
+       <button id="games-btn">Игры</button>
+        <a href="solo.html" class="top-btn">Соло игры</a>
+        <a href="top.html" class="top-btn">Топ игр</a>
+        <a href="users.html" class="top-btn">Пользователи</a>
+    </div>
+    <div class="menu-right">
+      <button id="add-game-btn" style="display:none;">➕ Добавить игру</button>
+      <button id="logout-btn">Выйти</button>
+    </div>
+</nav>
+  </header>
+
+<!-- Поиск и фильтры -->
+  <section style="padding: 10px; display:flex; gap:10px; flex-wrap:wrap;">
+    <input type="text" id="search-input" placeholder="Поиск по названию..." style="flex:1; min-width:200px;">
+    <select id="filter-genre">
+      <option value="">Все жанры</option>
+    </select>
+  </section>
+
+  <main id="main-section">
+    <div id="games-list" class="games-list"></div>
+  </main>
+
+  <div id="auth-section" style="display:none; text-align:center;">
+    <p>Для просмотра этой страницы необходимо войти в аккаунт.</p>
+    <a href="index.html"><button>Войти</button></a>
+  </div>
+
+  <!-- Модалка добавления игры -->
+  <div id="add-game-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+       background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+    <div style="background:#fff; padding:20px; border-radius:8px; max-width:400px; width:100%;">
+      <h3>Добавить игру</h3>
+      <label>Название: <input type="text" id="new-title"></label><br><br>
+      <label>Картинка URL: <input type="text" id="new-image"></label><br><br>
+      <label>Описание: <textarea id="new-desc"></textarea></label><br><br>
+      <label>Жанр:
+        <select id="new-genre"></select>
+      </label><br><br>
+      <button id="save-game-btn">Сохранить</button>
+      <button id="close-modal-btn">Отмена</button>
+    </div>
+  </div>
+
+  <script type="module" src="solo.js"></script>
+</body>
+</html>
