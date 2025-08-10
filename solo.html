@@ -2,28 +2,18 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Соло игры</title>
+  <!-- Устанавливает кодировку символов на UTF-8 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Делает страницу адаптивной на мобильных устройствах -->
+  <title>Игры с друзьями</title>
+  <!-- Заголовок вкладки браузера -->
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    #toggle-add-game-btn {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-#toggle-add-game-btn:hover {
-  background: #3e8e41;
-}
-
-  </style>
+  <!-- Подключение файла со стилями -->
 </head>
 <body>
-  <header>
-<nav class="top-menu">
+
+<header>
+  <nav class="top-menu">
     <div class="menu-left">
         <a href="index.html" class="top-btn">Игры</a>
         <a href="solo.html" class="top-btn">Соло игры</a>
@@ -31,13 +21,13 @@
         <a href="users.html" class="top-btn">Пользователи</a>
     </div>
     <div class="menu-right">
-      <span id="user-nickname" style="margin-right: 15px; font-weight: bold;"></span>
-<button id="toggle-add-game-btn" style="display:none;">➕ Добавить игру</button>
-      <button id="logout-btn">Выйти</button>
+      <button id="toggle-add-form" style="display: none;">➕ Добавить игру</button>
+      <span id="user-nickname" class="user-nickname" style="display: none;"></span>
+      <button id="auth-btn">Вход</button>
     </div>
-</nav>
-  </header>
-  
+  </nav>
+</header>
+
 <!-- 🔽 ОСНОВНАЯ ОБЛАСТЬ -->
 <section id="main-section" style="display:none;">
   <!-- Только для админа -->
@@ -95,6 +85,12 @@
     </select>
     <input id="link" type="url" placeholder="Ссылка на скачивание" required />
     <input id="image" type="url" placeholder="URL картинки" required />
+    <select id="status" required>
+      <option value="" disabled selected>Статус</option>
+      <option value="Пройдена">Пройдена</option>
+      <option value="В процессе">В процессе</option>
+      <option value="В планах">В планах</option>
+    </select>
     <button type="submit">Добавить игру</button>
   </form>
 </div>
@@ -156,20 +152,14 @@
     <option value="">Все статусы</option>
     <option value="Пройдена">Пройдена</option>
     <option value="В процессе">Прохожу</option>
-    <option value="В планах">Не пройдена</option>
+    <option value="В планах">Не прошел</option>
   </select>
 </div>
 
-<div id="games-list" class="games-grid"></div>
 
-<div id="mini-profile-overlay" class="mini-profile-overlay">
-  <div class="mini-profile-content">
-    <button class="close-mini-profile">&times;</button>
-    <!-- сюда JS будет подгружать данные игры -->
-  </div>
-</div>
-
-
+  <!-- 📦 СПИСОК ИГР -->
+  <div id="games-list" class="sologames-grid"></div>
+</section>
 
   <script type="module" src="solo.js"></script>
 </body>
