@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Соло игры</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    #toggle-add-game-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#toggle-add-game-btn:hover {
+  background: #3e8e41;
+}
+
+  </style>
 </head>
 <body>
   <header>
@@ -16,7 +31,8 @@
         <a href="users.html" class="top-btn">Пользователи</a>
     </div>
     <div class="menu-right">
-      <button id="add-game-btn" style="display:none;">➕ Добавить игру</button>
+      <span id="user-nickname" style="margin-right: 15px; font-weight: bold;"></span>
+<button id="toggle-add-game-btn" style="display:none;">➕ Добавить игру</button>
       <button id="logout-btn">Выйти</button>
     </div>
 </nav>
@@ -146,14 +162,13 @@
 
 <div id="games-list" class="games-grid"></div>
 
-<div id="mini-profile-overlay" class="mini-profile-overlay" style="display:none;">
-  <div class="mini-profile">
-    <button class="close-mini-profile">✖</button>
-    <div class="mini-profile-content">
-      <!-- Здесь будет динамически вставляться контент -->
-    </div>
+<div id="mini-profile-overlay" class="mini-profile-overlay">
+  <div class="mini-profile-content">
+    <button class="close-mini-profile">&times;</button>
+    <!-- сюда JS будет подгружать данные игры -->
   </div>
 </div>
+
 
 
   <script type="module" src="solo.js"></script>

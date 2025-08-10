@@ -67,7 +67,30 @@ onAuthStateChanged(auth, async (user) => {
       if (addGameBtn) addGameBtn.style.display = "inline-block";
       const addFormContainer = document.getElementById("add-form-container");
       if (addFormContainer) addFormContainer.style.display = "block";
+
+      const toggleAddGameBtn = document.getElementById("toggle-add-game-btn");
+if (toggleAddGameBtn) {
+  toggleAddGameBtn.style.display = "inline-block";
+  toggleAddGameBtn.addEventListener("click", () => {
+    const addFormContainer = document.getElementById("add-form-container");
+    if (addFormContainer) {
+      if (addFormContainer.style.display === "none" || !addFormContainer.style.display) {
+        addFormContainer.style.display = "block";
+      } else {
+        addFormContainer.style.display = "none";
+      }
     }
+  });
+}
+
+    }
+
+    // Показ ника пользователя
+const nicknameEl = document.getElementById("user-nickname");
+if (nicknameEl) {
+  nicknameEl.textContent = user.displayName || user.email.split("@")[0];
+}
+
 
     await loadMyStatuses();
     await loadGames();
@@ -335,16 +358,19 @@ async function loadComments(gameId, container) {
       actions.style.display = "flex";
       actions.style.gap = "8px";
       // like button
-      const likeBtn = document.createElement("button");
-      likeBtn.textContent = `👍 ${c.likesCount || 0}`;
-      // dislike button
-      const dislikeBtn = document.createElement("button");
-      dislikeBtn.textContent = `👎 ${c.dislikesCount || 0}`;
+const likeBtn = document.createElement("button");
+likeBtn.className = "like-btn";
+likeBtn.textContent = `👍 ${c.likesCount || 0}`;
 
-      // highlight user's vote
-      const myVote = c.votes?.[currentUser?.uid];
-      if (myVote === "like") likeBtn.style.background = "#d4ffd4";
-      if (myVote === "dislike") dislikeBtn.style.background = "#ffd4d4";
+const dislikeBtn = document.createElement("button");
+dislikeBtn.className = "dislike-btn";
+dislikeBtn.textContent = `👎 ${c.dislikesCount || 0}`;
+
+// Подсветка активной
+const myVote = c.votes?.[currentUser?.uid];
+if (myVote === "like") likeBtn.classList.add("active");
+if (myVote === "dislike") dislikeBtn.classList.add("active");
+
 
       likeBtn.addEventListener("click", () => voteComment(c, "like", gameId, container));
       dislikeBtn.addEventListener("click", () => voteComment(c, "dislike", gameId, container));
