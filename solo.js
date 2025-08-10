@@ -18,9 +18,14 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
-// ==== Инициализация Firebase ====
 const firebaseConfig = {
-  // твои ключи
+  apiKey: "AIzaSyBNuHz-OPbVWHoc7gtuxHU21-CC5TbYKbw",
+  authDomain: "game-idg.firebaseapp.com",
+  projectId: "game-idg",
+  storageBucket: "game-idg.appspot.com",
+  messagingSenderId: "987199066254",
+  appId: "1:987199066254:web:ed82cea15f4a7b7a4279df",
+  measurementId: "G-QLLFXDHX51"
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
