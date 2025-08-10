@@ -9,7 +9,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
-import { auth, db } from "./firebase-config.js";
+import { db } from "./firebase-config.js";
 
 import {
   getFirestore,
