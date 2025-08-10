@@ -540,10 +540,67 @@ function addEditForm(card, game) {
 }
 
 // Открыть мини-профиль (модалка) с описанием и комментариями
+async function getCommentsForGame(gameId) {
+  const q = query(collection(db, "soloComments"), where("gameId", "==", gameId), orderBy("createdAt", "asc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function likeComment(commentId, userId, isLike) {
+  const commentRef = doc(db, "soloComments", commentId);
+  const userVoteKey = `votes.${userId}`;
+  const snap = await getDoc(commentRef);
+  if (!snap.exists()) return;
+  const data = snap.data();
+  const prevVote = data.votes?.[userId];
+  let updates = {};
+
+  if (prevVote === isLike) {
+    updates[userVoteKey] = null;
+    updates[isLike ? 'likes' : 'dislikes'] = increment(-1);
+  } else {
+    updates[userVoteKey] = isLike;
+    if (prevVote === undefined) {
+      updates[isLike ? 'likes' : 'dislikes'] = increment(1);
+    } else {
+      updates[isLike ? 'likes' : 'dislikes'] = increment(1);
+      updates[!isLike ? 'likes' : 'dislikes'] = increment(-1);
+    }
+  }
+  await updateDoc(commentRef, updates);
+}
+
+async function deleteUserComment(userId, gameId) {
+  const q = query(collection(db, "soloComments"), where("userId", "==", userId), where("gameId", "==", gameId));
+  const snapshot = await getDocs(q);
+  for (const docSnap of snapshot.docs) {
+    await deleteDoc(docSnap.ref);
+  }
+}
+
+async function setUserCommentForGame(userId, gameId, nickname, avatar, text) {
+  const q = query(collection(db, "soloComments"), where("userId", "==", userId), where("gameId", "==", gameId));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) {
+    await setDoc(doc(collection(db, "soloComments")), {
+      userId, gameId, nickname, avatar, text,
+      likes: 0, dislikes: 0, votes: {},
+      createdAt: Date.now()
+    });
+  } else {
+    await updateDoc(snapshot.docs[0].ref, { text });
+  }
+}
+
+async function getUserCommentForGame(userId, gameId) {
+  const q = query(collection(db, "soloComments"), where("userId", "==", userId), where("gameId", "==", gameId));
+  const snapshot = await getDocs(q);
+  return snapshot.empty ? null : { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+}
+
 async function openMiniProfile(game, user) {
   const overlay = document.createElement('div');
   overlay.className = 'mini-profile-overlay';
-
   const box = document.createElement('div');
   box.className = 'mini-profile';
 
@@ -551,65 +608,85 @@ async function openMiniProfile(game, user) {
   closeBtn.className = 'close-mini-profile';
   closeBtn.textContent = '✖';
   closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
-
-  // Закрытие при клике на тёмную область вне окна
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      document.body.removeChild(overlay);
-    }
-  });
-
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) document.body.removeChild(overlay); });
   box.appendChild(closeBtn);
 
   const img = document.createElement('img');
   img.src = game.image;
   box.appendChild(img);
-
   const title = document.createElement('h2');
   title.textContent = game.title;
   box.appendChild(title);
-
   const desc = document.createElement('p');
   desc.textContent = game.description || 'Описание отсутствует.';
   box.appendChild(desc);
 
   const commentsCont = document.createElement('div');
   commentsCont.className = 'comment-section';
-  commentsCont.innerHTML = '<h3>Комментарии</h3>';
   box.appendChild(commentsCont);
 
   async function refreshComments() {
-    commentsCont.querySelectorAll('.comment').forEach(n => n.remove());
+    commentsCont.innerHTML = '<h3>Комментарии</h3>';
     const comments = await getCommentsForGame(game.id);
-    for (const c of comments) {
+    comments.forEach(c => {
       const com = document.createElement('div');
       com.className = 'comment';
-      com.innerHTML = `
-        <div class="comment-author">${c.nickname || 'Аноним'}</div>
-        <p class="comment-text">${escapeHtml(c.text || '')}</p>
-      `;
+
+      const header = document.createElement('div');
+      header.className = 'comment-header';
+      const avatar = document.createElement('img');
+      avatar.src = c.avatar || '/assets/default-avatar.png';
+      avatar.className = 'comment-avatar';
+      const name = document.createElement('span');
+      name.className = 'comment-nickname';
+      name.textContent = c.nickname || 'Аноним';
+      header.appendChild(avatar);
+      header.appendChild(name);
+      com.appendChild(header);
+
+      const text = document.createElement('p');
+      text.className = 'comment-text';
+      text.textContent = c.text;
+      com.appendChild(text);
+
+      const footer = document.createElement('div');
+      footer.className = 'comment-footer';
+
+      const likeBtn = document.createElement('button');
+      likeBtn.textContent = `👍 ${c.likes || 0}`;
+      likeBtn.addEventListener('click', () => likeComment(c.id, user.uid, true));
+
+      const dislikeBtn = document.createElement('button');
+      dislikeBtn.textContent = `👎 ${c.dislikes || 0}`;
+      dislikeBtn.addEventListener('click', () => likeComment(c.id, user.uid, false));
+
+      footer.appendChild(likeBtn);
+      footer.appendChild(dislikeBtn);
+
       if (user && c.userId === user.uid) {
-        const actions = document.createElement('div');
-        actions.className = 'comment-actions';
-        const editBtn = document.createElement('button'); editBtn.textContent = 'Редактировать';
-        const delBtn = document.createElement('button'); delBtn.textContent = 'Удалить';
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Редактировать';
         editBtn.addEventListener('click', () => showEditForm(c));
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Удалить';
         delBtn.addEventListener('click', async () => {
-          if (!confirm('Удалить комментарий?')) return;
           await deleteUserComment(user.uid, game.id);
           await refreshComments();
         });
-        actions.appendChild(editBtn); actions.appendChild(delBtn); com.appendChild(actions);
+        footer.appendChild(editBtn);
+        footer.appendChild(delBtn);
       }
+
+      com.appendChild(footer);
       commentsCont.appendChild(com);
-    }
+    });
   }
 
   async function showEditForm(existing) {
     const old = box.querySelector('.comment-form'); if (old) old.remove();
     const form = document.createElement('form'); form.className = 'comment-form';
     form.innerHTML = `
-      <textarea name="text" rows="4" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;">${existing ? escapeHtml(existing.text) : ''}</textarea>
+      <textarea name="text" rows="4" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;">${existing ? existing.text : ''}</textarea>
       <div style="margin-top:8px;display:flex;gap:8px;">
         <button type="submit" class="submit-button">Сохранить</button>
         <button type="button" class="submit-button cancel">Отмена</button>
@@ -622,12 +699,11 @@ async function openMiniProfile(game, user) {
       if (!user) { alert('Нужно войти'); return; }
       const text = form.text.value.trim();
       if (!text) { alert('Введите текст'); return; }
-      await setUserCommentForGame(user.uid, game.id, user.displayName || user.email || 'Пользователь', text);
+      await setUserCommentForGame(user.uid, game.id, cachedNickname || user.displayName || user.email, user.photoURL || '/assets/default-avatar.png', text);
       form.remove();
       await refreshComments();
     });
   }
-
 
   if (user) {
     const userComment = await getUserCommentForGame(user.uid, game.id);
@@ -644,6 +720,16 @@ async function openMiniProfile(game, user) {
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 }
+
+const style = document.createElement('style');
+style.textContent = `
+  #games-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  .comment { border-top: 1px solid #ccc; padding: 10px; }
+  .comment-header { display: flex; align-items: center; gap: 8px; }
+  .comment-avatar { width: 24px; height: 24px; border-radius: 50%; }
+  .comment-footer { display: flex; gap: 10px; margin-top: 5px; }
+`;
+document.head.appendChild(style);
 
 // Добавляем CSS для сетки 3 в ряд через JS (если вдруг нет стиля)
 const style = document.createElement('style');
