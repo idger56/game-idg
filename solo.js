@@ -93,7 +93,7 @@ async function loadMyStatuses() {
   }
 }
 
-// add game (admin)
+// Добавление игры (только админ)
 addGameForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser || currentUser.email !== "boreko.ivan@gmail.com") {
@@ -107,9 +107,18 @@ addGameForm?.addEventListener("submit", async (e) => {
     const link = document.getElementById("link").value.trim();
     const image = document.getElementById("image").value.trim();
 
-    if (!title) { alert("Введите название"); return; }
+    if (!title) { 
+      alert("Введите название"); 
+      return; 
+    }
 
-    await addDoc(collection(db, "soloGames"), {
+    // Генерация ID из названия
+    const gameId = title
+      .toLowerCase()
+      .replace(/[^a-z0-9а-яё\s]/gi, "") // убираем лишние символы
+      .replace(/\s+/g, "_");            // пробелы -> _
+
+    await setDoc(doc(db, "soloGames", gameId), {
       title,
       category,
       link,
@@ -125,6 +134,7 @@ addGameForm?.addEventListener("submit", async (e) => {
     alert("Ошибка добавления игры. Проверьте консоль.");
   }
 });
+
 
 // load all games
 async function loadGames() {
