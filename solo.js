@@ -187,14 +187,19 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUserUid = user.uid;
 
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const nickname = userDoc.exists() ? userDoc.data().nickname : user.displayName || user.email;
+    nicknameSpan.style.display = 'inline';
+    nicknameSpan.textContent = `👤 ${nickname}`;
+
     await updateUserStatus(user.uid, "online");
     await updateUserLastSeen(user.uid);
 
     if (lastSeenIntervalId) clearInterval(lastSeenIntervalId);
-    lastSeenIntervalId = setInterval(() => updateUserLastSeen(user.uid), 60000);
+    lastSeenIntervalId = setInterval(() => updateUserLastSeen(user.uid), 1000);
 
     if (userStatusIntervalId) clearInterval(userStatusIntervalId);
-    userStatusIntervalId = setInterval(() => updateUserStatus(user.uid, "online"), 60000);
+    userStatusIntervalId = setInterval(() => updateUserStatus(user.uid, "online"), 1000);
 
     if (authSection) authSection.style.display = "none";
     if (mainSection) mainSection.style.display = "block";
@@ -222,7 +227,7 @@ onAuthStateChanged(auth, async (user) => {
       await updateUserStatus(currentUserUid, "offline");
       currentUserUid = null;
     }
-
+    nicknameSpan.style.display = 'none';
     if (authSection) authSection.style.display = "block";
     if (mainSection) mainSection.style.display = "none";
     if (authBtn) authBtn.textContent = "Вход";
@@ -535,7 +540,6 @@ function addEditForm(card, game) {
 
 // Открыть мини-профиль (модалка) с описанием и комментариями
 async function openMiniProfile(game, user) {
-  // Создаем оверлей
   const overlay = document.createElement('div');
   overlay.className = 'mini-profile-overlay';
 
@@ -546,6 +550,13 @@ async function openMiniProfile(game, user) {
   closeBtn.className = 'close-mini-profile';
   closeBtn.textContent = '✖';
   closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  // Закрытие при клике на тёмную область вне окна
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+    }
+  });
 
   box.appendChild(closeBtn);
 
@@ -561,13 +572,11 @@ async function openMiniProfile(game, user) {
   desc.textContent = game.description || 'Описание отсутствует.';
   box.appendChild(desc);
 
-  // Комментарии
   const commentsCont = document.createElement('div');
   commentsCont.className = 'comment-section';
   commentsCont.innerHTML = '<h3>Комментарии</h3>';
   box.appendChild(commentsCont);
 
-  // Загрузка и рендер комментариев
   async function refreshComments() {
     commentsCont.querySelectorAll('.comment').forEach(n => n.remove());
     const comments = await getCommentsForGame(game.id);
@@ -578,7 +587,6 @@ async function openMiniProfile(game, user) {
         <div class="comment-author">${c.nickname || 'Аноним'}</div>
         <p class="comment-text">${escapeHtml(c.text || '')}</p>
       `;
-      // Кнопки редактирования/удаления только для автора
       if (user && c.userId === user.uid) {
         const actions = document.createElement('div');
         actions.className = 'comment-actions';
@@ -596,11 +604,8 @@ async function openMiniProfile(game, user) {
     }
   }
 
-  // Форма добавления/редактирования комментария (для текущего юзера)
   async function showEditForm(existing) {
-    // Удаляем старую форму если есть
     const old = box.querySelector('.comment-form'); if (old) old.remove();
-
     const form = document.createElement('form'); form.className = 'comment-form';
     form.innerHTML = `
       <textarea name="text" rows="4" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;">${existing ? escapeHtml(existing.text) : ''}</textarea>
@@ -610,9 +615,7 @@ async function openMiniProfile(game, user) {
       </div>
     `;
     box.appendChild(form);
-
     form.querySelector('.cancel').addEventListener('click', () => { form.remove(); });
-
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!user) { alert('Нужно войти'); return; }
@@ -624,7 +627,7 @@ async function openMiniProfile(game, user) {
     });
   }
 
-  // Если пользователь залогинен — покажем кнопку добавить/редактировать
+
   if (user) {
     const userComment = await getUserCommentForGame(user.uid, game.id);
     const btn = document.createElement('button');
@@ -637,10 +640,21 @@ async function openMiniProfile(game, user) {
   }
 
   await refreshComments();
-
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 }
+
+// Добавляем CSS для сетки 3 в ряд через JS (если вдруг нет стиля)
+const style = document.createElement('style');
+style.textContent = `
+  #games-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+`;
+document.head.appendChild(style);
+
 
 // Простая экранировка html в тексте комментариев
 function escapeHtml(str) {
