@@ -545,13 +545,6 @@ function addEditForm(card, game) {
   });
 }
 
-// Открыть мини-профиль (модалка) с описанием и комментариями
-async function getCommentsForGame(gameId) {
-  const q = query(collection(db, "soloComments"), where("gameId", "==", gameId), orderBy("createdAt", "asc"));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-}
-
 async function likeComment(commentId, userId, isLike) {
   const commentRef = doc(db, "soloComments", commentId);
   const userVoteKey = `votes.${userId}`;
