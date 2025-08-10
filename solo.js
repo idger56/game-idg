@@ -56,6 +56,25 @@ logoutBtn?.addEventListener("click", async () => {
   }
 });
 
+// Загружаем статусы текущего пользователя
+async function loadMyStatuses() {
+  myStatuses = {};
+  if (!currentUser) return;
+  try {
+    const q = query(
+      collection(db, "soloStatuses"),
+      where("userId", "==", currentUser.uid)
+    );
+    const snap = await getDocs(q);
+    snap.forEach(d => {
+      const data = d.data();
+      if (data && data.gameId) myStatuses[data.gameId] = data.status;
+    });
+  } catch (e) {
+    console.error("loadMyStatuses error", e);
+  }
+}
+
 // auth
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -75,7 +94,9 @@ onAuthStateChanged(auth, async (user) => {
         nicknameFromDb = user.email.split("@")[0];
       }
       const nicknameEl = document.getElementById("user-nickname");
-      if (nicknameEl) nicknameEl.textContent = nicknameFromDb;
+if (nicknameEl) {
+  nicknameEl.textContent = `👤 ${nicknameFromDb}`;
+}
     } catch (err) {
       console.error("Ошибка загрузки ника:", err);
     }

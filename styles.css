@@ -1099,3 +1099,9 @@ header {
   border-color: #4a90e2;
   background: white;
 }
+
+#user-nickname {
+  color: white;
+  font-weight: bold;
+  margin-right: 12px;
+}
