@@ -217,6 +217,12 @@ onAuthStateChanged(auth, async (user) => {
       }
     });
 
+    async function fetchComments(gameId) {
+  const q = query(collection(db, "soloComments"), where("gameId", "==", gameId), orderBy("createdAt", "asc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
     // Загружаем игры и отображаем
     await loadGames();
   } else {
@@ -627,7 +633,7 @@ async function openMiniProfile(game, user) {
 
   async function refreshComments() {
     commentsCont.innerHTML = '<h3>Комментарии</h3>';
-    const comments = await getCommentsForGame(game.id);
+    const comments = await fetchComments(game.id);
     comments.forEach(c => {
       const com = document.createElement('div');
       com.className = 'comment';
@@ -731,7 +737,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Добавляем CSS для сетки 3 в ряд через JS (если вдруг нет стиля)
+
 const style = document.createElement('style');
 style.textContent = `
   #games-list {
@@ -743,7 +749,6 @@ style.textContent = `
 document.head.appendChild(style);
 
 
-// Простая экранировка html в тексте комментариев
 function escapeHtml(str) {
   if (!str) return '';
   return String(str).replace(/[&<>\"']/g, function (s) {
@@ -751,6 +756,3 @@ function escapeHtml(str) {
   });
 }
 
-// Экспорт / сделать доступным — нет (скрипт подключается как module в HTML)
-
-// Конец файла
