@@ -187,7 +187,6 @@ async function createGameCard(game) {
   const card = document.createElement("div");
   card.className = "game-card";
 
-  // use same markup/styling as index.html
   const img = game.image || "assets/default-game.png";
   const genres = Array.isArray(game.category) ? game.category.join(", ") : (game.category || "Не указан");
   const link = game.link || "#";
@@ -205,12 +204,11 @@ async function createGameCard(game) {
           <button class="open-profile-btn">📄 Профиль</button>
           ${currentUser && currentUser.email === "boreko.ivan@gmail.com" ? '<button class="edit-game-btn">✏️ Редактировать</button>' : ''}
         </div>
-        <div class="comments-section" style="display:none; margin-top:12px;"></div>
       </div>
     </div>
   `;
 
-  // status select (current user's status)
+  // статус игрока
   const statusBlock = card.querySelector(".user-status-block");
   const select = document.createElement("select");
   select.className = "status-select";
@@ -220,7 +218,6 @@ async function createGameCard(game) {
     o.textContent = s;
     select.appendChild(o);
   });
-  // default: if we have user's status previously loaded, use it, else "Не пройдена"
   const currentStatus = myStatuses[game.id] || "Не пройдена";
   select.value = currentStatus;
   statusBlock.appendChild(select);
@@ -234,15 +231,13 @@ async function createGameCard(game) {
         status: select.value,
         updatedAt: serverTimestamp()
       });
-      // update local map so that status filter works immediately
       myStatuses[game.id] = select.value;
-      // optionally re-render if user is filtering by status
       if (filterStatus?.value) renderGames();
     } catch (e) {
       console.error("set status error", e);
-      alert("Не удалось сохранить статус.");
     }
   });
+
 
   // comments button
   const commentsBtn = card.querySelector(".comments-btn");
@@ -256,6 +251,12 @@ async function createGameCard(game) {
     }
   });
 
+  // кнопка мини-профиля
+  const profileBtn = card.querySelector(".open-profile-btn");
+  if (profileBtn) {
+    profileBtn.addEventListener("click", () => openMiniProfile(game));
+  }
+
   // admin edit
   const editBtn = card.querySelector(".edit-game-btn");
   if (editBtn) {
@@ -263,11 +264,6 @@ async function createGameCard(game) {
   }
 
   return card;
-}
-// открыть мини-профиль
-const profileBtn = card.querySelector(".open-profile-btn");
-if (profileBtn) {
-  profileBtn.addEventListener("click", () => openMiniProfile(game));
 }
 
 // load comments for a given game
