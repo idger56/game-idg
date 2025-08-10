@@ -23,6 +23,7 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let myStatuses = {}; // { gameId: "Пройдена" }
+let userNickname = "";
 
 const mainSection = document.getElementById("main-section");
 const gamesListEl = document.getElementById("games-list"); // <-- должен быть в HTML
@@ -59,62 +60,59 @@ logoutBtn?.addEventListener("click", async () => {
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
-    // show main area
+
+    // Показываем основную секцию
     if (mainSection) mainSection.style.display = "block";
 
-    // admin controls
-    if (user.email === "boreko.ivan@gmail.com") {
-      if (addGameBtn) addGameBtn.style.display = "inline-block";
-      const addFormContainer = document.getElementById("add-form-container");
-      if (addFormContainer) addFormContainer.style.display = "block";
-
-      const toggleAddGameBtn = document.getElementById("toggle-add-game-btn");
-if (toggleAddGameBtn) {
-  toggleAddGameBtn.style.display = "inline-block";
-  toggleAddGameBtn.addEventListener("click", () => {
-    const addFormContainer = document.getElementById("add-form-container");
-    if (addFormContainer) {
-      if (addFormContainer.style.display === "none" || !addFormContainer.style.display) {
-        addFormContainer.style.display = "block";
+    // Загружаем ник из Firestore
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      let nicknameFromDb = "";
+      if (snap.exists()) {
+        nicknameFromDb = snap.data().nickname || user.email.split("@")[0];
       } else {
-        addFormContainer.style.display = "none";
+        nicknameFromDb = user.email.split("@")[0];
       }
+      const nicknameEl = document.getElementById("user-nickname");
+      if (nicknameEl) nicknameEl.textContent = nicknameFromDb;
+    } catch (err) {
+      console.error("Ошибка загрузки ника:", err);
     }
-  });
-}
 
+    // Админские элементы
+    if (user.email === "boreko.ivan@gmail.com") {
+      const toggleAddGameBtn = document.getElementById("toggle-add-game-btn");
+      if (toggleAddGameBtn) {
+        toggleAddGameBtn.style.display = "inline-block";
+        toggleAddGameBtn.addEventListener("click", () => {
+          const addFormContainer = document.getElementById("add-form-container");
+          if (addFormContainer) {
+            if (addFormContainer.style.display === "none" || !addFormContainer.style.display) {
+              addFormContainer.style.display = "block";
+            } else {
+              addFormContainer.style.display = "none";
+            }
+          }
+        });
+      }
+      // Скрываем форму по умолчанию
+      const addFormContainer = document.getElementById("add-form-container");
+      if (addFormContainer) addFormContainer.style.display = "none";
     }
 
-    // Показ ника пользователя
-const nicknameEl = document.getElementById("user-nickname");
-if (nicknameEl) {
-  nicknameEl.textContent = user.displayName || user.email.split("@")[0];
-}
-
-
+    // Загружаем статусы и игры
     await loadMyStatuses();
     await loadGames();
+
   } else {
     currentUser = null;
-    if (mainSection) mainSection.innerHTML = `<p style="text-align:center;">Войдите, чтобы увидеть список игр.</p>`;
+    if (mainSection) {
+      mainSection.innerHTML = `<p style="text-align:center;">Войдите, чтобы увидеть список игр.</p>`;
+    }
   }
 });
 
-// load statuses of current user
-async function loadMyStatuses() {
-  myStatuses = {};
-  if (!currentUser) return;
-  try {
-    const q = query(collection(db, "soloStatuses"), where("userId", "==", currentUser.uid));
-    const snap = await getDocs(q);
-    snap.forEach(d => {
-      const data = d.data();
-      if (data && data.gameId) myStatuses[data.gameId] = data.status;
-    });
-  } catch (e) {
-    console.error("loadMyStatuses error", e);
-  }
-}
 
 // Добавление игры (только админ)
 addGameForm?.addEventListener("submit", async (e) => {
@@ -205,7 +203,7 @@ function renderGames() {
   filtered.forEach(game => createGameCard(game).then(card => gamesListEl.appendChild(card)));
 }
 
-// create card DOM (includes status select, comments, admin edit)
+// create card DOM (includes status select, rating select, admin edit)
 async function createGameCard(game) {
   const card = document.createElement("div");
   card.className = "game-card";
@@ -221,9 +219,21 @@ async function createGameCard(game) {
         <h3 style="margin:0 0 8px 0;">${escapeHtml(game.title)}</h3>
         <p style="margin:0 0 8px 0;"><strong>Жанр:</strong> ${escapeHtml(genres)}</p>
         <p style="margin:0 0 12px 0;">${escapeHtml(game.description || "")}</p>
+
+        <!-- Блок выбора статуса -->
+        <div class="user-status-block" style="margin-bottom:8px;"></div>
+
+        <!-- Блок выбора своей оценки -->
+        <div class="user-rating-block" style="margin-bottom:12px;">
+          <label><strong>Ваша оценка:</strong>
+            <select class="rating-select">
+              ${Array.from({length: 11}, (_, i) => `<option value="${i}">${i}</option>`).join("")}
+            </select>
+          </label>
+        </div>
+
         <div style="margin-top:auto; display:flex; gap:8px; align-items:center;">
-          <a class="download-btn" href="${link}" target="_blank" style="margin-right:auto;">Скачать / Перейти</a>
-          <div class="user-status-block"></div>
+          <a class="download-btn" href="${link}" target="_blank" style="margin-right:auto;">Перейти</a>
           <button class="open-profile-btn">📄 Профиль</button>
           ${currentUser && currentUser.email === "boreko.ivan@gmail.com" ? '<button class="edit-game-btn">✏️ Редактировать</button>' : ''}
         </div>
@@ -231,7 +241,7 @@ async function createGameCard(game) {
     </div>
   `;
 
-  // статус игрока
+  // === СТАТУС ИГРЫ ===
   const statusBlock = card.querySelector(".user-status-block");
   const select = document.createElement("select");
   select.className = "status-select";
@@ -261,6 +271,32 @@ async function createGameCard(game) {
     }
   });
 
+  // === ЛИЧНАЯ ОЦЕНКА ===
+  const ratingSelect = card.querySelector(".rating-select");
+  try {
+    const ratingRef = doc(db, "soloRatings", `${currentUser.uid}_${game.id}`);
+    const snap = await getDoc(ratingRef);
+    if (snap.exists()) {
+      ratingSelect.value = snap.data().rating ?? 0;
+    }
+  } catch (e) {
+    console.error("Ошибка загрузки оценки:", e);
+  }
+
+  ratingSelect.addEventListener("change", async () => {
+    try {
+      const ratingValue = parseInt(ratingSelect.value);
+      const ratingRef = doc(db, "soloRatings", `${currentUser.uid}_${game.id}`);
+      await setDoc(ratingRef, {
+        userId: currentUser.uid,
+        gameId: game.id,
+        rating: ratingValue,
+        updatedAt: serverTimestamp()
+      });
+    } catch (e) {
+      console.error("Ошибка сохранения оценки:", e);
+    }
+  });
 
   // кнопка мини-профиля
   const profileBtn = card.querySelector(".open-profile-btn");

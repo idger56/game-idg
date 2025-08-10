@@ -1029,3 +1029,73 @@ header {
   background: #d77c7c;
   color: white;
 }
+
+.status-select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  font-size: 14px;
+}
+.status-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  background: white;
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  margin-bottom: 6px;
+}
+
+.comment-form button {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.comment-form button:hover {
+  background: #357abd;
+}
+
+.edit-comment-btn {
+  background: #f0ad4e;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.edit-comment-btn:hover {
+  background: #ec971f;
+}
+
+.edit-game-btn {
+  background: #f0ad4e;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.edit-game-btn:hover {
+  background: #ec971f;
+}
+
+.user-rating-select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+}
+.user-rating-select:focus {
+  border-color: #4a90e2;
+  background: white;
+}
