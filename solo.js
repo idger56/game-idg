@@ -171,13 +171,6 @@ async function setUserCommentForGame(userId, gameId, nickname, text) {
   } catch (e) { console.error(e); }
 }
 
-// Удалить комментарий (если надо)
-async function deleteUserComment(userId, gameId) {
-  try {
-    await deleteDoc(doc(db, "soloComments", `${userId}_${gameId}`));
-  } catch (e) { console.error(e); }
-}
-
 // ====== Авторизация и UI поведение ======
 
 onAuthStateChanged(auth, async (user) => {
