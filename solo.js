@@ -5,11 +5,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
 import {
   getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+
+import { auth, db } from "./firebase-config.js";
 
 import {
   getFirestore,
@@ -86,6 +86,7 @@ async function updateUserStatus(uid, status) {
   }
 }
 
+let cachedNickname = null;
 let lastSeenIntervalId = null;
 let userStatusIntervalId = null;
 
@@ -183,12 +184,13 @@ async function deleteUserComment(userId, gameId) {
 
 onAuthStateChanged(auth, async (user) => {
   clearAuthMessage();
-
+  const nicknameSpan = document.getElementById('user-nickname');
   if (user) {
     currentUserUid = user.uid;
 
     const userDoc = await getDoc(doc(db, "users", user.uid));
     const nickname = userDoc.exists() ? userDoc.data().nickname : user.displayName || user.email;
+    cachedNickname = nickname;
     nicknameSpan.style.display = 'inline';
     nicknameSpan.textContent = `👤 ${nickname}`;
 
@@ -204,9 +206,10 @@ onAuthStateChanged(auth, async (user) => {
     if (authSection) authSection.style.display = "none";
     if (mainSection) mainSection.style.display = "block";
     if (authBtn) authBtn.textContent = "Выход";
-    if (nicknameSpan) { nicknameSpan.style.display = "inline"; nicknameSpan.textContent = user.displayName || user.email; }
 
-    window.addEventListener("beforeunload", async () => { await updateUserStatus(user.uid, "offline"); });
+    window.addEventListener("beforeunload", async () => {
+      await updateUserStatus(user.uid, "offline");
+    });
 
     document.addEventListener("visibilitychange", async () => {
       if (document.visibilityState === "hidden") {
