@@ -74,8 +74,8 @@ function formatLastSeenFromMillis(lastMillis){
   if (!lastMillis) return "—";
   const diff = Date.now() - lastMillis;
   if (diff < 0) return "—";
-  // online threshold 5 minutes
-  if (diff < 1 * 60 * 1000) return "Онлайн";
+  // online threshold 1 minutes
+  if (diff < 1 * 60 * 100) return "Онлайн";
   const mins = Math.floor(diff / 60000);
   if (mins < 60) {
     return `Был в сети ${mins} ${ruPlural(mins,['минута','минуты','минут'])} назад`;
@@ -260,7 +260,7 @@ function renderMyProfile(userData, stats, docId) {
           <div class="profile-meta">
             <div class="mini-muted">Средняя оценка: <strong>${stats.avgRating}</strong></div>
             <div class="mini-muted">Пройдено: <strong>${stats.percentComplete}%</strong></div>
-            <div id="self-status" class="self-status status ${ (lastActiveMillis && (Date.now() - lastActiveMillis) < 5*60*1000) ? 'online' : 'offline' }" data-lastactive="${ lastActiveMillis || '' }">
+            <div id="self-status" class="self-status status ${ (lastActiveMillis && (Date.now() - lastActiveMillis) < 1*60*100) ? 'online' : 'offline' }" data-lastactive="${ lastActiveMillis || '' }">
               ${ formatLastSeenFromMillis(lastActiveMillis) }
             </div>
           </div>
@@ -280,28 +280,50 @@ function renderMyProfile(userData, stats, docId) {
 <select id="genre-input-top">
   <option value="">— Выберите жанр —</option>
   <!-- Топовые жанры -->
-  <option value="Экшен">Экшен</option>
-  <option value="Шутер от первого лица">Шутер от первого лица</option>
-  <option value="Шутер от третьего лица">Шутер от третьего лица</option>
-  <option value="Battle Royale">Battle Royale</option>
-  <option value="RPG">RPG</option>
-  <option value="MMORPG">MMORPG</option>
-  <option value="Выживание">Выживание</option>
-  <option value="Песочница">Песочница</option>
-  <option value="Приключения">Приключения</option>
-  <option value="Хоррор">Хоррор</option>
-  <!-- Средняя популярность -->
-  <option value="Файтинг">Файтинг</option>
-  <option value="Гонки">Гонки</option>
-  <option value="Платформер">Платформер</option>
-  <option value="Стратегия">Стратегия</option>
-  <option value="Тактический шутер">Тактический шутер</option>
-  <option value="Моба">МОБА</option>
-  <option value="Симулятор">Симулятор</option>
-  <!-- Дополнительные/нишевые -->
-  <option value="Головоломка">Головоломка</option>
-  <option value="Зомби">Зомби</option>
-  <option value="Тактическая стратегия">Тактическая стратегия</option>
+<option value="Экшен">Экшен</option>
+<option value="Шутер от первого лица">Шутер от первого лица</option>
+<option value="Шутер от третьего лица">Шутер от третьего лица</option>
+<option value="Battle Royale">Battle Royale</option>
+<option value="RPG">RPG</option>
+<option value="MMORPG">MMORPG</option>
+<option value="Выживание">Выживание</option>
+<option value="Песочница">Песочница</option>
+<option value="Приключения">Приключения</option>
+<option value="Хоррор">Хоррор</option>
+<option value="Открытый мир">Открытый мир</option>
+<option value="Souls-like">Souls-like</option>
+
+<!-- Средняя популярность -->
+<option value="Файтинг">Файтинг</option>
+<option value="Гонки">Гонки</option>
+<option value="Платформер">Платформер</option>
+<option value="Стратегия">Стратегия</option>
+<option value="Пошаговая стратегия">Пошаговая стратегия</option>
+<option value="Тактический шутер">Тактический шутер</option>
+<option value="МОБА">МОБА</option>
+<option value="Симулятор">Симулятор</option>
+<option value="Карточная игра">Карточная игра</option>
+<option value="Спорт">Спорт</option>
+<option value="Кооператив">Кооператив</option>
+<option value="Онлайн PvP">Онлайн PvP</option>
+
+<!-- Дополнительные/нишевые -->
+<option value="Головоломка">Головоломка</option>
+<option value="Зомби">Зомби</option>
+<option value="Тактическая стратегия">Тактическая стратегия</option>
+<option value="Roguelike">Roguelike</option>
+<option value="Roguelite">Roguelite</option>
+<option value="Метроидвания">Метроидвания</option>
+<option value="Визуальная новелла">Визуальная новелла</option>
+<option value="Музыкальная">Музыкальная</option>
+<option value="Квест">Квест</option>
+<option value="Киберпанк">Киберпанк</option>
+<option value="Фэнтези">Фэнтези</option>
+<option value="Историческая">Историческая</option>
+<option value="Менеджмент">Менеджмент</option>
+<option value="Стелс">Стелс</option>
+<option value="Хакерство">Хакерство</option>
+<option value="Космос">Космос</option>
 </select>
 
           <div style="display:flex; gap:8px;">
@@ -409,7 +431,7 @@ function startSelfLastActiveUpdater(elementId){
     const ms = raw ? parseInt(raw, 10) : null;
     const txt = formatLastSeenFromMillis(ms);
     el.textContent = txt;
-    if (ms && (Date.now() - ms) < 5*60*1000) {
+    if (ms && (Date.now() - ms) < 1*60*1000) {
       el.classList.add("online");
       el.classList.remove("offline");
     } else {
