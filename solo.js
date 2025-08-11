@@ -557,14 +557,6 @@ async function likeComment(commentId, userId, isLike) {
   await updateDoc(commentRef, updates);
 }
 
-async function deleteUserComment(userId, gameId) {
-  const q = query(collection(db, "soloComments"), where("userId", "==", userId), where("gameId", "==", gameId));
-  const snapshot = await getDocs(q);
-  for (const docSnap of snapshot.docs) {
-    await deleteDoc(docSnap.ref);
-  }
-}
-
 async function setUserCommentForGame(userId, gameId, nickname, avatar, text) {
   const q = query(collection(db, "soloComments"), where("userId", "==", userId), where("gameId", "==", gameId));
   const snapshot = await getDocs(q);
@@ -577,12 +569,6 @@ async function setUserCommentForGame(userId, gameId, nickname, avatar, text) {
   } else {
     await updateDoc(snapshot.docs[0].ref, { text });
   }
-}
-
-async function getUserCommentForGame(userId, gameId) {
-  const q = query(collection(db, "soloComments"), where("userId", "==", userId), where("gameId", "==", gameId));
-  const snapshot = await getDocs(q);
-  return snapshot.empty ? null : { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
 }
 
 async function openMiniProfile(game, user) {
