@@ -622,17 +622,21 @@ async function openMiniProfile(game, user) {
     const com = document.createElement('div');
     com.className = 'comment';
 
-    const header = document.createElement('div');
-    header.className = 'comment-header';
-    const avatarImg = document.createElement('img');
-    avatarImg.src = avatarUrl;
-    avatarImg.className = 'comment-avatar';
-    const author = document.createElement('span');
-    author.className = 'comment-author';
-    author.textContent = nickname;
-    header.appendChild(avatarImg);
-    header.appendChild(author);
-    com.appendChild(header);
+const header = document.createElement('div');
+header.className = 'comment-header';
+
+const avatarImg = document.createElement('img');
+avatarImg.src = avatarUrl;
+avatarImg.className = 'comment-avatar';
+
+const author = document.createElement('span');
+author.className = 'comment-author';
+author.textContent = nickname;
+
+header.appendChild(avatarImg);
+header.appendChild(author);
+com.appendChild(header);
+
 
     const text = document.createElement('p');
     text.className = 'comment-text';
@@ -713,8 +717,20 @@ const style = document.createElement('style');
 style.textContent = `
   #games-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
   .comment { border-top: 1px solid #ccc; padding: 10px; }
-  .comment-header { display: flex; align-items: center; gap: 8px; }
-  .comment-avatar { width: 24px; height: 24px; border-radius: 50%; }
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* расстояние между аватаром и ником */
+}
+
+.comment-avatar {
+  width: 32px;       /* маленькая, фиксированный размер */
+  height: 32px;      /* квадрат */
+  object-fit: cover; /* чтобы вписывалась */
+  border-radius: 4px;/* чуть скругленные углы, без обрезки в круг */
+  flex-shrink: 0;    /* не сжимать при длинных никах */
+}
+
   .comment-footer { display: flex; gap: 10px; margin-top: 5px; }
 `;
 document.head.appendChild(style);
