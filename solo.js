@@ -692,8 +692,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-
-const style = document.createElement('style');
 style.textContent = `
   #games-list {
     display: grid;
