@@ -586,6 +586,19 @@ async function openMiniProfile(game, user) {
   commentsCont.className = 'comment-section';
   box.appendChild(commentsCont);
 
+  async function fetchComments(gameId) {
+  const q = query(
+    collection(db, "soloComments"),
+    where("gameId", "==", gameId)
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+}
+
+
   async function refreshComments() {
     commentsCont.innerHTML = '<h3>Комментарии</h3>';
     const comments = await fetchComments(game.id);
