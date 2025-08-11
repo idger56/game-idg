@@ -600,61 +600,74 @@ async function openMiniProfile(game, user) {
 
 
   async function refreshComments() {
-    commentsCont.innerHTML = '<h3>Комментарии</h3>';
-    const comments = await fetchComments(game.id);
-    comments.forEach(c => {
-      const com = document.createElement('div');
-      com.className = 'comment';
+  commentsCont.innerHTML = '<h3>Комментарии</h3>';
+  const comments = await fetchComments(game.id);
 
-      const header = document.createElement('div');
-      header.className = 'comment-header';
-      const avatar = document.createElement('img');
-      avatar.src = c.avatar || '/assets/default-avatar.png';
-      avatar.className = 'comment-avatar';
-      const name = document.createElement('span');
-      name.className = 'comment-nickname';
-      name.textContent = c.nickname || 'Аноним';
-      header.appendChild(avatar);
-      header.appendChild(name);
-      com.appendChild(header);
-
-      const text = document.createElement('p');
-      text.className = 'comment-text';
-      text.textContent = c.text;
-      com.appendChild(text);
-
-      const footer = document.createElement('div');
-      footer.className = 'comment-footer';
-
-      const likeBtn = document.createElement('button');
-      likeBtn.textContent = `👍 ${c.likes || 0}`;
-      likeBtn.addEventListener('click', () => likeComment(c.id, user.uid, true));
-
-      const dislikeBtn = document.createElement('button');
-      dislikeBtn.textContent = `👎 ${c.dislikes || 0}`;
-      dislikeBtn.addEventListener('click', () => likeComment(c.id, user.uid, false));
-
-      footer.appendChild(likeBtn);
-      footer.appendChild(dislikeBtn);
-
-      if (user && c.userId === user.uid) {
-        const editBtn = document.createElement('button');
-        editBtn.textContent = 'Редактировать';
-        editBtn.addEventListener('click', () => showEditForm(c));
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'Удалить';
-        delBtn.addEventListener('click', async () => {
-          await deleteUserComment(user.uid, game.id);
-          await refreshComments();
-        });
-        footer.appendChild(editBtn);
-        footer.appendChild(delBtn);
+  for (const c of comments) {
+    // Получаем актуальные данные пользователя
+    let nickname = 'Аноним';
+    let avatarUrl = '/assets/default-avatar.png';
+    try {
+      const userDoc = await getDoc(doc(db, "users", c.userId));
+      if (userDoc.exists()) {
+        const udata = userDoc.data();
+        nickname = udata.nickname || nickname;
+        avatarUrl = udata.avatar || avatarUrl;
       }
+    } catch (err) {
+      console.error("Ошибка загрузки профиля пользователя:", err);
+    }
 
-      com.appendChild(footer);
-      commentsCont.appendChild(com);
-    });
+    const com = document.createElement('div');
+    com.className = 'comment';
+
+    const header = document.createElement('div');
+    header.className = 'comment-header';
+    const avatarImg = document.createElement('img');
+    avatarImg.src = avatarUrl;
+    avatarImg.className = 'comment-avatar';
+    const author = document.createElement('span');
+    author.className = 'comment-author';
+    author.textContent = nickname;
+    header.appendChild(avatarImg);
+    header.appendChild(author);
+    com.appendChild(header);
+
+    const text = document.createElement('p');
+    text.className = 'comment-text';
+    text.textContent = c.text;
+    com.appendChild(text);
+
+    const actions = document.createElement('div');
+    actions.className = 'comment-actions';
+    const likeBtn = document.createElement('button');
+    likeBtn.textContent = `👍 ${c.likes || 0}`;
+    likeBtn.addEventListener('click', () => likeComment(c.id, user.uid, true));
+    const dislikeBtn = document.createElement('button');
+    dislikeBtn.textContent = `👎 ${c.dislikes || 0}`;
+    dislikeBtn.addEventListener('click', () => likeComment(c.id, user.uid, false));
+    actions.appendChild(likeBtn);
+    actions.appendChild(dislikeBtn);
+
+    if (user && c.userId === user.uid) {
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Редактировать';
+      editBtn.addEventListener('click', () => showEditForm(c));
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Удалить';
+      delBtn.addEventListener('click', async () => {
+        await deleteUserComment(user.uid, game.id);
+        await refreshComments();
+      });
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+    }
+
+    com.appendChild(actions);
+    commentsCont.appendChild(com);
   }
+}
+
 
   async function showEditForm(existing) {
     const old = box.querySelector('.comment-form'); if (old) old.remove();
