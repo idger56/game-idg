@@ -21,7 +21,8 @@ import {
   updateDoc,
   setDoc,
   deleteDoc,
-  orderBy
+  orderBy,
+  increment
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 const firebaseConfig = {
