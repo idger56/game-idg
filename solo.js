@@ -159,18 +159,6 @@ async function getUserCommentForGame(userId, gameId) {
   return null;
 }
 
-async function setUserCommentForGame(userId, gameId, nickname, text) {
-  try {
-    await setDoc(doc(db, "soloComments", `${userId}_${gameId}`), {
-      userId,
-      gameId,
-      nickname,
-      text,
-      createdAt: Date.now()
-    });
-  } catch (e) { console.error(e); }
-}
-
 // ====== Авторизация и UI поведение ======
 
 onAuthStateChanged(auth, async (user) => {
