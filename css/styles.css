@@ -3649,3 +3649,14 @@ select option { background: var(--bg-surface); }
   flex-shrink: 0;
   opacity: .7;
 }
+
+/* Модалка выбора игры */
+#game-picker-list .game-search-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color .12s, background .12s;
+}
+#game-picker-list .game-search-item:hover {
+  border-color: var(--accent);
+  background: rgba(79,142,247,.06);
+}
