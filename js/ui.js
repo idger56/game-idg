@@ -90,7 +90,7 @@ export function renderHeader({ activePage = "" } = {}) {
         <span class="logo-icon">🎮</span>
         <span>GameIDG</span>
       </a>
-      <div class="nav-links">
+      <div class="nav-links" id="nav-links-desktop">
         ${pages.map(p => `
           <a href="${p.href}" class="nav-link ${p.id === activePage ? "active" : ""}">${p.label}</a>
         `).join("")}
@@ -99,8 +99,17 @@ export function renderHeader({ activePage = "" } = {}) {
         <div id="theme-menu-slot"></div>
         <span id="nav-user-info" class="nav-user hidden"></span>
         <button id="nav-auth-btn" class="btn btn-ghost btn-sm">Вход</button>
+        <button class="burger-btn" id="burger-btn" aria-label="Меню">
+          <span></span><span></span><span></span>
+        </button>
       </div>
-    </nav>`;
+    </nav>
+    <!-- Мобильное меню -->
+    <div class="mobile-menu" id="mobile-menu">
+      ${pages.map(p => `
+        <a href="${p.href}" class="mobile-nav-link ${p.id === activePage ? "active" : ""}">${p.label}</a>
+      `).join("")}
+    </div>`;
 
   document.body.prepend(header);
   document.getElementById("theme-menu-slot").appendChild(buildThemeMenu());
@@ -147,6 +156,31 @@ export function renderHeader({ activePage = "" } = {}) {
       authBtn.textContent = "Вход";
       authBtn.className   = "btn btn-ghost btn-sm";
       userInfo.classList.add("hidden");
+    }
+  });
+
+  // Бургер-меню
+  const burger = header.querySelector("#burger-btn");
+  const mobileMenu = header.querySelector("#mobile-menu");
+  burger?.addEventListener("click", () => {
+    burger.classList.toggle("open");
+    mobileMenu.classList.toggle("open");
+    document.body.classList.toggle("menu-open");
+  });
+  // Закрываем при клике на ссылку
+  mobileMenu?.querySelectorAll(".mobile-nav-link").forEach(link => {
+    link.addEventListener("click", () => {
+      burger.classList.remove("open");
+      mobileMenu.classList.remove("open");
+      document.body.classList.remove("menu-open");
+    });
+  });
+  // Закрываем при клике вне меню
+  document.addEventListener("click", e => {
+    if (!header.contains(e.target)) {
+      burger?.classList.remove("open");
+      mobileMenu?.classList.remove("open");
+      document.body.classList.remove("menu-open");
     }
   });
 
