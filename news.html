@@ -63,7 +63,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Текст</label>
-        <textarea id="f-post-body" rows="4" placeholder="Описание..."></textarea>
+        <textarea id="f-post-body" rows="5" placeholder="Описание..."></textarea>
       </div>
 
       <!-- Медиа и ссылки -->
@@ -75,21 +75,29 @@
         </div>
       </div>
 
-      <!-- Ссылки (можно добавить несколько) -->
+      <!-- Ссылки и игры -->
       <div class="form-group">
-        <label class="form-label">🔗 Ссылки</label>
+        <label class="form-label">🔗 Ссылки и игры</label>
+        <p style="font-size:.8rem;color:var(--text-secondary);margin:0 0 8px">Добавляй произвольные ссылки или прикрепляй игры из каталога — они появятся в посте как кликабельные карточки</p>
         <div id="links-list" style="display:flex;flex-direction:column;gap:8px"></div>
-        <button type="button" id="btn-add-link" class="btn btn-ghost btn-sm" style="margin-top:6px">+ Добавить ссылку</button>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button type="button" id="btn-add-link" class="btn btn-ghost btn-sm">+ Ссылка</button>
+          <button type="button" id="btn-add-game" class="btn btn-ghost btn-sm">🎮 Добавить игру</button>
+        </div>
       </div>
 
-      <!-- Прикреплённые игры -->
-      <div class="form-group">
-        <label class="form-label">🎮 Прикрепить игры</label>
-        <div class="game-search-wrap">
-          <input type="text" id="f-game-search" placeholder="Поиск по названию..." autocomplete="off" />
-          <div id="game-search-results" class="game-search-dropdown hidden"></div>
+      <!-- Модалка выбора игры -->
+      <div id="game-picker-overlay" class="overlay hidden" style="z-index:300">
+        <div class="modal" style="max-width:480px">
+          <button class="modal-close" id="game-picker-close">✕</button>
+          <div class="modal-body">
+            <h3 style="margin-bottom:12px">🎮 Выбери игру</h3>
+            <input type="text" id="game-picker-search" placeholder="Поиск по названию..." style="width:100%;margin-bottom:10px" autocomplete="off" />
+            <div id="game-picker-list" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:6px">
+              <div class="spinner"></div>
+            </div>
+          </div>
         </div>
-        <div id="attached-games-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
       </div>
 
       <!-- Поля для ивента -->
