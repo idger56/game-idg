@@ -197,7 +197,8 @@ function buildPostCard(post) {
   // ---- Голосование ----
   if (post.type === "poll" && post.pollOptions?.length) {
     const votes     = post.pollVotes ?? {};
-    const myVote    = currentUser ? votes[currentUser.uid] : null;
+    const myVote    = currentUser ? votes[currentUser.uid] : undefined;
+    const hasVoted  = myVote !== undefined && myVote !== null;
     const totalVotes = Object.keys(votes).length;
     const isPollOpen = !post.pollDeadline || Date.now() < post.pollDeadline;
     const canVote    = currentUser && isPollOpen;
@@ -205,15 +206,15 @@ function buildPostCard(post) {
     const optionsHtml = post.pollOptions.map((opt, i) => {
       const count  = Object.values(votes).filter(v => v === i).length;
       const pct    = totalVotes ? Math.round((count / totalVotes) * 100) : 0;
-      const isMine = myVote === i;
+      const isMine = hasVoted && myVote === i;
 
       return `
         <div class="poll-option ${isMine ? "poll-option--voted" : ""}" data-idx="${i}">
           <div class="poll-option-label">
-            ${canVote && myVote === null ? `<button class="btn btn-ghost btn-sm js-vote" data-idx="${i}" style="padding:2px 10px">${esc(opt)}</button>` : `<span>${esc(opt)}</span>`}
+            ${canVote && !hasVoted ? `<button class="btn btn-ghost btn-sm js-vote" data-idx="${i}" style="padding:2px 10px">${esc(opt)}</button>` : `<span>${esc(opt)}</span>`}
             ${isMine ? `<span class="my-vote-badge">✓ мой голос</span>` : ""}
           </div>
-          ${(myVote !== null || !canVote) ? `
+          ${(hasVoted || !canVote) ? `
             <div class="poll-bar">
               <div class="poll-fill" style="width:${pct}%"></div>
             </div>
