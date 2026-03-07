@@ -29,7 +29,10 @@ watchAuth({
     currentUser = user;
     $("auth-section").classList.add("hidden");
     $("main-section").classList.remove("hidden");
-    if (user.email === ADMIN_EMAIL) $("btn-toggle-add").classList.remove("hidden");
+    if (user.email === ADMIN_EMAIL) {
+      $("btn-toggle-add").classList.remove("hidden");
+      $("hero-manage-bar").classList.remove("hidden");
+    }
     loadAll();
   },
   onLogout: () => {
@@ -106,24 +109,36 @@ async function loadAll() {
 // ════════════════════════════════════════════
 let heroIdx   = 0;
 let heroTimer = null;
+let heroSlides = [];  // локальная копия слайдов для стрелок
 
 function renderHeroSlider() {
-  // Приоритет: помеченные featured → последние добавленные (по порядку в Firestore = по slug)
+  // Приоритет: помеченные featured → последние добавленные
   const featured = allGames.filter(g => g.featured === "featured");
-  // "Последние добавленные" — берём последние 7 из массива (Firestore возвращает в порядке создания)
-  const recent = [...allGames].slice(-7).reverse();
-  const slides = featured.length >= 2 ? featured : recent.slice(0, 7);
+  const recent   = [...allGames].slice(-7).reverse();
+  heroSlides     = featured.length >= 1 ? featured : recent.slice(0, 7);
 
-  if (!slides.length) {
+  if (!heroSlides.length) {
     $("hero-slider").parentElement.style.display = "none"; return;
+  } else {
+    $("hero-slider").parentElement.style.display = "";
   }
 
+  const clip     = $("hero-clip");
   const slidesEl = $("hero-slides");
   const dotsEl   = $("hero-dots");
   slidesEl.innerHTML = "";
   dotsEl.innerHTML   = "";
 
-  slides.forEach((game, i) => {
+  // Сбрасываем таймер и слушатели стрелок (клонируем кнопки)
+  clearInterval(heroTimer);
+  const prevBtn = $("hero-prev");
+  const nextBtn = $("hero-next");
+  const newPrev = prevBtn.cloneNode(true);
+  const newNext = nextBtn.cloneNode(true);
+  prevBtn.replaceWith(newPrev);
+  nextBtn.replaceWith(newNext);
+
+  heroSlides.forEach((game, i) => {
     const cats = Array.isArray(game.category) ? game.category : [game.category];
     const rs   = ratingsAll.filter(r => r.gameId === game.id);
     const avg  = rs.length ? (rs.reduce((s,r)=>s+r.rating,0)/rs.length).toFixed(1) : null;
@@ -145,7 +160,7 @@ function renderHeroSlider() {
           <span class="hero-status hero-status-${(game.status||"").toLowerCase().replace(" ","-")}">${esc(game.status||"")}</span>
         </div>
         <div class="hero-actions">
-          <button class="btn btn-primary hero-open-btn" data-id="${esc(game.id)}">📖 Подробнее</button>
+          <button class="btn btn-primary hero-open-btn">📖 Подробнее</button>
           <a class="btn btn-ghost" href="${esc(game.link)}" target="_blank" rel="noopener">⬇ Скачать</a>
         </div>
       </div>`;
@@ -158,19 +173,30 @@ function renderHeroSlider() {
     dotsEl.appendChild(dot);
   });
 
+  // Стрелки — используем новые клонированные кнопки
+  $("hero-prev").addEventListener("click", () => goToSlide((heroIdx - 1 + heroSlides.length) % heroSlides.length));
+  $("hero-next").addEventListener("click", () => goToSlide((heroIdx + 1) % heroSlides.length));
+
   goToSlide(0);
-
-  $("hero-prev").addEventListener("click", () => goToSlide((heroIdx - 1 + slides.length) % slides.length));
-  $("hero-next").addEventListener("click", () => goToSlide((heroIdx + 1) % slides.length));
-
-  function goToSlide(idx) {
-    heroIdx = idx;
-    slidesEl.style.transform = `translateX(-${idx * 100}%)`;
-    dotsEl.querySelectorAll(".hero-dot").forEach((d,i) => d.classList.toggle("active", i===idx));
-    clearInterval(heroTimer);
-    heroTimer = setInterval(() => goToSlide((heroIdx+1) % slides.length), 5000);
-  }
 }
+
+function goToSlide(idx) {
+  if (!heroSlides.length) return;
+  heroIdx = idx;
+  const clip     = $("hero-clip");
+  const slidesEl = $("hero-slides");
+  const dotsEl   = $("hero-dots");
+  // Двигаем на ширину clip, а не slidesEl
+  slidesEl.style.transform = `translateX(-${idx * clip.clientWidth}px)`;
+  dotsEl?.querySelectorAll(".hero-dot").forEach((d,i) => d.classList.toggle("active", i===idx));
+  clearInterval(heroTimer);
+  heroTimer = setInterval(() => goToSlide((heroIdx+1) % heroSlides.length), 5000);
+}
+
+// Пересчитываем позицию при ресайзе
+window.addEventListener("resize", () => {
+  if (heroSlides.length) goToSlide(heroIdx);
+});
 
 // ════════════════════════════════════════════
 //  FEATURED (популярное)
@@ -726,4 +752,90 @@ async function saveRating(gameId, rating) {
   if (!snap.empty) await updateDoc(snap.docs[0].ref, { rating });
   else await addDoc(collection(db,"ratings"), { userId:user.uid, gameId, rating });
   toast("Оценка сохранена!","success");
+}
+
+
+// ════════════════════════════════════════════
+//  УПРАВЛЕНИЕ СЛАЙДЕРОМ (admin)
+// ════════════════════════════════════════════
+document.addEventListener("DOMContentLoaded", () => {
+  $("btn-manage-slider")?.addEventListener("click", openSliderManager);
+});
+
+function openSliderManager() {
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+
+  const inSlider  = allGames.filter(g => g.featured === "featured");
+  const notSlider = allGames.filter(g => g.featured !== "featured");
+
+  const makeRow = (game, inSlide) => `
+    <div class="slider-mgr-row" data-id="${esc(game.id)}">
+      <img src="${esc(game.image)}" alt="">
+      <span class="slider-mgr-title">${esc(game.title)}</span>
+      <button class="btn btn-sm ${inSlide ? "btn-danger" : "btn-primary"} slider-mgr-btn"
+              data-action="${inSlide ? "remove" : "add"}">
+        ${inSlide ? "✕ Убрать" : "+ Добавить"}
+      </button>
+    </div>`;
+
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:560px">
+      <button class="modal-close">✕</button>
+      <div class="modal-body">
+        <h2>🎬 Управление слайдером</h2>
+        <p class="text-muted" style="margin:8px 0 16px;font-size:.85rem">
+          Если нет выбранных игр — показываются последние добавленные автоматически.
+        </p>
+
+        <h4 style="margin-bottom:10px;color:var(--accent)">В слайдере (${inSlider.length})</h4>
+        <div class="slider-mgr-list" id="slider-in">
+          ${inSlider.length
+            ? inSlider.map(g => makeRow(g, true)).join("")
+            : `<p class="text-muted" style="font-size:.85rem;padding:8px 0">Нет выбранных — показываются последние добавленные</p>`}
+        </div>
+
+        <h4 style="margin:20px 0 10px;color:var(--text-secondary)">Все игры</h4>
+        <input type="text" id="slider-search" placeholder="🔍 Поиск..." style="width:100%;margin-bottom:12px">
+        <div class="slider-mgr-list" id="slider-all" style="max-height:300px;overflow-y:auto">
+          ${notSlider.map(g => makeRow(g, false)).join("")}
+        </div>
+      </div>
+    </div>`;
+
+  overlay.querySelector(".modal-close").onclick = () => overlay.remove();
+  overlay.addEventListener("click", e => { if(e.target===overlay) overlay.remove(); });
+
+  // Поиск по играм
+  overlay.querySelector("#slider-search").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+    overlay.querySelectorAll("#slider-all .slider-mgr-row").forEach(row => {
+      row.style.display = row.querySelector(".slider-mgr-title").textContent.toLowerCase().includes(q) ? "" : "none";
+    });
+  });
+
+  // Добавить / убрать из слайдера
+  overlay.addEventListener("click", async e => {
+    const btn = e.target.closest(".slider-mgr-btn");
+    if (!btn) return;
+    const row    = btn.closest(".slider-mgr-row");
+    const gameId = row.dataset.id;
+    const action = btn.dataset.action;
+    btn.disabled = true;
+    btn.textContent = "...";
+    try {
+      await updateDoc(doc(db, "games", gameId), {
+        featured: action === "add" ? "featured" : ""
+      });
+      const g = allGames.find(x => x.id === gameId);
+      if (g) g.featured = action === "add" ? "featured" : "";
+      overlay.remove();
+      renderHeroSlider();
+      toast(action === "add" ? "Добавлено в слайдер!" : "Убрано из слайдера", "success");
+      // Перекрываем модалку заново
+      openSliderManager();
+    } catch(err) { toast(err.message, "error"); btn.disabled = false; }
+  });
+
+  document.body.appendChild(overlay);
 }
