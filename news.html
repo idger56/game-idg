@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GameIDG — Новости</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="theme-deco"></div>
+
+<section id="auth-section" class="auth-page hidden">
+  <div class="auth-card">
+    <h2>Войдите, чтобы продолжить</h2>
+    <div class="auth-fields">
+      <input type="email"    id="auth-email" placeholder="Email" />
+      <input type="password" id="auth-pass"  placeholder="Пароль" />
+    </div>
+    <div class="auth-btns">
+      <button class="btn btn-primary btn-lg" id="btn-login">Войти</button>
+    </div>
+    <p class="error-text mt-8" id="auth-error"></p>
+  </div>
+</section>
+
+<main id="main-section" class="page-content">
+
+  <div class="catalog-header">
+    <div>
+      <h1 class="page-title">📰 Новости и события</h1>
+      <p class="page-sub">Анонсы, ивенты и голосования от администрации</p>
+    </div>
+    <button id="btn-create-post" class="btn btn-success hidden">➕ Создать запись</button>
+  </div>
+
+  <!-- Фильтр по типу -->
+  <div class="filters-bar" style="margin-bottom:24px">
+    <select id="filter-type">
+      <option value="">Все типы</option>
+      <option value="news">📢 Новости</option>
+      <option value="event">🎯 Ивенты</option>
+      <option value="poll">🗳 Голосования</option>
+    </select>
+  </div>
+
+  <!-- Форма создания (только для админа) -->
+  <div id="create-form-wrap" class="admin-form-wrap hidden" style="margin-bottom:32px">
+    <h3 id="create-form-title">➕ Новая запись</h3>
+    <input type="hidden" id="edit-post-id" value="" />
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px">
+      <div class="form-group">
+        <label class="form-label">Тип</label>
+        <select id="f-type">
+          <option value="news">📢 Новость</option>
+          <option value="event">🎯 Ивент</option>
+          <option value="poll">🗳 Голосование</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Заголовок</label>
+        <input type="text" id="f-post-title" placeholder="Заголовок..." required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Текст</label>
+        <textarea id="f-post-body" rows="4" placeholder="Описание..."></textarea>
+      </div>
+
+      <!-- Поля для ивента -->
+      <div id="event-fields" class="hidden">
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;min-width:160px">
+            <label class="form-label">Начало ивента</label>
+            <input type="datetime-local" id="f-event-start" />
+          </div>
+          <div class="form-group" style="flex:1;min-width:160px">
+            <label class="form-label">Конец ивента</label>
+            <input type="datetime-local" id="f-event-end" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Поля для голосования -->
+      <div id="poll-fields" class="hidden">
+        <div class="form-group">
+          <label class="form-label">Варианты ответа (по одному в строке)</label>
+          <textarea id="f-poll-options" rows="4" placeholder="Вариант 1&#10;Вариант 2&#10;Вариант 3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Дедлайн голосования</label>
+          <input type="datetime-local" id="f-poll-deadline" />
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button id="btn-submit-post" class="btn btn-success">💾 Сохранить</button>
+        <button id="btn-cancel-post" class="btn btn-ghost">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Лента -->
+  <div id="news-feed">
+    <div class="spinner"></div>
+  </div>
+
+</main>
+
+<div class="toast-container" id="toast-container"></div>
+<script type="module" src="js/news.js"></script>
+</body>
+</html>

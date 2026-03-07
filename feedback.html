@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GameIDG — Обратная связь</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="theme-deco"></div>
+
+<main id="main-section" class="page-content">
+
+  <div class="catalog-header">
+    <div>
+      <h1 class="page-title">💬 Обратная связь</h1>
+      <p class="page-sub">Предложения, жалобы, идеи — мы читаем всё</p>
+    </div>
+  </div>
+
+  <!-- Форма отправки -->
+  <div id="feedback-form-wrap" class="admin-form-wrap hidden" style="margin-bottom:32px">
+    <h3>✉️ Отправить обращение</h3>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px">
+      <div class="form-group">
+        <label class="form-label">Тип обращения</label>
+        <select id="f-fb-type">
+          <option value="suggestion">💡 Предложение</option>
+          <option value="bug">🐛 Проблема / баг</option>
+          <option value="game">🎮 По игре</option>
+          <option value="other">📌 Другое</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Тема</label>
+        <input type="text" id="f-fb-subject" placeholder="Кратко о чём..." required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Сообщение</label>
+        <textarea id="f-fb-body" rows="5" placeholder="Опиши подробнее..."></textarea>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button id="btn-send-feedback" class="btn btn-primary">📤 Отправить</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="auth-wall-fb" class="empty-state hidden">
+    <div class="icon">🔒</div>
+    <p>Войдите, чтобы оставить обращение</p>
+  </div>
+
+  <!-- Список обращений (для всех авторизованных — только свои; для админа — все) -->
+  <div style="margin-top:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <h2 class="page-title" style="font-size:1.15rem;margin:0" id="fb-list-title">📋 Мои обращения</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <!-- Фильтры для админа -->
+        <select id="filter-fb-status" class="hidden">
+          <option value="">Все статусы</option>
+          <option value="open">🟡 Открыто</option>
+          <option value="in_progress">🔵 В работе</option>
+          <option value="done">✅ Закрыто</option>
+        </select>
+        <select id="filter-fb-type" class="hidden">
+          <option value="">Все типы</option>
+          <option value="suggestion">💡 Предложение</option>
+          <option value="bug">🐛 Проблема</option>
+          <option value="game">🎮 По игре</option>
+          <option value="other">📌 Другое</option>
+        </select>
+      </div>
+    </div>
+    <div id="feedback-list">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast-container" id="toast-container"></div>
+<script type="module" src="js/feedback.js"></script>
+</body>
+</html>
