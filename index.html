@@ -9,8 +9,6 @@
 </head>
 <body>
 
-<!-- Шапка инжектится через JS -->
-
 <!-- ===================== АВТОРИЗАЦИЯ ===================== -->
 <section id="auth-section" class="auth-page">
   <div class="auth-card">
@@ -31,43 +29,67 @@
 
 <!-- ===================== ОСНОВНОЙ КОНТЕНТ ===================== -->
 <main id="main-section" class="hidden">
+
+  <!-- HERO СЛАЙДЕР -->
+  <div class="hero-slider" id="hero-slider">
+    <div class="hero-slides" id="hero-slides"></div>
+    <button class="hero-arrow hero-prev" id="hero-prev">‹</button>
+    <button class="hero-arrow hero-next" id="hero-next">›</button>
+    <div class="hero-dots" id="hero-dots"></div>
+  </div>
+
+  <!-- FEATURED / ПОПУЛЯРНОЕ -->
+  <section class="featured-section" id="featured-section">
+    <div class="featured-inner">
+      <div class="featured-header">
+        <h2 class="featured-title">⭐ Популярное и рекомендуемое</h2>
+      </div>
+      <div class="featured-carousel-wrap">
+        <button class="feat-arrow feat-prev" id="feat-prev">‹</button>
+        <div class="featured-carousel" id="featured-carousel"></div>
+        <button class="feat-arrow feat-next" id="feat-next">›</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- КАТАЛОГ -->
   <div class="page-content">
 
-    <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+    <div class="catalog-header">
       <div>
-        <h1 class="page-title">Каталог игр</h1>
+        <h1 class="page-title">🎮 Каталог игр</h1>
         <p class="page-sub">Многопользовательские и кооперативные игры</p>
       </div>
-      <button id="btn-toggle-add" class="btn btn-success hidden">➕ Добавить игру</button>
+      <div class="flex-gap">
+        <button id="btn-random" class="btn btn-ghost">🎲 Случайная игра</button>
+        <button id="btn-toggle-add" class="btn btn-success hidden">➕ Добавить игру</button>
+      </div>
     </div>
 
     <!-- Форма добавления (только для админа) -->
     <div id="add-form-wrap" class="admin-form-wrap hidden">
       <h3>➕ Добавить игру</h3>
-      <form id="add-game-form" class="form-row">
-        <div class="form-group">
-          <label class="form-label">Название</label>
-          <input type="text" id="f-title" placeholder="Название игры" required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Жанры (Ctrl+клик для нескольких)</label>
-          <select id="f-category" multiple class="multi-select" required></select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Ссылка</label>
-          <input type="url" id="f-link" placeholder="https://..." required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">URL обложки</label>
-          <input type="url" id="f-image" placeholder="https://..." required />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Статус</label>
+      <form id="add-game-form" style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group"><label class="form-label">Название</label>
+          <input type="text" id="f-title" placeholder="Название игры" required /></div>
+        <div class="form-group"><label class="form-label">Описание</label>
+          <textarea id="f-desc" rows="3" placeholder="Описание игры..."></textarea></div>
+        <div class="form-group"><label class="form-label">Жанры (Ctrl+клик)</label>
+          <select id="f-category" multiple class="multi-select" required></select></div>
+        <div class="form-group"><label class="form-label">Ссылка</label>
+          <input type="url" id="f-link" placeholder="https://..." required /></div>
+        <div class="form-group"><label class="form-label">URL обложки</label>
+          <input type="url" id="f-image" placeholder="https://..." required /></div>
+        <div class="form-group"><label class="form-label">Статус</label>
           <select id="f-status" required>
             <option value="" disabled selected>Выберите статус</option>
-            <option>Пройдена</option>
-            <option>В процессе</option>
-            <option>В планах</option>
+            <option>Пройдена</option><option>В процессе</option><option>В планах</option>
+          </select></div>
+        <div class="form-group">
+          <label class="form-label">Показывать в слайдере?</label>
+          <select id="f-featured">
+            <option value="">Нет</option>
+            <option value="featured">Да — в слайдере</option>
           </select>
         </div>
         <button type="submit" class="btn btn-success">Добавить игру</button>
@@ -76,28 +98,35 @@
 
     <!-- Фильтры -->
     <div class="filters-bar">
-      <input type="text"   id="filter-search"   placeholder="🔍 Поиск по названию..." />
-      <select id="filter-category">
-        <option value="">Все жанры</option>
-      </select>
+      <input type="text" id="filter-search" placeholder="🔍 Поиск по названию..." />
+      <select id="filter-category"><option value="">Все жанры</option></select>
       <select id="filter-status">
         <option value="">Все статусы</option>
-        <option>Пройдена</option>
-        <option>В процессе</option>
-        <option>В планах</option>
+        <option>Пройдена</option><option>В процессе</option><option>В планах</option>
+      </select>
+      <select id="filter-sort">
+        <option value="default">Сортировка: по умолчанию</option>
+        <option value="rating">По рейтингу ↓</option>
+        <option value="title">По названию А-Я</option>
       </select>
     </div>
 
-    <!-- Карточки -->
+    <!-- Сетка игр -->
     <div id="games-grid" class="games-grid">
       <div class="spinner"></div>
     </div>
   </div>
 </main>
 
-<!-- Toast контейнер -->
-<div class="toast-container" id="toast-container"></div>
+<!-- КАРТОЧКА ИГРЫ (модалка) -->
+<div class="game-modal-overlay hidden" id="game-modal-overlay">
+  <div class="game-modal" id="game-modal">
+    <button class="game-modal-close" id="game-modal-close">✕</button>
+    <div id="game-modal-content"></div>
+  </div>
+</div>
 
+<div class="toast-container" id="toast-container"></div>
 <script type="module" src="js/index.js"></script>
 </body>
 </html>
