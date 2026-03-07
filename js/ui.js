@@ -1,12 +1,17 @@
 // ============================================================
-//  ui.js — общие UI-компоненты: шапка, тема, тост
+//  ui.js — шапка, тема, тост (без циклических зависимостей)
 // ============================================================
-import { auth, ADMIN_EMAIL } from "./auth.js";
-import { logout } from "./auth.js";
+import { auth, db }   from "./firebase.js";
 import { initTheme, setTheme } from "./utils.js";
-import { THEMES } from "./constants.js";
+import { THEMES }     from "./constants.js";
+import {
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
+import {
+  getDoc, doc, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
-// ---------- Тема ----------
+// ---------- Темы ----------
 const THEME_META = {
   dark:      { label: "🌑 Тёмная",    dot: "#4f8ef7" },
   light:     { label: "☀️ Светлая",   dot: "#3b72e8" },
@@ -31,8 +36,7 @@ export function buildThemeMenu() {
           ${THEME_META[t].label}
         </div>
       `).join("")}
-    </div>
-  `;
+    </div>`;
 
   const btn      = wrap.querySelector("#theme-toggle-btn");
   const dropdown = wrap.querySelector("#theme-dropdown");
@@ -42,7 +46,6 @@ export function buildThemeMenu() {
     e.stopPropagation();
     dropdown.classList.toggle("open");
   });
-
   document.addEventListener("click", () => dropdown.classList.remove("open"));
 
   wrap.querySelectorAll(".theme-option").forEach(opt => {
@@ -66,10 +69,10 @@ export function renderHeader({ activePage = "" } = {}) {
   initTheme();
 
   const pages = [
-    { href: "index.html",   label: "🎮 Игры",         id: "index" },
-    { href: "solo.html",    label: "🕹 Соло",          id: "solo" },
-    { href: "top.html",     label: "🏆 Топ",           id: "top" },
-    { href: "users.html",   label: "👥 Пользователи",  id: "users" },
+    { href: "index.html",  label: "🎮 Игры",        id: "index" },
+    { href: "solo.html",   label: "🕹 Соло",         id: "solo"  },
+    { href: "top.html",    label: "🏆 Топ",          id: "top"   },
+    { href: "users.html",  label: "👥 Пользователи", id: "users" },
   ];
 
   const header = document.createElement("header");
@@ -80,7 +83,7 @@ export function renderHeader({ activePage = "" } = {}) {
         <span class="logo-icon">🎮</span>
         <span>GameIDG</span>
       </a>
-      <div class="nav-links" id="nav-links">
+      <div class="nav-links">
         ${pages.map(p => `
           <a href="${p.href}" class="nav-link ${p.id === activePage ? "active" : ""}">${p.label}</a>
         `).join("")}
@@ -90,65 +93,60 @@ export function renderHeader({ activePage = "" } = {}) {
         <span id="nav-user-info" class="nav-user hidden"></span>
         <button id="nav-auth-btn" class="btn btn-ghost btn-sm">Вход</button>
       </div>
-    </nav>
-  `;
+    </nav>`;
 
   document.body.prepend(header);
-
-  // Вставляем меню тем
   document.getElementById("theme-menu-slot").appendChild(buildThemeMenu());
 
-  // Авторизация
-  const authBtn = document.getElementById("nav-auth-btn");
+  const authBtn  = document.getElementById("nav-auth-btn");
   const userInfo = document.getElementById("nav-user-info");
+  let   nickClickBound = false;
 
-  auth.onAuthStateChanged ? null : null; // handled by page
-
+  // Кнопка Вход/Выход
   authBtn.addEventListener("click", async () => {
     if (auth.currentUser) {
-      await logout(auth.currentUser.uid);
+      try {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), {
+          status: "offline", lastSeen: Date.now()
+        });
+      } catch (_) {}
+      await signOut(auth);
       window.location.href = "index.html";
     } else {
-      // Показываем форму входа — страница сама обрабатывает
       document.getElementById("auth-section")?.classList.remove("hidden");
     }
   });
 
-  // Подписка на изменение авторизации для кнопки
-  import("https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js").then(({ onAuthStateChanged }) => {
-    onAuthStateChanged(auth, async user => {
-      if (user) {
-        authBtn.textContent = "Выход";
-        authBtn.classList.remove("btn-ghost");
-        authBtn.classList.add("btn-danger", "btn-sm");
+  // Слежение за состоянием авторизации в шапке
+  onAuthStateChanged(auth, async user => {
+    if (user) {
+      authBtn.textContent = "Выход";
+      authBtn.className   = "btn btn-danger btn-sm";
 
-        // Получаем ник
-        import("https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js").then(async ({ getDoc, doc }) => {
-          const { db } = await import("./firebase.js");
-          const snap = await getDoc(doc(db, "users", user.uid));
-          const nick = snap.exists() ? snap.data().nickname : user.email;
-          userInfo.innerHTML = `<span class="nav-user-dot"></span>${nick}`;
-          userInfo.classList.remove("hidden");
-
-          // Ссылка на профиль
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        const nick = snap.exists() ? snap.data().nickname : user.email;
+        userInfo.innerHTML = `<span class="nav-user-dot"></span>${nick}`;
+        userInfo.classList.remove("hidden");
+        if (!nickClickBound) {
+          nickClickBound = true;
           userInfo.style.cursor = "pointer";
           userInfo.addEventListener("click", () => {
             window.location.href = `profile.html?uid=${user.uid}`;
           });
-        });
-      } else {
-        authBtn.textContent = "Вход";
-        authBtn.classList.add("btn-ghost");
-        authBtn.classList.remove("btn-danger");
-        userInfo.classList.add("hidden");
-      }
-    });
+        }
+      } catch (_) {}
+    } else {
+      authBtn.textContent = "Вход";
+      authBtn.className   = "btn btn-ghost btn-sm";
+      userInfo.classList.add("hidden");
+    }
   });
 
   return header;
 }
 
-// ---------- Toast уведомления ----------
+// ---------- Toast ----------
 let toastContainer = null;
 
 export function toast(message, type = "info") {
@@ -157,22 +155,20 @@ export function toast(message, type = "info") {
     toastContainer.className = "toast-container";
     document.body.appendChild(toastContainer);
   }
-
   const el = document.createElement("div");
-  el.className = `toast toast-${type}`;
+  el.className   = `toast toast-${type}`;
   el.textContent = message;
   toastContainer.appendChild(el);
-
   setTimeout(() => el.remove(), 3200);
 }
 
-// ---------- Spinner ----------
+// ---------- Spinner / Empty ----------
 export function showSpinner(container) {
-  container.innerHTML = `<div class="spinner"></div>`;
+  if (container) container.innerHTML = `<div class="spinner"></div>`;
 }
 
 export function showEmpty(container, text = "Ничего не найдено") {
-  container.innerHTML = `
+  if (container) container.innerHTML = `
     <div class="empty-state">
       <div class="icon">🎮</div>
       <p>${text}</p>
