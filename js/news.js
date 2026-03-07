@@ -39,6 +39,35 @@ watchAuth({
 // -------- Переключение полей по типу --------
 $("f-type")?.addEventListener("change", () => updateFormFields());
 
+// -------- Превью картинки --------
+$("f-post-image")?.addEventListener("input", () => {
+  const val = $("f-post-image").value.trim();
+  const preview = $("f-image-preview");
+  const img = $("f-image-preview-img");
+  if (val) {
+    img.src = val;
+    preview.style.display = "block";
+    img.onerror = () => { preview.style.display = "none"; };
+  } else {
+    preview.style.display = "none";
+  }
+});
+
+// -------- Динамические ссылки --------
+function addLinkRow(label = "", url = "") {
+  const row = document.createElement("div");
+  row.className = "link-row";
+  row.style.cssText = "display:flex;gap:8px;align-items:center";
+  row.innerHTML = `
+    <input type="text"  class="link-label" placeholder="Название (напр. Скачать)" value="${label}" style="flex:1;min-width:80px" />
+    <input type="url"   class="link-url"   placeholder="https://..." value="${url}" style="flex:2;min-width:120px" />
+    <button type="button" class="btn btn-ghost btn-sm js-remove-link" style="color:var(--danger);flex-shrink:0">✕</button>`;
+  row.querySelector(".js-remove-link").addEventListener("click", () => row.remove());
+  $("links-list").appendChild(row);
+}
+
+$("btn-add-link")?.addEventListener("click", () => addLinkRow());
+
 function updateFormFields() {
   const type = $("f-type").value;
   $("event-fields").classList.toggle("hidden", type !== "event");
@@ -61,6 +90,15 @@ function openCreateForm(post = null) {
   $("f-event-end").value     = post?.eventEnd   ? toDatetimeLocal(post.eventEnd)   : "";
   $("f-poll-options").value  = (post?.pollOptions ?? []).join("\n");
   $("f-poll-deadline").value = post?.pollDeadline ? toDatetimeLocal(post.pollDeadline) : "";
+  $("f-post-image").value    = post?.image ?? "";
+  // Превью
+  const previewImg = $("f-image-preview-img");
+  const preview    = $("f-image-preview");
+  if (post?.image) { previewImg.src = post.image; preview.style.display = "block"; }
+  else             { preview.style.display = "none"; }
+  // Ссылки
+  $("links-list").innerHTML = "";
+  (post?.links ?? []).forEach(l => addLinkRow(l.label, l.url));
   updateFormFields();
   wrap.classList.remove("hidden");
   wrap.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -78,8 +116,16 @@ $("btn-submit-post")?.addEventListener("click", async () => {
 
   if (!title) { toast("Укажи заголовок", "error"); return; }
 
+  const image = $("f-post-image").value.trim();
+  const links = Array.from($("links-list").querySelectorAll(".link-row")).map(row => ({
+    label: row.querySelector(".link-label").value.trim(),
+    url:   row.querySelector(".link-url").value.trim(),
+  })).filter(l => l.url);
+
   const data = {
     type, title, body,
+    image: image || null,
+    links,
     authorId:    currentUser.uid,
     authorNick:  currentUserData?.nickname ?? currentUser.email,
     updatedAt:   Date.now(),
@@ -238,13 +284,27 @@ function buildPostCard(post) {
       </div>`;
   }
 
+  // Картинка
+  const imageHtml = post.image
+    ? `<img class="news-card-image" src="${esc(post.image)}" alt="" onerror="this.style.display='none'">`
+    : "";
+
+  // Ссылки
+  const linksHtml = (post.links ?? []).length
+    ? `<div class="news-links">${(post.links).map(l =>
+        `<a class="news-link-btn" href="${esc(l.url)}" target="_blank" rel="noopener">🔗 ${esc(l.label || l.url)}</a>`
+      ).join("")}</div>`
+    : "";
+
   card.innerHTML = `
     <div class="news-card-header">
       <span class="news-type-badge ${typeClass}">${typeLabel}</span>
       <span class="news-date">${date}</span>
     </div>
+    ${imageHtml}
     <h3 class="news-title">${esc(post.title)}</h3>
     ${post.body ? `<p class="news-body">${esc(post.body)}</p>` : ""}
+    ${linksHtml}
     ${extraHtml}
     <div class="news-actions">
       <button class="btn btn-ghost btn-sm js-like ${liked ? "liked" : ""}">
