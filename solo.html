@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GameIDG — Соло игры</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<main id="main-section" class="hidden">
+  <div class="page-content">
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+      <div>
+        <h1 class="page-title">Соло игры</h1>
+        <p class="page-sub">Личный прогресс, оценки и комментарии к каждой игре</p>
+      </div>
+      <button id="btn-toggle-add" class="btn btn-success hidden">➕ Добавить игру</button>
+    </div>
+
+    <div id="add-form-wrap" class="admin-form-wrap hidden">
+      <h3>➕ Добавить соло-игру</h3>
+      <form id="add-game-form" class="form-row">
+        <div class="form-group"><label class="form-label">Название</label>
+          <input type="text" id="f-title" required /></div>
+        <div class="form-group"><label class="form-label">Жанры</label>
+          <select id="f-category" multiple class="multi-select" required></select></div>
+        <div class="form-group"><label class="form-label">Ссылка</label>
+          <input type="url" id="f-link" required /></div>
+        <div class="form-group"><label class="form-label">Обложка (URL)</label>
+          <input type="url" id="f-image" required /></div>
+        <div class="form-group"><label class="form-label">Описание</label>
+          <textarea id="f-desc" rows="3" placeholder="Краткое описание..."></textarea></div>
+        <button type="submit" class="btn btn-success">Добавить</button>
+      </form>
+    </div>
+
+    <div class="filters-bar">
+      <input type="text" id="filter-search" placeholder="🔍 Поиск..." />
+      <select id="filter-category"><option value="">Все жанры</option></select>
+      <select id="filter-status">
+        <option value="">Все статусы</option>
+        <option value="Пройдена">Пройдена</option>
+        <option value="В процессе">В процессе</option>
+        <option value="В планах">В планах</option>
+      </select>
+    </div>
+
+    <div id="games-grid" class="games-grid"><div class="spinner"></div></div>
+  </div>
+</main>
+
+<!-- Страница до входа -->
+<section id="auth-wall" class="auth-page hidden">
+  <div class="auth-card" style="text-align:center">
+    <div style="font-size:3rem;margin-bottom:16px">🔐</div>
+    <h2>Требуется вход</h2>
+    <p class="sub">Чтобы видеть и отслеживать соло-игры, нужно войти в аккаунт</p>
+    <a href="index.html" class="btn btn-primary btn-lg">Войти / Зарегистрироваться</a>
+  </div>
+</section>
+
+<div class="toast-container" id="toast-container"></div>
+<script type="module" src="js/solo.js"></script>
+</body>
+</html>

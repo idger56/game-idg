@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GameIDG — Игры с друзьями</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- Шапка инжектится через JS -->
+
+<!-- ===================== АВТОРИЗАЦИЯ ===================== -->
+<section id="auth-section" class="auth-page">
+  <div class="auth-card">
+    <h2>Добро пожаловать</h2>
+    <p class="sub">Войдите или создайте аккаунт, чтобы начать</p>
+    <div class="auth-fields">
+      <input type="text"     id="auth-nick"  placeholder="Ник (только для регистрации)" />
+      <input type="email"    id="auth-email" placeholder="Email" />
+      <input type="password" id="auth-pass"  placeholder="Пароль" />
+    </div>
+    <div class="auth-btns">
+      <button class="btn btn-primary btn-lg" id="btn-login">Войти</button>
+      <button class="btn btn-ghost btn-lg"   id="btn-register">Создать аккаунт</button>
+    </div>
+    <p class="error-text mt-8" id="auth-error"></p>
+  </div>
+</section>
+
+<!-- ===================== ОСНОВНОЙ КОНТЕНТ ===================== -->
+<main id="main-section" class="hidden">
+  <div class="page-content">
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+      <div>
+        <h1 class="page-title">Каталог игр</h1>
+        <p class="page-sub">Многопользовательские и кооперативные игры</p>
+      </div>
+      <button id="btn-toggle-add" class="btn btn-success hidden">➕ Добавить игру</button>
+    </div>
+
+    <!-- Форма добавления (только для админа) -->
+    <div id="add-form-wrap" class="admin-form-wrap hidden">
+      <h3>➕ Добавить игру</h3>
+      <form id="add-game-form" class="form-row">
+        <div class="form-group">
+          <label class="form-label">Название</label>
+          <input type="text" id="f-title" placeholder="Название игры" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Жанры (Ctrl+клик для нескольких)</label>
+          <select id="f-category" multiple class="multi-select" required></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ссылка</label>
+          <input type="url" id="f-link" placeholder="https://..." required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL обложки</label>
+          <input type="url" id="f-image" placeholder="https://..." required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Статус</label>
+          <select id="f-status" required>
+            <option value="" disabled selected>Выберите статус</option>
+            <option>Пройдена</option>
+            <option>В процессе</option>
+            <option>В планах</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-success">Добавить игру</button>
+      </form>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="filters-bar">
+      <input type="text"   id="filter-search"   placeholder="🔍 Поиск по названию..." />
+      <select id="filter-category">
+        <option value="">Все жанры</option>
+      </select>
+      <select id="filter-status">
+        <option value="">Все статусы</option>
+        <option>Пройдена</option>
+        <option>В процессе</option>
+        <option>В планах</option>
+      </select>
+    </div>
+
+    <!-- Карточки -->
+    <div id="games-grid" class="games-grid">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</main>
+
+<!-- Toast контейнер -->
+<div class="toast-container" id="toast-container"></div>
+
+<script type="module" src="js/index.js"></script>
+</body>
+</html>
