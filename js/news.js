@@ -7,7 +7,7 @@ import { esc } from "./utils.js";
 import { renderHeader, toast, showSpinner, showEmpty } from "./ui.js";
 import {
   collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc,
-  doc, query, orderBy, where, serverTimestamp, Timestamp
+  doc, query, orderBy, where, serverTimestamp, Timestamp, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 renderHeader({ activePage: "news" });
@@ -17,6 +17,7 @@ const $ = id => document.getElementById(id);
 let currentUser = null;
 let currentUserData = null;
 let allPosts = [];
+let _unsubFeed = null; // отписка от realtime
 
 // -------- Auth --------
 watchAuth({
@@ -32,6 +33,7 @@ watchAuth({
     currentUser = null;
     currentUserData = null;
     $("btn-create-post")?.classList.add("hidden");
+    // Переподписываемся — без авторизации onSnapshot всё равно работает (read разрешён)
     loadFeed();
   }
 });
@@ -62,11 +64,14 @@ function addLinkRow(label = "", url = "") {
     <input type="text"  class="link-label" placeholder="Название (напр. Скачать)" value="${label}" style="flex:1;min-width:80px" />
     <input type="url"   class="link-url"   placeholder="https://..." value="${url}" style="flex:2;min-width:120px" />
     <button type="button" class="btn btn-ghost btn-sm js-remove-link" style="color:var(--danger);flex-shrink:0">✕</button>`;
-  row.querySelector(".js-remove-link").addEventListener("click", () => row.remove());
   $("links-list").appendChild(row);
 }
 
-$("btn-add-link")?.addEventListener("click", () => addLinkRow());
+// Кнопка добавить ссылку — вешаем через делегирование на document
+document.addEventListener("click", e => {
+  if (e.target.id === "btn-add-link") addLinkRow();
+  if (e.target.classList.contains("js-remove-link")) e.target.closest(".link-row")?.remove();
+});
 
 function updateFormFields() {
   const type = $("f-type").value;
@@ -171,15 +176,31 @@ $("btn-submit-post")?.addEventListener("click", async () => {
 $("filter-type")?.addEventListener("change", renderFeed);
 
 // -------- Загрузка --------
-async function loadFeed() {
+function loadFeed() {
+  // Отписываемся от предыдущей подписки если есть
+  if (_unsubFeed) { _unsubFeed(); _unsubFeed = null; }
+
   showSpinner($("news-feed"));
-  try {
-    const snap = await getDocs(query(collection(db, "newsPosts"), orderBy("createdAt", "desc")));
+
+  const q = query(collection(db, "newsPosts"), orderBy("createdAt", "desc"));
+
+  _unsubFeed = onSnapshot(q, snap => {
     allPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderFeed();
-  } catch (err) {
+
+    // Показываем тост при новой записи (не при первой загрузке)
+    snap.docChanges().forEach(change => {
+      if (change.type === "added" && !snap.metadata.hasPendingWrites) {
+        const post = change.doc.data();
+        // Не показываем тост если это наша собственная запись
+        if (post.authorId !== currentUser?.uid) {
+          toast(`📢 Новая запись: ${post.title}`, "info");
+        }
+      }
+    });
+  }, err => {
     showEmpty($("news-feed"), "Ошибка загрузки: " + err.message);
-  }
+  });
 }
 
 function renderFeed() {
@@ -339,8 +360,7 @@ function buildPostCard(post) {
       eventEnd: Date.now() - 1,
       status: "finished"
     });
-    toast("Ивент завершён", "success");
-    loadFeed();
+    toast("Ивент завершён", "success"); // onSnapshot обновит автоматически
   });
 
   // Комментарии
@@ -355,16 +375,14 @@ function buildPostCard(post) {
   card.querySelector(".js-delete-post")?.addEventListener("click", async () => {
     if (!confirm("Удалить запись?")) return;
     await deleteDoc(doc(db, "newsPosts", post.id));
-    toast("Удалено", "success");
-    loadFeed();
+    toast("Удалено", "success"); // onSnapshot обновит автоматически
   });
 
   // Сбросить голоса
   card.querySelector(".js-reset-poll")?.addEventListener("click", async () => {
     if (!confirm("Сбросить все голоса?")) return;
     await updateDoc(doc(db, "newsPosts", post.id), { pollVotes: {} });
-    toast("Голоса сброшены", "success");
-    loadFeed();
+    toast("Голоса сброшены", "success"); // onSnapshot обновит автоматически
   });
 
   // Countdown timer
@@ -390,7 +408,7 @@ async function toggleLike(post) {
   const newLikes = likes.includes(uid) ? likes.filter(id => id !== uid) : [...likes, uid];
   await updateDoc(ref, { likes: newLikes });
   post.likes = newLikes;
-  renderFeed();
+  // onSnapshot обновит ленту автоматически
 }
 
 // -------- Голосование --------
@@ -509,3 +527,8 @@ function toDatetimeLocal(ms) {
     String(d.getHours()).padStart(2,"0") + ":" +
     String(d.getMinutes()).padStart(2,"0");
 }
+
+// Отписка при закрытии страницы
+window.addEventListener("beforeunload", () => {
+  if (_unsubFeed) _unsubFeed();
+});
