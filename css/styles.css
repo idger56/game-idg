@@ -3519,3 +3519,133 @@ select option { background: var(--bg-surface); }
   .game-card-body { padding: 10px; }
   .game-card-footer { padding: 8px 10px 12px; }
 }
+
+/* ============================================================
+   ПОИСК И ПРИКРЕПЛЕНИЕ ИГР В ФОРМЕ
+   ============================================================ */
+.game-search-wrap {
+  position: relative;
+}
+.game-search-wrap input {
+  width: 100%;
+}
+.game-search-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  z-index: 200;
+  max-height: 280px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+}
+.game-search-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background .12s;
+}
+.game-search-item:hover { background: rgba(79,142,247,.08); }
+.game-search-item img {
+  width: 44px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+}
+.gsi-title { display: block; font-size: .88rem; font-weight: 600; color: var(--text-primary); }
+.gsi-type  { display: block; font-size: .72rem; color: var(--text-secondary); margin-top: 1px; }
+.game-search-empty { padding: 12px 14px; color: var(--text-secondary); font-size: .85rem; }
+
+/* Чипсы прикреплённых игр в форме */
+.attached-game-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(79,142,247,.1);
+  border: 1px solid rgba(79,142,247,.25);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px 4px 6px;
+  font-size: .82rem;
+  color: var(--text-primary);
+  max-width: 200px;
+}
+.attached-game-chip img {
+  width: 28px; height: 20px;
+  object-fit: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.attached-game-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.attached-game-chip button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  font-size: .8rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.attached-game-chip button:hover { color: var(--danger, #e83030); }
+
+/* ============================================================
+   ПРИКРЕПЛЁННЫЕ ИГРЫ В КАРТОЧКЕ ПОСТА
+   ============================================================ */
+.post-games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.post-game-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.post-game-chip:hover {
+  border-color: var(--accent);
+  background: rgba(79,142,247,.06);
+  transform: translateX(3px);
+}
+.post-game-chip img {
+  width: 56px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: var(--bg-card);
+}
+.pgc-info { flex: 1; min-width: 0; }
+.pgc-title {
+  display: block;
+  font-weight: 600;
+  font-size: .92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pgc-type {
+  display: block;
+  font-size: .75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.pgc-arrow {
+  color: var(--accent);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  opacity: .7;
+}
