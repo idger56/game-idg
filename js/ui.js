@@ -74,10 +74,12 @@ export function renderHeader({ activePage = "" } = {}) {
   initTheme();
 
   const pages = [
-    { href: "index.html",  label: "🎮 Игры",        id: "index" },
-    { href: "solo.html",   label: "🕹 Соло",         id: "solo"  },
-    { href: "top.html",    label: "🏆 Топ",          id: "top"   },
-    { href: "users.html",  label: "👥 Пользователи", id: "users" },
+    { href: "index.html",    label: "🎮 Игры",        id: "index"    },
+    { href: "solo.html",     label: "🕹 Соло",         id: "solo"     },
+    { href: "top.html",      label: "🏆 Топ",          id: "top"      },
+    { href: "users.html",    label: "👥 Пользователи", id: "users"    },
+    { href: "news.html",     label: "📰 Новости",      id: "news"     },
+    { href: "feedback.html", label: "💬 Обратная связь", id: "feedback" },
   ];
 
   const header = document.createElement("header");
