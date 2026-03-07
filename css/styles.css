@@ -3303,3 +3303,219 @@ select option { background: var(--bg-surface); }
   border-color: var(--accent);
   transform: translateY(-1px);
 }
+
+/* ============================================================
+   МОБИЛЬНАЯ АДАПТАЦИЯ
+   ============================================================ */
+
+/* --- Бургер-кнопка --- */
+.burger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+.burger-btn span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: transform .25s, opacity .25s;
+  transform-origin: center;
+}
+.burger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.burger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* --- Мобильное меню --- */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-header);
+}
+.mobile-menu.open { display: flex; }
+
+.mobile-nav-link {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.mobile-nav-link:hover,
+.mobile-nav-link.active {
+  background: rgba(79,142,247,.08);
+  color: var(--accent);
+}
+
+/* --- Скрываем дeco на мобиле --- */
+@media (max-width: 600px) {
+  .theme-deco { display: none; }
+}
+
+/* ============================================================
+   768px — планшеты и крупные телефоны
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Навигация */
+  .nav-links { display: none !important; }
+  .burger-btn { display: flex; }
+  .nav-inner { padding: 0 16px; gap: 10px; }
+  #theme-label { display: none; }
+  .theme-btn { padding: 6px 10px; }
+
+  /* Контент */
+  .page-content { padding: 20px 16px; }
+
+  /* Шапка страницы */
+  .catalog-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .catalog-header .flex-gap {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Фильтры */
+  .filters-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .filters-bar input,
+  .filters-bar select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  /* Сетка игр */
+  .games-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  /* Карточка игры */
+  .game-card-img { height: 150px; }
+  .game-card-title { font-size: 1rem; }
+  .game-card-body { padding: 12px; gap: 6px; }
+  .game-card-footer { padding: 10px 12px 14px; }
+
+  /* Пользователи */
+  .users-page-layout { grid-template-columns: 1fr; }
+  .my-profile-card { position: static; }
+
+  /* Профиль */
+  .profile-header { grid-template-columns: 1fr; }
+  .profile-achievements { display: none; }
+  .profile-avatar-big { width: 100%; height: 220px; border-radius: var(--radius) var(--radius) 0 0; }
+  .profile-stats-row { flex-wrap: wrap; }
+
+  /* Топ */
+  .top-grid { grid-template-columns: repeat(2, 1fr); }
+  .top-card.rank-1,
+  .top-card.rank-2,
+  .top-card.rank-3,
+  .top-card.rank-other { grid-column: span 1; }
+
+  /* Новости */
+  .news-card { padding: 14px 16px; }
+  .news-card-image { max-height: 200px; }
+  .news-actions { gap: 6px; }
+
+  /* Обратная связь */
+  .fb-admin-panel { flex-direction: column; align-items: stretch; }
+
+  /* Модалки */
+  .modal { width: calc(100vw - 32px); max-width: 100%; margin: 16px; }
+  .game-modal { width: calc(100vw - 24px); max-height: 92vh; }
+
+  /* Слайдер */
+  .hero-slider { height: 260px; padding: 0 12px; }
+  .hero-slider-outer { padding: 10px 0 14px; }
+  .hero-content { padding: 20px; }
+  .hero-game-title { font-size: 1.4rem; }
+  .hero-prev { left: 2px; }
+  .hero-next { right: 2px; }
+
+  /* Featured */
+  .featured-inner { padding: 0 16px; }
+  .featured-title { font-size: 1rem; }
+}
+
+/* ============================================================
+   480px — смартфоны
+   ============================================================ */
+@media (max-width: 480px) {
+  /* Одна колонка для игр */
+  .games-grid { grid-template-columns: 1fr; gap: 12px; }
+  .game-card-img { height: 180px; }
+
+  /* Авторизация */
+  .auth-card { padding: 24px 18px; margin: 16px; }
+
+  /* Топ */
+  .top-grid { grid-template-columns: 1fr; }
+  .top-row-0, .top-row-1,
+  .top-row-2, .top-row-3 { grid-template-columns: 1fr; }
+
+  /* Шапка страницы */
+  .page-title { font-size: 1.3rem; }
+  .page-sub { font-size: 0.85rem; }
+
+  /* Слайдер */
+  .hero-slider { height: 220px; }
+  .hero-game-title { font-size: 1.2rem; }
+  .hero-meta { display: none; }
+
+  /* Кнопки навигации шапки */
+  #nav-auth-btn { font-size: 0.8rem; padding: 5px 10px; }
+  .nav-user { display: none; }
+
+  /* Статистика профиля */
+  .profile-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .stat-box { padding: 10px; }
+
+  /* Форма */
+  .admin-form-wrap { padding: 16px; }
+
+  /* Голосование */
+  .poll-option { padding: 10px; }
+  .poll-option-label { flex-wrap: wrap; }
+
+  /* Новости */
+  .news-links { flex-direction: column; }
+  .news-link-btn { justify-content: center; }
+  .event-dates { flex-direction: column; align-items: flex-start; gap: 6px; }
+
+  /* Достижения */
+  .achievement-item { flex-direction: column; align-items: flex-start; }
+  .achievement-icon { width: 48px; height: 48px; }
+}
+
+/* ============================================================
+   360px — самые маленькие экраны
+   ============================================================ */
+@media (max-width: 360px) {
+  .nav-inner { padding: 0 10px; }
+  .nav-logo span:last-child { display: none; }
+  .page-content { padding: 16px 10px; }
+  .game-card-body { padding: 10px; }
+  .game-card-footer { padding: 8px 10px 12px; }
+}
