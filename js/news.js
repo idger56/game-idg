@@ -207,12 +207,13 @@ function buildPostCard(post) {
       const count  = Object.values(votes).filter(v => v === i).length;
       const pct    = totalVotes ? Math.round((count / totalVotes) * 100) : 0;
       const isMine = hasVoted && myVote === i;
+      const clickable = canVote && !hasVoted;
 
       return `
-        <div class="poll-option ${isMine ? "poll-option--voted" : ""}" data-idx="${i}">
+        <div class="poll-option ${isMine ? "poll-option--voted" : ""} ${clickable ? "poll-option--clickable js-vote" : ""}" data-idx="${i}">
           <div class="poll-option-label">
-            ${canVote && !hasVoted ? `<button class="btn btn-ghost btn-sm js-vote" data-idx="${i}" style="padding:2px 10px">${esc(opt)}</button>` : `<span>${esc(opt)}</span>`}
-            ${isMine ? `<span class="my-vote-badge">✓ мой голос</span>` : ""}
+            <span class="poll-opt-text">${esc(opt)}</span>
+            ${isMine ? `<span class="my-vote-badge">\u2713 мой голос</span>` : ""}
           </div>
           ${(hasVoted || !canVote) ? `
             <div class="poll-bar">
@@ -263,9 +264,13 @@ function buildPostCard(post) {
   // Лайк
   card.querySelector(".js-like")?.addEventListener("click", () => toggleLike(post));
 
-  // Голосование
-  card.querySelectorAll(".js-vote").forEach(btn => {
-    btn.addEventListener("click", () => votePoll(post, parseInt(btn.dataset.idx)));
+  // Голосование — кликабельные div-ы
+  card.querySelectorAll(".js-vote").forEach(el => {
+    el.addEventListener("click", () => {
+      const idx = parseInt(el.dataset.idx);
+      if (!currentUser) { toast("Войдите, чтобы голосовать", "error"); return; }
+      votePoll(post, idx);
+    });
   });
 
   // Завершить ивент
