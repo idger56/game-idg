@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+<div class="theme-deco"></div>
 
 <!-- ===================== АВТОРИЗАЦИЯ ===================== -->
 <section id="auth-section" class="auth-page">
@@ -39,6 +40,13 @@
       </div>
       <button class="hero-arrow hero-prev" id="hero-prev">‹</button>
       <button class="hero-arrow hero-next" id="hero-next">›</button>
+    </div>
+    <!-- Кнопка управления слайдером (только для админа) -->
+    <div class="hero-manage-bar hidden" id="hero-manage-bar">
+      <div class="hero-manage-inner">
+        <span>🎬 Управление слайдером</span>
+        <button class="btn btn-ghost btn-sm" id="btn-manage-slider">⚙️ Редактировать слайдер</button>
+      </div>
     </div>
   </div>
 
