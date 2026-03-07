@@ -82,6 +82,16 @@
         <button type="button" id="btn-add-link" class="btn btn-ghost btn-sm" style="margin-top:6px">+ Добавить ссылку</button>
       </div>
 
+      <!-- Прикреплённые игры -->
+      <div class="form-group">
+        <label class="form-label">🎮 Прикрепить игры</label>
+        <div class="game-search-wrap">
+          <input type="text" id="f-game-search" placeholder="Поиск по названию..." autocomplete="off" />
+          <div id="game-search-results" class="game-search-dropdown hidden"></div>
+        </div>
+        <div id="attached-games-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+      </div>
+
       <!-- Поля для ивента -->
       <div id="event-fields" class="hidden">
         <div style="display:flex;gap:12px;flex-wrap:wrap">
