@@ -100,7 +100,7 @@ $("btn-submit-post")?.addEventListener("click", async () => {
     const dl = $("f-poll-deadline").value;
     data.pollOptions  = opts;
     data.pollDeadline = dl ? new Date(dl).getTime() : null;
-    if (!id) data.pollVotes = {}; // uid → optionIndex
+    data.pollVotes    = {}; // всегда инициализируем
   }
 
   try {
@@ -330,9 +330,12 @@ async function toggleLike(post) {
 // -------- Голосование --------
 async function votePoll(post, idx) {
   if (!currentUser) { toast("Войдите, чтобы голосовать", "error"); return; }
-  const votes = { ...(post.pollVotes ?? {}), [currentUser.uid]: idx };
-  await updateDoc(doc(db, "newsPosts", post.id), { pollVotes: votes });
-  post.pollVotes = votes;
+  // Используем точечную нотацию чтобы не перезаписывать чужие голоса
+  const updateData = {};
+  updateData[`pollVotes.${currentUser.uid}`] = idx;
+  await updateDoc(doc(db, "newsPosts", post.id), updateData);
+  if (!post.pollVotes) post.pollVotes = {};
+  post.pollVotes[currentUser.uid] = idx;
   renderFeed();
 }
 
