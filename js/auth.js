@@ -1,5 +1,5 @@
 // ============================================================
-//  auth.js — вся логика авторизации и онлайн-статуса
+//  auth.js — авторизация и онлайн-статус (работает на всех страницах)
 // ============================================================
 import { auth, db, ADMIN_EMAIL } from "./firebase.js";
 import {
@@ -13,50 +13,97 @@ import {
   collection, query, where
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
-// ---------- Статус онлайн ----------
-let _lastSeenTimer = null;
-let _statusTimer   = null;
+// ---------- Присутствие ----------
+let _presenceTimer = null;
+let _presenceUid   = null;
 
-export async function setOnline(uid) {
+/** Обновить lastSeen и статус = online */
+async function _ping(uid) {
   if (!uid) return;
   try {
-    await updateDoc(doc(db, "users", uid), { status: "online", lastSeen: Date.now() });
-  } catch (e) { console.warn("setOnline:", e); }
+    await updateDoc(doc(db, "users", uid), {
+      status:   "online",
+      lastSeen: Date.now(),
+    });
+  } catch (e) {
+    // Игнорируем — пользователь мог выйти
+  }
 }
 
-export async function setOffline(uid) {
+/** Поставить статус offline */
+async function _goOffline(uid) {
   if (!uid) return;
   try {
-    await updateDoc(doc(db, "users", uid), { status: "offline", lastSeen: Date.now() });
-  } catch (e) { console.warn("setOffline:", e); }
+    await updateDoc(doc(db, "users", uid), {
+      status:   "offline",
+      lastSeen: Date.now(),
+    });
+  } catch (e) { /* ignore */ }
 }
 
-export function startPresence(uid) {
-  stopPresence();
-  setOnline(uid);
-  _lastSeenTimer = setInterval(() => setOnline(uid), 30_000);
+/** Запустить периодические пинги (каждые 30 сек).
+ *  Вызывается автоматически в onAuthStateChanged — не нужно вызывать вручную. */
+function _startPresence(uid) {
+  _stopPresence();
+  _presenceUid = uid;
 
-  window.addEventListener("beforeunload",   () => setOffline(uid));
-  document.addEventListener("visibilitychange", () => {
-    document.visibilityState === "hidden" ? setOffline(uid) : setOnline(uid);
-  });
+  // Сразу пингуем
+  _ping(uid);
+
+  // Пинг каждые 30 секунд
+  _presenceTimer = setInterval(() => _ping(uid), 30_000);
+
+  // Вкладка/окно закрылись
+  window.addEventListener("beforeunload", _handleUnload);
+
+  // Вкладка скрыта/показана
+  document.addEventListener("visibilitychange", _handleVisibility);
 }
 
-export function stopPresence() {
-  if (_lastSeenTimer) { clearInterval(_lastSeenTimer); _lastSeenTimer = null; }
-  if (_statusTimer)   { clearInterval(_statusTimer);   _statusTimer   = null; }
+function _stopPresence() {
+  if (_presenceTimer) {
+    clearInterval(_presenceTimer);
+    _presenceTimer = null;
+  }
+  window.removeEventListener("beforeunload", _handleUnload);
+  document.removeEventListener("visibilitychange", _handleVisibility);
 }
+
+function _handleUnload() {
+  // Используем sendBeacon чтобы запрос успел уйти при закрытии
+  // Но Firestore не поддерживает sendBeacon — делаем синхронный вызов
+  if (_presenceUid) _goOffline(_presenceUid);
+}
+
+function _handleVisibility() {
+  if (!_presenceUid) return;
+  if (document.visibilityState === "hidden") {
+    _goOffline(_presenceUid);
+  } else {
+    _ping(_presenceUid);
+  }
+}
+
+// ---------- Экспортируемые функции ----------
+
+export async function setOnline(uid)  { await _ping(uid); }
+export async function setOffline(uid) { await _goOffline(uid); }
+
+export function startPresence(uid) { _startPresence(uid); }
+export function stopPresence()     { _stopPresence(); }
 
 // ---------- Регистрация ----------
 export async function register(email, password, nickname) {
+  if (!email || !password || !nickname) throw new Error("Заполните все поля");
+
   // Проверка уникальности ника
   const snap = await getDocs(query(collection(db, "users"), where("nickname", "==", nickname)));
   if (!snap.empty) throw new Error("Этот ник уже занят. Выберите другой.");
 
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   await setDoc(doc(db, "users", cred.user.uid), {
-    uid: cred.user.uid,
-    email: cred.user.email,
+    uid:           cred.user.uid,
+    email:         cred.user.email,
     nickname,
     avatar:        "https://cdn-images.dzcdn.net/images/cover/8b685b46bec333da34a4f17c7a3e4fc9/1900x1900-000000-80-0-0.jpg",
     quote:         "",
@@ -70,26 +117,37 @@ export async function register(email, password, nickname) {
 
 // ---------- Вход ----------
 export async function login(email, password) {
+  if (!email || !password) throw new Error("Введите email и пароль");
   await signInWithEmailAndPassword(auth, email, password);
 }
 
 // ---------- Выход ----------
 export async function logout(uid) {
-  stopPresence();
-  if (uid) await setOffline(uid);
+  _stopPresence();
+  if (uid) await _goOffline(uid);
   await signOut(auth);
 }
 
-// ---------- Обёртка onAuthStateChanged с коллбэками ----------
-export function watchAuth({ onLogin, onLogout }) {
-  return onAuthStateChanged(auth, async user => {
+// ---------- Главный подписчик ----------
+/**
+ * Вызывать на каждой странице.
+ * Автоматически:
+ *  - запускает/останавливает пинги присутствия
+ *  - вызывает onLogin(user, userData) / onLogout()
+ */
+export function watchAuth({ onLogin, onLogout } = {}) {
+  return onAuthStateChanged(auth, async (user) => {
     if (user) {
-      startPresence(user.uid);
+      // Запускаем присутствие сразу — работает на ЛЮБОЙ странице
+      _startPresence(user.uid);
+
+      // Получаем данные профиля
       const snap = await getDoc(doc(db, "users", user.uid));
       const userData = snap.exists() ? snap.data() : {};
-      onLogin(user, userData);
+
+      onLogin?.(user, userData);
     } else {
-      stopPresence();
+      _stopPresence();
       onLogout?.();
     }
   });

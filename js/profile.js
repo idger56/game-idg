@@ -2,6 +2,7 @@
 //  profile.js — публичная страница профиля
 // ============================================================
 import { db } from "./firebase.js";
+import { watchAuth } from "./auth.js";
 import { esc, calcUserStats, formatLastSeen, isOnline } from "./utils.js";
 import { renderHeader, showEmpty } from "./ui.js";
 import { renderAchievements, renderBadges, statsToAchievementInput } from "./achievements.js";
@@ -10,6 +11,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 renderHeader({ activePage: "" });
+// Трекинг присутствия на этой странице
+watchAuth({});
 
 const uid = new URLSearchParams(location.search).get("uid");
 const container = document.getElementById("profile-content");
