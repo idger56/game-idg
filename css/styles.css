@@ -3252,3 +3252,17 @@ select option { background: var(--bg-surface); }
   padding-top: 12px;
   border-top: 1px solid var(--border);
 }
+
+/* Кликабельный вариант голосования */
+.poll-option--clickable {
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+}
+.poll-option--clickable:hover {
+  background: rgba(79,142,247,.1);
+  border-color: var(--accent);
+  transform: translateX(3px);
+}
+.poll-option--clickable:active {
+  transform: translateX(1px);
+}
