@@ -182,11 +182,8 @@ function renderHeroSlider() {
 // ════════════════════════════════════════════
 //  FEATURED (популярное)
 // ════════════════════════════════════════════
-let featOffset = 0;
-
 function renderFeatured() {
   const carousel = $("featured-carousel");
-  // Топ-10 по рейтингу
   const topGames = [...allGames]
     .map(g => {
       const rs = ratingsAll.filter(r => r.gameId === g.id);
@@ -194,7 +191,7 @@ function renderFeatured() {
       return { ...g, avg };
     })
     .sort((a,b) => b.avg - a.avg)
-    .slice(0, 10);
+    .slice(0, 12);
 
   if (!topGames.length) { $("featured-section").style.display="none"; return; }
 
@@ -208,23 +205,34 @@ function renderFeatured() {
       <div class="feat-card-body">
         <div class="feat-rank">#${i+1}</div>
         <h4>${esc(game.title)}</h4>
-        ${game.avg ? `<div class="feat-score">⭐ ${game.avg.toFixed(1)}</div>` : ""}
+        ${game.avg ? `<div class="feat-score">\u2B50 ${game.avg.toFixed(1)}</div>` : ""}
       </div>`;
     card.addEventListener("click", () => openGameModal(game));
     carousel.appendChild(card);
   });
 
-  // Стрелки
-  const cardW = 236; // ширина карточки + gap
-  $("feat-prev").addEventListener("click", () => {
-    featOffset = Math.max(0, featOffset - cardW * 3);
-    carousel.style.transform = `translateX(-${featOffset}px)`;
+  const scrollStep = () => (carousel.querySelector(".feat-card")?.offsetWidth + 12) * 3 || 696;
+
+  const prevBtn = $("feat-prev");
+  const nextBtn = $("feat-next");
+  const newPrev = prevBtn.cloneNode(true);
+  const newNext = nextBtn.cloneNode(true);
+  prevBtn.replaceWith(newPrev);
+  nextBtn.replaceWith(newNext);
+
+  newPrev.addEventListener("click", () => {
+    carousel.scrollBy({ left: -scrollStep(), behavior: "smooth" });
   });
-  $("feat-next").addEventListener("click", () => {
-    const maxOffset = Math.max(0, topGames.length * cardW - carousel.parentElement.clientWidth + 80);
-    featOffset = Math.min(maxOffset, featOffset + cardW * 3);
-    carousel.style.transform = `translateX(-${featOffset}px)`;
+  newNext.addEventListener("click", () => {
+    carousel.scrollBy({ left: scrollStep(), behavior: "smooth" });
   });
+
+  const updateArrows = () => {
+    newPrev.style.opacity = carousel.scrollLeft <= 0 ? "0.3" : "1";
+    newNext.style.opacity = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 4 ? "0.3" : "1";
+  };
+  carousel.addEventListener("scroll", updateArrows, { passive: true });
+  updateArrows();
 }
 
 // ════════════════════════════════════════════
