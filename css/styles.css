@@ -1,14 +1,24 @@
 /* ============================================================
-   styles.css — единый файл стилей с поддержкой тем
-   Темы: dark | light | cyberpunk | retro | forest
+   styles.css — темы: dark | light | cyberpunk | retro | forest
+                      ocean | blood | synthwave | matrix | golden
    ============================================================ */
 
-/* ---------- Google Fonts ---------- */
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
 
-/* ============================================================
-   ТЕМА: DARK (по умолчанию)
-   ============================================================ */
+/* ─────────────────────────────────────────────
+   ОБЩИЕ ПЕРЕМЕННЫЕ-ДЕФОЛТЫ (радиусы и т.д.)
+───────────────────────────────────────────── */
+:root {
+  --radius:      12px;
+  --radius-sm:   8px;
+  --radius-pill: 999px;
+  --header-blur: blur(12px);
+  --theme-font:  'Exo 2', 'Segoe UI', sans-serif;
+}
+
+/* ═══════════════════════════════════════════════
+   🌑 DARK
+═══════════════════════════════════════════════ */
 :root,
 [data-theme="dark"] {
   --bg-base:        #0d0f14;
@@ -16,7 +26,7 @@
   --bg-card:        #1c2030;
   --bg-card-hover:  #222840;
   --bg-input:       #1a1e2e;
-  --bg-header:      #11131a;
+  --bg-header:      #11131acc;
 
   --accent:         #4f8ef7;
   --accent-hover:   #6fa3ff;
@@ -29,41 +39,45 @@
   --text-muted:     #505870;
   --text-on-accent: #ffffff;
 
-  --border:         #252a3d;
-  --border-focus:   #4f8ef7;
+  --border:       #252a3d;
+  --border-focus: #4f8ef7;
 
-  --shadow:         0 4px 24px rgba(0,0,0,0.5);
-  --shadow-card:    0 2px 12px rgba(0,0,0,0.4);
+  --shadow:      0 4px 24px rgba(0,0,0,.5);
+  --shadow-card: 0 2px 12px rgba(0,0,0,.4);
 
-  --radius:         12px;
-  --radius-sm:      8px;
-  --radius-pill:    999px;
-
-  --medal-gold:     #f5c542;
-  --medal-silver:   #b0b8c8;
-  --medal-bronze:   #cd7f32;
-
-  --online:         #2ecc71;
-  --offline:        #6b7280;
-
-  --header-blur:    blur(12px);
-
-  /* Специфика темы */
-  --theme-glow:     none;
-  --theme-font:     'Exo 2', 'Segoe UI', sans-serif;
-  --theme-bg-extra: none;
+  --medal-gold:   #f5c542;
+  --medal-silver: #b0b8c8;
+  --medal-bronze: #cd7f32;
+  --online:  #2ecc71;
+  --offline: #6b7280;
 }
 
-/* ============================================================
-   ТЕМА: LIGHT
-   ============================================================ */
+/* subtle star-field */
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse at 70% 10%, rgba(79,142,247,.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 80%, rgba(39,174,96,.04) 0%, transparent 50%);
+}
+[data-theme="dark"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(79,142,247,.12);
+}
+[data-theme="dark"] .game-card:hover {
+  border-color: rgba(79,142,247,.35);
+  box-shadow: 0 8px 32px rgba(79,142,247,.12);
+}
+
+/* ═══════════════════════════════════════════════
+   ☀️ LIGHT
+═══════════════════════════════════════════════ */
 [data-theme="light"] {
-  --bg-base:        #f0f2f8;
+  --bg-base:        #eef1f9;
   --bg-surface:     #ffffff;
   --bg-card:        #ffffff;
-  --bg-card-hover:  #f7f9ff;
-  --bg-input:       #f3f5fc;
-  --bg-header:      #ffffff;
+  --bg-card-hover:  #f5f8ff;
+  --bg-input:       #f0f3fb;
+  --bg-header:      #ffffffcc;
 
   --accent:         #3b72e8;
   --accent-hover:   #2a5ec9;
@@ -71,194 +85,613 @@
   --accent-2-hover: #15803d;
   --danger:         #dc2626;
 
-  --text-primary:   #1e2340;
+  --text-primary:   #1a1f3a;
   --text-secondary: #4a5568;
   --text-muted:     #9aa3b4;
   --text-on-accent: #ffffff;
 
-  --border:         #dde2f0;
-  --border-focus:   #3b72e8;
+  --border:       #dde2f0;
+  --border-focus: #3b72e8;
 
-  --shadow:         0 4px 24px rgba(60,70,120,0.12);
-  --shadow-card:    0 2px 12px rgba(60,70,120,0.08);
+  --shadow:      0 4px 24px rgba(60,70,120,.1);
+  --shadow-card: 0 2px 12px rgba(60,70,120,.07);
 
-  --medal-gold:     #d97706;
-  --medal-silver:   #6b7280;
-  --medal-bronze:   #92400e;
-
-  --online:         #16a34a;
-  --offline:        #9ca3af;
+  --medal-gold:   #d97706;
+  --medal-silver: #6b7280;
+  --medal-bronze: #92400e;
+  --online:  #16a34a;
+  --offline: #9ca3af;
 }
 
-/* ============================================================
-   ТЕМА: CYBERPUNK
-   ============================================================ */
+[data-theme="light"] body {
+  background-image:
+    radial-gradient(ellipse at 80% 0%, rgba(59,114,232,.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 10% 90%, rgba(22,163,74,.05) 0%, transparent 50%);
+}
+[data-theme="light"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(59,114,232,.15);
+  box-shadow: 0 1px 16px rgba(60,70,120,.08);
+}
+[data-theme="light"] .game-card {
+  box-shadow: 0 2px 10px rgba(60,70,120,.08);
+}
+[data-theme="light"] .game-card:hover {
+  box-shadow: 0 8px 32px rgba(59,114,232,.15);
+  border-color: rgba(59,114,232,.3);
+}
+[data-theme="light"] .nav-logo span { color: var(--accent); }
+
+/* ═══════════════════════════════════════════════
+   ⚡ CYBERPUNK
+═══════════════════════════════════════════════ */
 [data-theme="cyberpunk"] {
-  --bg-base:        #040610;
-  --bg-surface:     #07091a;
-  --bg-card:        #0a0d20;
-  --bg-card-hover:  #0d1128;
-  --bg-input:       #080a18;
-  --bg-header:      #03040d;
+  --bg-base:        #03040d;
+  --bg-surface:     #06081a;
+  --bg-card:        #090c1e;
+  --bg-card-hover:  #0c1028;
+  --bg-input:       #070917;
+  --bg-header:      #02030aee;
 
   --accent:         #00f5ff;
-  --accent-hover:   #60feff;
+  --accent-hover:   #6ffeff;
   --accent-2:       #ff2d78;
   --accent-2-hover: #ff6fa0;
   --danger:         #ff2d78;
 
-  --text-primary:   #e0f7ff;
-  --text-secondary: #7ecddb;
-  --text-muted:     #2a4a55;
-  --text-on-accent: #040610;
+  --text-primary:   #d8f8ff;
+  --text-secondary: #6ecfdb;
+  --text-muted:     #1e3a44;
+  --text-on-accent: #03040d;
 
-  --border:         #0f2030;
-  --border-focus:   #00f5ff;
+  --border:       #0a1a28;
+  --border-focus: #00f5ff;
 
-  --shadow:         0 4px 30px rgba(0,245,255,0.15);
-  --shadow-card:    0 2px 16px rgba(0,245,255,0.1);
+  --shadow:      0 4px 30px rgba(0,245,255,.18);
+  --shadow-card: 0 2px 20px rgba(0,245,255,.1);
 
-  --medal-gold:     #ffdd00;
-  --medal-silver:   #00f5ff;
-  --medal-bronze:   #ff2d78;
+  --medal-gold:   #ffe600;
+  --medal-silver: #00f5ff;
+  --medal-bronze: #ff2d78;
+  --online:  #00f5ff;
+  --offline: #1e3a44;
 
-  --online:         #00f5ff;
-  --offline:        #2a4a55;
-
-  --theme-glow:     0 0 20px rgba(0,245,255,0.3);
-  --theme-font:     'Rajdhani', 'Exo 2', sans-serif;
+  --theme-font: 'Orbitron', 'Rajdhani', sans-serif;
 }
 
-/* Cyberpunk: сканлайны поверх */
+/* Сканлайны */
 [data-theme="cyberpunk"] body::before {
   content: "";
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0; pointer-events: none; z-index: 9998;
   background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 245, 255, 0.025) 2px,
-    rgba(0, 245, 255, 0.025) 4px
+    180deg,
+    transparent 0px, transparent 3px,
+    rgba(0,245,255,.018) 3px, rgba(0,245,255,.018) 4px
   );
-  pointer-events: none;
-  z-index: 9999;
 }
-
-[data-theme="cyberpunk"] .game-card,
-[data-theme="cyberpunk"] .auth-card,
-[data-theme="cyberpunk"] .user-card {
-  border: 1px solid #0f2030;
-  box-shadow: 0 0 0 1px rgba(0,245,255,0.08), var(--shadow-card);
+/* Хроматические аберрации по краям */
+[data-theme="cyberpunk"] body::after {
+  content: "";
+  position: fixed; inset: 0; pointer-events: none; z-index: 9997;
+  background:
+    linear-gradient(90deg, rgba(255,45,120,.07) 0%, transparent 4%, transparent 96%, rgba(0,245,255,.07) 100%),
+    linear-gradient(180deg, rgba(0,245,255,.05) 0%, transparent 6%, transparent 94%, rgba(255,45,120,.05) 100%);
 }
-
-[data-theme="cyberpunk"] .game-card:hover {
-  border-color: rgba(0,245,255,0.3);
-  box-shadow: 0 0 24px rgba(0,245,255,0.2);
+[data-theme="cyberpunk"] body {
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(0,245,255,.06) 0%, transparent 45%),
+    radial-gradient(ellipse at 80% 20%, rgba(255,45,120,.05) 0%, transparent 40%);
 }
-
+[data-theme="cyberpunk"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0,245,255,.2);
+  box-shadow: 0 0 30px rgba(0,245,255,.08);
+}
 [data-theme="cyberpunk"] .nav-logo span {
   color: var(--accent);
-  text-shadow: 0 0 12px rgba(0,245,255,0.7);
+  text-shadow: 0 0 14px rgba(0,245,255,.9), 0 0 30px rgba(0,245,255,.4);
 }
-
+[data-theme="cyberpunk"] .game-card {
+  border-color: rgba(0,245,255,.1);
+  box-shadow: 0 0 0 1px rgba(0,245,255,.06), var(--shadow-card);
+}
+[data-theme="cyberpunk"] .game-card:hover {
+  border-color: rgba(0,245,255,.4);
+  box-shadow: 0 0 28px rgba(0,245,255,.22), 0 0 0 1px rgba(0,245,255,.2);
+}
 [data-theme="cyberpunk"] .btn-primary {
-  box-shadow: 0 0 12px rgba(0,245,255,0.4);
+  box-shadow: 0 0 14px rgba(0,245,255,.5);
+  text-shadow: 0 0 8px rgba(0,245,255,.8);
 }
+[data-theme="cyberpunk"] .btn-primary:hover {
+  box-shadow: 0 0 24px rgba(0,245,255,.7);
+}
+[data-theme="cyberpunk"] .nav-link.active,
+[data-theme="cyberpunk"] .nav-link:hover { text-shadow: 0 0 10px var(--accent); }
 
-/* ============================================================
-   ТЕМА: RETRO (80-е, pixel-art)
-   ============================================================ */
+/* ═══════════════════════════════════════════════
+   🎮 RETRO (Arcade 80s)
+═══════════════════════════════════════════════ */
 [data-theme="retro"] {
-  --bg-base:        #1a0a2e;
-  --bg-surface:     #2d1050;
-  --bg-card:        #250d45;
-  --bg-card-hover:  #2e1258;
-  --bg-input:       #1e0a38;
-  --bg-header:      #140826;
+  --bg-base:        #12002a;
+  --bg-surface:     #1e0040;
+  --bg-card:        #1a0038;
+  --bg-card-hover:  #230050;
+  --bg-input:       #150030;
+  --bg-header:      #0d001eee;
 
   --accent:         #ff6ac1;
-  --accent-hover:   #ff9ad8;
-  --accent-2:       #ffd700;
-  --accent-2-hover: #ffe44d;
-  --danger:         #ff4444;
+  --accent-hover:   #ffaadd;
+  --accent-2:       #ffe600;
+  --accent-2-hover: #fff176;
+  --danger:         #ff3333;
 
-  --text-primary:   #f8f0ff;
-  --text-secondary: #c9a0ff;
-  --text-muted:     #6b3a8c;
-  --text-on-accent: #1a0a2e;
+  --text-primary:   #fff0ff;
+  --text-secondary: #d4a0ff;
+  --text-muted:     #5c2d80;
+  --text-on-accent: #12002a;
 
-  --border:         #3d1870;
-  --border-focus:   #ff6ac1;
+  --border:       #3a0070;
+  --border-focus: #ff6ac1;
 
-  --shadow:         0 4px 24px rgba(100,0,180,0.4);
-  --shadow-card:    0 2px 16px rgba(100,0,180,0.3);
+  --shadow:      0 4px 24px rgba(120,0,200,.45);
+  --shadow-card: 0 2px 16px rgba(100,0,180,.35);
 
-  --medal-gold:     #ffd700;
-  --medal-silver:   #ff6ac1;
-  --medal-bronze:   #c9a0ff;
+  --medal-gold:   #ffe600;
+  --medal-silver: #ff6ac1;
+  --medal-bronze: #c9a0ff;
+  --online:  #ffe600;
+  --offline: #5c2d80;
 
-  --online:         #ffd700;
-  --offline:        #6b3a8c;
-
-  --theme-font:     'Rajdhani', monospace;
+  --theme-font: 'Share Tech Mono', 'Rajdhani', monospace;
 }
 
 [data-theme="retro"] body {
   background-image:
-    radial-gradient(circle at 20% 50%, rgba(255,106,193,0.07) 0%, transparent 60%),
-    radial-gradient(circle at 80% 20%, rgba(100,0,180,0.1) 0%, transparent 50%);
+    /* CRT горизонтальная сетка */
+    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,106,193,.025) 3px, rgba(255,106,193,.025) 4px),
+    radial-gradient(ellipse at 50% 0%, rgba(180,0,255,.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 80%, rgba(255,106,193,.08) 0%, transparent 50%);
 }
-
+[data-theme="retro"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(12px);
+  border-bottom: 2px solid rgba(255,106,193,.3);
+  box-shadow: 0 0 24px rgba(255,106,193,.12);
+}
+[data-theme="retro"] .nav-logo span {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(255,106,193,.8), 2px 2px 0 rgba(255,230,0,.4);
+}
 [data-theme="retro"] .game-card {
-  border: 2px solid var(--border);
+  border: 2px solid rgba(255,106,193,.2);
 }
-
 [data-theme="retro"] .game-card:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 20px rgba(255,106,193,0.25);
+  box-shadow: 0 0 20px rgba(255,106,193,.3), inset 0 0 20px rgba(255,106,193,.03);
+}
+[data-theme="retro"] .btn-primary {
+  box-shadow: 3px 3px 0 rgba(255,230,0,.5);
+}
+[data-theme="retro"] .btn-primary:hover {
+  box-shadow: 4px 4px 0 rgba(255,230,0,.7), 0 0 16px rgba(255,106,193,.4);
 }
 
-/* ============================================================
-   ТЕМА: FOREST
-   ============================================================ */
+/* ═══════════════════════════════════════════════
+   🌿 FOREST
+═══════════════════════════════════════════════ */
 [data-theme="forest"] {
-  --bg-base:        #0f1a12;
-  --bg-surface:     #162018;
-  --bg-card:        #1c2a1e;
-  --bg-card-hover:  #223225;
-  --bg-input:       #141e16;
-  --bg-header:      #0d1710;
+  --bg-base:        #0a1209;
+  --bg-surface:     #111a10;
+  --bg-card:        #172015;
+  --bg-card-hover:  #1d2a1b;
+  --bg-input:       #101808;
+  --bg-header:      #0a1209ee;
 
-  --accent:         #5bbf7a;
-  --accent-hover:   #7dd999;
+  --accent:         #4ec96e;
+  --accent-hover:   #73e08f;
   --accent-2:       #c8a84b;
   --accent-2-hover: #e2c26a;
   --danger:         #e05252;
 
-  --text-primary:   #d8f0dc;
-  --text-secondary: #7daa86;
-  --text-muted:     #3d5c44;
-  --text-on-accent: #0f1a12;
+  --text-primary:   #cdf0d4;
+  --text-secondary: #6a9e72;
+  --text-muted:     #2e4a34;
+  --text-on-accent: #0a1209;
 
-  --border:         #243428;
-  --border-focus:   #5bbf7a;
+  --border:       #1c3020;
+  --border-focus: #4ec96e;
 
-  --shadow:         0 4px 24px rgba(0,40,10,0.5);
-  --shadow-card:    0 2px 12px rgba(0,40,10,0.3);
+  --shadow:      0 4px 24px rgba(0,30,5,.55);
+  --shadow-card: 0 2px 14px rgba(0,30,5,.35);
 
-  --medal-gold:     #c8a84b;
-  --medal-silver:   #7daa86;
-  --medal-bronze:   #8b6340;
-
-  --online:         #5bbf7a;
-  --offline:        #3d5c44;
+  --medal-gold:   #c8a84b;
+  --medal-silver: #6a9e72;
+  --medal-bronze: #8b5e3c;
+  --online:  #4ec96e;
+  --offline: #2e4a34;
 }
 
 [data-theme="forest"] body {
   background-image:
-    radial-gradient(ellipse at 30% 70%, rgba(91,191,122,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(200,168,75,0.05) 0%, transparent 50%);
+    radial-gradient(ellipse at 25% 75%, rgba(78,201,110,.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(200,168,75,.05) 0%, transparent 45%),
+    radial-gradient(ellipse at 60% 50%, rgba(0,60,15,.08) 0%, transparent 60%);
+}
+[data-theme="forest"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(78,201,110,.18);
+}
+[data-theme="forest"] .nav-logo span { color: var(--accent); }
+[data-theme="forest"] .game-card:hover {
+  border-color: rgba(78,201,110,.35);
+  box-shadow: 0 8px 28px rgba(78,201,110,.1);
+}
+
+/* ═══════════════════════════════════════════════
+   🌊 OCEAN
+═══════════════════════════════════════════════ */
+[data-theme="ocean"] {
+  --bg-base:        #020d18;
+  --bg-surface:     #041525;
+  --bg-card:        #071d32;
+  --bg-card-hover:  #0a2540;
+  --bg-input:       #051828;
+  --bg-header:      #020d18ee;
+
+  --accent:         #00c6ff;
+  --accent-hover:   #5ddcff;
+  --accent-2:       #00e5a0;
+  --accent-2-hover: #40ffbc;
+  --danger:         #ff5560;
+
+  --text-primary:   #d0f0ff;
+  --text-secondary: #5a9ab5;
+  --text-muted:     #1a3a50;
+  --text-on-accent: #020d18;
+
+  --border:       #0c2a40;
+  --border-focus: #00c6ff;
+
+  --shadow:      0 4px 30px rgba(0,30,60,.7);
+  --shadow-card: 0 2px 18px rgba(0,30,60,.5);
+
+  --medal-gold:   #ffd166;
+  --medal-silver: #00c6ff;
+  --medal-bronze: #00e5a0;
+  --online:  #00e5a0;
+  --offline: #1a3a50;
+}
+
+[data-theme="ocean"] body {
+  background-image:
+    /* Волны */
+    radial-gradient(ellipse at 50% 100%, rgba(0,198,255,.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 10% 60%,  rgba(0,229,160,.06) 0%, transparent 45%),
+    radial-gradient(ellipse at 90% 30%,  rgba(0,198,255,.07) 0%, transparent 40%);
+}
+[data-theme="ocean"] body::before {
+  content: "";
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse at 50% 110%, rgba(0,198,255,.12) 0%, transparent 55%);
+}
+[data-theme="ocean"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0,198,255,.18);
+  box-shadow: 0 2px 20px rgba(0,100,180,.2);
+}
+[data-theme="ocean"] .nav-logo span {
+  color: var(--accent);
+  text-shadow: 0 0 12px rgba(0,198,255,.6);
+}
+[data-theme="ocean"] .game-card {
+  border-color: rgba(0,198,255,.1);
+}
+[data-theme="ocean"] .game-card:hover {
+  border-color: rgba(0,198,255,.4);
+  box-shadow: 0 8px 30px rgba(0,198,255,.18);
+}
+[data-theme="ocean"] .btn-primary {
+  background: linear-gradient(135deg, #00c6ff, #0080cc);
+}
+
+/* ═══════════════════════════════════════════════
+   🩸 BLOOD (тёмно-красный)
+═══════════════════════════════════════════════ */
+[data-theme="blood"] {
+  --bg-base:        #0a0000;
+  --bg-surface:     #130000;
+  --bg-card:        #1a0000;
+  --bg-card-hover:  #230000;
+  --bg-input:       #110000;
+  --bg-header:      #0a0000ee;
+
+  --accent:         #e83030;
+  --accent-hover:   #ff5050;
+  --accent-2:       #ff8c00;
+  --accent-2-hover: #ffaa33;
+  --danger:         #ff1111;
+
+  --text-primary:   #ffe8e8;
+  --text-secondary: #b06060;
+  --text-muted:     #4a1a1a;
+  --text-on-accent: #0a0000;
+
+  --border:       #2a0000;
+  --border-focus: #e83030;
+
+  --shadow:      0 4px 24px rgba(100,0,0,.6);
+  --shadow-card: 0 2px 16px rgba(80,0,0,.5);
+
+  --medal-gold:   #ff8c00;
+  --medal-silver: #e83030;
+  --medal-bronze: #8b1a1a;
+  --online:  #e83030;
+  --offline: #4a1a1a;
+}
+
+[data-theme="blood"] body {
+  background-image:
+    radial-gradient(ellipse at 50% 0%,   rgba(200,0,0,.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 100%, rgba(150,0,0,.08) 0%, transparent 50%);
+}
+[data-theme="blood"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(232,48,48,.2);
+  box-shadow: 0 0 20px rgba(150,0,0,.15);
+}
+[data-theme="blood"] .nav-logo span {
+  color: var(--accent);
+  text-shadow: 0 0 12px rgba(232,48,48,.7);
+}
+[data-theme="blood"] .game-card {
+  border-color: rgba(232,48,48,.12);
+}
+[data-theme="blood"] .game-card:hover {
+  border-color: rgba(232,48,48,.45);
+  box-shadow: 0 8px 28px rgba(200,0,0,.25);
+}
+[data-theme="blood"] .btn-primary {
+  background: #e83030;
+  box-shadow: 0 0 12px rgba(232,48,48,.4);
+}
+
+/* ═══════════════════════════════════════════════
+   🌆 SYNTHWAVE
+═══════════════════════════════════════════════ */
+[data-theme="synthwave"] {
+  --bg-base:        #0e0018;
+  --bg-surface:     #160024;
+  --bg-card:        #1c0030;
+  --bg-card-hover:  #240040;
+  --bg-input:       #130020;
+  --bg-header:      #0e0018ee;
+
+  --accent:         #f72585;
+  --accent-hover:   #ff6aab;
+  --accent-2:       #7209b7;
+  --accent-2-hover: #9d4edd;
+  --danger:         #ff0a54;
+
+  --text-primary:   #ffe8ff;
+  --text-secondary: #b070cc;
+  --text-muted:     #4a1a60;
+  --text-on-accent: #0e0018;
+
+  --border:       #2a0044;
+  --border-focus: #f72585;
+
+  --shadow:      0 4px 30px rgba(120,0,180,.4);
+  --shadow-card: 0 2px 20px rgba(100,0,150,.3);
+
+  --medal-gold:   #f72585;
+  --medal-silver: #7209b7;
+  --medal-bronze: #3a0ca3;
+  --online:  #f72585;
+  --offline: #4a1a60;
+
+  --theme-font: 'Rajdhani', sans-serif;
+}
+
+/* Сетка перспективы снизу */
+[data-theme="synthwave"] body::before {
+  content: "";
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 45vh; pointer-events: none; z-index: 0;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(247,37,133,.15) 0px, rgba(247,37,133,.15) 1px,
+      transparent 1px, transparent 60px),
+    repeating-linear-gradient(0deg,
+      rgba(247,37,133,.1) 0px, rgba(247,37,133,.1) 1px,
+      transparent 1px, transparent 40px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,.6));
+  mask-image: linear-gradient(to bottom, transparent, rgba(0,0,0,.6));
+}
+[data-theme="synthwave"] body {
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(114,9,183,.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 5%, rgba(247,37,133,.15) 0%, transparent 40%);
+}
+[data-theme="synthwave"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(247,37,133,.25);
+  box-shadow: 0 0 30px rgba(247,37,133,.1);
+}
+[data-theme="synthwave"] .nav-logo span {
+  background: linear-gradient(135deg, #f72585, #7209b7);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(247,37,133,.8));
+}
+[data-theme="synthwave"] .game-card {
+  border-color: rgba(247,37,133,.15);
+}
+[data-theme="synthwave"] .game-card:hover {
+  border-color: rgba(247,37,133,.5);
+  box-shadow: 0 8px 32px rgba(247,37,133,.2), 0 0 0 1px rgba(114,9,183,.3);
+}
+[data-theme="synthwave"] .btn-primary {
+  background: linear-gradient(135deg, #f72585, #7209b7);
+  box-shadow: 0 0 16px rgba(247,37,133,.5);
+}
+
+/* ═══════════════════════════════════════════════
+   💚 MATRIX
+═══════════════════════════════════════════════ */
+[data-theme="matrix"] {
+  --bg-base:        #000800;
+  --bg-surface:     #001200;
+  --bg-card:        #001800;
+  --bg-card-hover:  #002200;
+  --bg-input:       #000f00;
+  --bg-header:      #000800f0;
+
+  --accent:         #00ff41;
+  --accent-hover:   #66ff88;
+  --accent-2:       #00cc33;
+  --accent-2-hover: #00ff55;
+  --danger:         #ff3300;
+
+  --text-primary:   #ccffcc;
+  --text-secondary: #33aa44;
+  --text-muted:     #0a3010;
+  --text-on-accent: #000800;
+
+  --border:       #003300;
+  --border-focus: #00ff41;
+
+  --shadow:      0 4px 24px rgba(0,50,0,.7);
+  --shadow-card: 0 2px 16px rgba(0,40,0,.6);
+
+  --medal-gold:   #00ff41;
+  --medal-silver: #00cc33;
+  --medal-bronze: #007722;
+  --online:  #00ff41;
+  --offline: #0a3010;
+
+  --theme-font: 'Share Tech Mono', monospace;
+}
+
+/* Дождь из символов — имитация через полосы */
+[data-theme="matrix"] body::before {
+  content: "";
+  position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0px, transparent 4px,
+    rgba(0,255,65,.015) 4px, rgba(0,255,65,.015) 5px
+  );
+}
+[data-theme="matrix"] body {
+  background-image:
+    radial-gradient(ellipse at 50% 50%, rgba(0,80,0,.08) 0%, transparent 70%);
+}
+[data-theme="matrix"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(0,255,65,.2);
+  box-shadow: 0 0 20px rgba(0,255,65,.08);
+}
+[data-theme="matrix"] .nav-logo span {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(0,255,65,.9), 0 0 30px rgba(0,255,65,.4);
+  animation: matrix-flicker 4s infinite;
+}
+@keyframes matrix-flicker {
+  0%,98%,100% { opacity:1; }
+  99% { opacity:.7; }
+}
+[data-theme="matrix"] .game-card {
+  border-color: rgba(0,255,65,.12);
+}
+[data-theme="matrix"] .game-card:hover {
+  border-color: rgba(0,255,65,.45);
+  box-shadow: 0 0 24px rgba(0,255,65,.18);
+}
+[data-theme="matrix"] .btn-primary {
+  background: transparent;
+  border: 1px solid #00ff41;
+  color: #00ff41;
+  box-shadow: 0 0 10px rgba(0,255,65,.4), inset 0 0 10px rgba(0,255,65,.04);
+  text-shadow: 0 0 8px #00ff41;
+}
+[data-theme="matrix"] .btn-primary:hover {
+  background: rgba(0,255,65,.08);
+  box-shadow: 0 0 20px rgba(0,255,65,.6), inset 0 0 20px rgba(0,255,65,.08);
+}
+[data-theme="matrix"] .tag { border-color: rgba(0,255,65,.3); color: #00ff41; }
+
+/* ═══════════════════════════════════════════════
+   🏆 GOLDEN (роскошь)
+═══════════════════════════════════════════════ */
+[data-theme="golden"] {
+  --bg-base:        #0c0800;
+  --bg-surface:     #160f00;
+  --bg-card:        #1e1500;
+  --bg-card-hover:  #281c00;
+  --bg-input:       #140c00;
+  --bg-header:      #0c0800ee;
+
+  --accent:         #f0b429;
+  --accent-hover:   #ffd166;
+  --accent-2:       #c8841a;
+  --accent-2-hover: #e8a030;
+  --danger:         #e05252;
+
+  --text-primary:   #fff8e8;
+  --text-secondary: #b8922a;
+  --text-muted:     #4a3800;
+  --text-on-accent: #0c0800;
+
+  --border:       #2a1e00;
+  --border-focus: #f0b429;
+
+  --shadow:      0 4px 28px rgba(60,30,0,.6);
+  --shadow-card: 0 2px 16px rgba(50,25,0,.5);
+
+  --medal-gold:   #f0b429;
+  --medal-silver: #c8841a;
+  --medal-bronze: #8b5e1a;
+  --online:  #f0b429;
+  --offline: #4a3800;
+}
+
+[data-theme="golden"] body {
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(240,180,41,.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(200,132,26,.05) 0%, transparent 45%);
+}
+[data-theme="golden"] .site-header {
+  background: var(--bg-header);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(240,180,41,.2);
+  box-shadow: 0 0 24px rgba(180,120,0,.12);
+}
+[data-theme="golden"] .nav-logo span {
+  background: linear-gradient(135deg, #f0b429, #ffd166, #c8841a);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 6px rgba(240,180,41,.6));
+}
+[data-theme="golden"] .game-card {
+  border-color: rgba(240,180,41,.12);
+}
+[data-theme="golden"] .game-card:hover {
+  border-color: rgba(240,180,41,.45);
+  box-shadow: 0 8px 30px rgba(180,120,0,.2);
+}
+[data-theme="golden"] .btn-primary {
+  background: linear-gradient(135deg, #f0b429, #c8841a);
+  box-shadow: 0 0 14px rgba(240,180,41,.4);
+}
+[data-theme="golden"] .btn-primary:hover {
+  box-shadow: 0 0 24px rgba(240,180,41,.6);
 }
 
 /* ============================================================
