@@ -777,56 +777,160 @@ select option { background: var(--bg-surface); }
 }
 
 /* ============================================================
-   ТОП ИГР
+   ТОП ИГР — новый дизайн
    ============================================================ */
-.top-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 20px;
+#top-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.top-card {
+/* Базовая карточка */
+.top-entry {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: var(--shadow-card);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
-.top-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.top-entry:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
 
-.top-card img {
+/* Обложка */
+.top-entry-cover {
+  position: relative;
   width: 100%;
+  overflow: hidden;
+}
+.top-entry-cover img {
+  width: 100%;
+  display: block;
   object-fit: cover;
+  object-position: center 30%;
+  transition: transform 0.4s ease;
+}
+.top-entry:hover .top-entry-cover img {
+  transform: scale(1.03);
 }
 
-.top-card-body { padding: 14px; }
-.top-card-body h3 {
-  font-size: 1rem;
+/* Градиент поверх картинки снизу */
+.top-entry-cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(0,0,0,0.55) 100%
+  );
+  pointer-events: none;
+}
+
+/* Бейдж ранга */
+.top-entry-rank-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.9rem;
+  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+}
+.top-medal { font-size: 1.1rem; }
+
+/* Тело карточки */
+.top-entry-body {
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: space-between;
+}
+.top-entry-left  { flex: 1; min-width: 0; }
+.top-entry-right { flex-shrink: 0; }
+
+.top-entry-title {
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-entry-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+.top-tag {
+  padding: 2px 8px;
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.2);
+  border-radius: var(--radius-pill);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Полоса рейтинга */
+.top-entry-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 4px;
 }
-
-.rank-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 4px 10px;
+.top-entry-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
   border-radius: var(--radius-pill);
-  font-size: 0.85rem;
-  font-weight: 700;
+  overflow: hidden;
 }
-.rank-1 { background: var(--medal-gold); color: #000; grid-column: span 6; }
-.rank-2 { background: var(--medal-silver); color: #000; grid-column: span 3; }
-.rank-3 { background: var(--medal-bronze); color: #fff; grid-column: span 3; }
-.rank-other { background: var(--bg-surface); color: var(--text-primary); grid-column: span 2; }
+.top-entry-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.6s ease;
+}
+.top-entry-score {
+  font-size: 1.1rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  min-width: 52px;
+  text-align: right;
+}
+.top-entry-votes {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
 
-.top-card.rank-1 img  { height: 300px; }
-.top-card.rank-2 img,
-.top-card.rank-3 img  { height: 240px; }
-.top-card.rank-other img { height: 180px; }
+/* Высоты обложек по месту */
+.top-rank-1 .top-entry-cover img { height: 300px; }
+.top-rank-2 .top-entry-cover img { height: 220px; }
+.top-rank-3 .top-entry-cover img { height: 200px; }
+.top-rank-other .top-entry-cover img { height: 160px; }
+
+/* Бордеры для топ-3 */
+.top-rank-1 { border-color: rgba(245,197,66,0.4); }
+.top-rank-2 { border-color: rgba(176,184,200,0.3); }
+.top-rank-3 { border-color: rgba(205,127,50,0.3); }
+
+.top-rank-1:hover { border-color: rgba(245,197,66,0.7); box-shadow: 0 4px 24px rgba(245,197,66,0.15); }
+.top-rank-2:hover { border-color: rgba(176,184,200,0.5); }
+.top-rank-3:hover { border-color: rgba(205,127,50,0.5); }
 
 /* ============================================================
    СТРАНИЦА ПОЛЬЗОВАТЕЛЕЙ
