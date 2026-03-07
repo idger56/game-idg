@@ -3660,3 +3660,55 @@ select option { background: var(--bg-surface); }
   border-color: var(--accent);
   background: rgba(79,142,247,.06);
 }
+
+/* ============================================================
+   МОДАЛКА ИГРЫ НА СТРАНИЦЕ НОВОСТЕЙ
+   ============================================================ */
+.ng-modal {
+  max-width: 560px;
+  padding: 0;
+  overflow: hidden;
+}
+.ng-hero {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.ng-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ng-hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 55%);
+}
+.ng-hero-body {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 16px 20px;
+}
+.ng-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.3;
+}
+.ng-body {
+  padding: 20px;
+}
+.ng-rate-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
