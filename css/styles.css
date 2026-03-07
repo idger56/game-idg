@@ -2468,7 +2468,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9990;
+  z-index: 0;
 }
 .theme-deco::before,
 .theme-deco::after {
@@ -2476,7 +2476,7 @@ select option { background: var(--bg-surface); }
   pointer-events: none;
   position: fixed;
   top: 0; bottom: 0;
-  z-index: 9990;
+  z-index: 0;
 }
 
    ДЕКОРАТИВНЫЕ ЭЛЕМЕНТЫ ПО КРАЯМ — каждая тема своя атмосфера
@@ -2492,7 +2492,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 80px;
-  z-index: 9990;
+  z-index: 0;
 }
 
 /* ─────────────────────────────────────
@@ -2505,7 +2505,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 72px;
-  z-index: 9990;
+  z-index: 0;
 }
 [data-theme="cyberpunk"] .theme-deco::before {
   left: 18px;
@@ -2642,7 +2642,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 110px;
-  z-index: 9990;
+  z-index: 0;
 }
 
 /* Левый край — деревья через SVG data URI */
@@ -2722,7 +2722,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 4px;
-  z-index: 9990;
+  z-index: 0;
 }
 [data-theme="dark"] .theme-deco::before {
   left: 18px;
@@ -2755,7 +2755,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 8px;
-  z-index: 9990;
+  z-index: 0;
 }
 [data-theme="retro"] .theme-deco::before {
   left: 18px;
@@ -2786,7 +2786,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 6px;
-  z-index: 9990;
+  z-index: 0;
 }
 [data-theme="ocean"] .theme-deco::before {
   left: 18px;
@@ -2833,7 +2833,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 14px;
-  z-index: 9990;
+  z-index: 0;
 }
 [data-theme="blood"] .theme-deco::before {
   left: 18px;
@@ -2871,7 +2871,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 5px;
-  z-index: 9990;
+  z-index: 0;
 }
 [data-theme="synthwave"] .theme-deco::before {
   left: 18px;
@@ -2908,7 +2908,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 6px;
-  z-index: 9990;
+  z-index: 0;
 }
 [data-theme="matrix"] .theme-deco::before {
   left: 18px;
@@ -2959,7 +2959,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 8px;
-  z-index: 9990;
+  z-index: 0;
 }
 [data-theme="golden"] .theme-deco::before {
   left: 18px;
@@ -3018,7 +3018,7 @@ select option { background: var(--bg-surface); }
   position: fixed;
   top: 0; bottom: 0;
   width: 4px;
-  z-index: 9990;
+  z-index: 0;
 }
 [data-theme="light"] .theme-deco::before {
   left: 18px;
