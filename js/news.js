@@ -194,10 +194,22 @@ function addLinkRow(label = "", url = "") {
   $("links-list").appendChild(row);
 }
 
-// Кнопка добавить ссылку — вешаем через делегирование на document
+// Кнопка добавить ссылку + открытие карточки игры из поста
 document.addEventListener("click", e => {
   if (e.target.id === "btn-add-link") addLinkRow();
   if (e.target.classList.contains("js-remove-link")) e.target.closest(".link-row")?.remove();
+
+  // Клик на прикреплённую игру в посте — открываем модалку
+  const gameChip = e.target.closest(".js-open-game");
+  if (gameChip) {
+    e.preventDefault();
+    openNewsGameModal({
+      id:     gameChip.dataset.gameId,
+      source: gameChip.dataset.gameSource,
+      title:  gameChip.dataset.gameTitle,
+      image:  gameChip.dataset.gameImage,
+    });
+  }
 });
 
 function updateFormFields() {
@@ -299,6 +311,157 @@ $("btn-submit-post")?.addEventListener("click", async () => {
     toast("Ошибка: " + err.message, "error");
   }
 });
+
+// -------- Модалка игры на странице новостей --------
+function openNewsGameModal(item) {
+  // Удаляем старую если есть
+  document.getElementById("news-game-modal-overlay")?.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "news-game-modal-overlay";
+  overlay.className = "overlay";
+  overlay.style.zIndex = "500";
+  overlay.innerHTML = `<div class="spinner" style="margin:auto"></div>`;
+  document.body.appendChild(overlay);
+  document.body.style.overflow = "hidden";
+
+  overlay.addEventListener("click", e => {
+    if (e.target === overlay) closeNewsGameModal();
+  });
+  document.addEventListener("keydown", _escNewsGame);
+
+  loadGameForModal(item, overlay);
+}
+
+function closeNewsGameModal() {
+  document.getElementById("news-game-modal-overlay")?.remove();
+  document.body.style.overflow = "";
+  document.removeEventListener("keydown", _escNewsGame);
+}
+
+function _escNewsGame(e) {
+  if (e.key === "Escape") closeNewsGameModal();
+}
+
+async function loadGameForModal(item, overlay) {
+  try {
+    const colName = item.source === "solo" ? "soloGames" : "games";
+    const snap = await getDoc(doc(db, colName, item.id));
+    const game = snap.exists() ? { id: snap.id, ...snap.data() } : null;
+
+    if (!game) {
+      overlay.innerHTML = `
+        <div class="modal" style="max-width:420px;text-align:center;padding:32px">
+          <button class="modal-close" onclick="document.getElementById('news-game-modal-overlay').remove();document.body.style.overflow=''">✕</button>
+          <p style="color:var(--text-secondary);margin-top:16px">Игра не найдена</p>
+        </div>`;
+      return;
+    }
+
+    // Загружаем рейтинги
+    const ratSnap = await getDocs(query(
+      collection(db, item.source === "solo" ? "soloRatings" : "ratings"),
+      where("gameId", "==", item.id)
+    ));
+    const ratings = ratSnap.docs.map(d => d.data());
+    const avg = ratings.length
+      ? (ratings.reduce((s, r) => s + r.rating, 0) / ratings.length).toFixed(1)
+      : null;
+    const myR = currentUser
+      ? ratings.find(r => r.userId === currentUser.uid)?.rating ?? null
+      : null;
+
+    const cats = Array.isArray(game.category) ? game.category : [game.category ?? ""];
+    const tags = cats.filter(Boolean).map(c => `<span class="tag">${esc(c)}</span>`).join("");
+
+    overlay.innerHTML = `
+      <div class="modal ng-modal">
+        <button class="modal-close js-ng-close">✕</button>
+
+        <div class="ng-hero">
+          <img src="${esc(game.image || "")}" alt="${esc(game.title)}"
+               onerror="this.style.display='none'">
+          <div class="ng-hero-gradient"></div>
+          <div class="ng-hero-body">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${tags}</div>
+            <h2 class="ng-title">${esc(game.title)}</h2>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px">
+              ${avg
+                ? `<span style="color:#f5c542;font-weight:700">⭐ ${avg} <small style="opacity:.7">(${ratings.length} оц.)</small></span>`
+                : `<span style="color:var(--text-secondary);font-size:.85rem">Нет оценок</span>`}
+              ${item.source === "solo"
+                ? `<span style="font-size:.8rem;color:var(--text-secondary)">🕹 Соло</span>`
+                : `<span style="font-size:.8rem;color:var(--text-secondary)">🎮 Мульти</span>`}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-body ng-body">
+          ${game.description
+            ? `<p style="color:var(--text-secondary);font-size:.92rem;line-height:1.65;margin-bottom:16px">${esc(game.description)}</p>`
+            : ""}
+
+          ${currentUser ? `
+            <div class="ng-rate-wrap">
+              <span style="font-size:.85rem;color:var(--text-secondary)">Ваша оценка:</span>
+              <div class="star-picker" id="ng-star-picker">
+                ${Array.from({length:10},(_,i)=>`
+                  <button class="star-btn ${myR===i+1?"active":""}" data-val="${i+1}">${i+1}</button>
+                `).join("")}
+              </div>
+              <span id="ng-my-r" style="font-size:.82rem;color:var(--text-secondary)">
+                ${myR ? `Вы поставили: ⭐ ${myR}` : "Не оценено"}
+              </span>
+            </div>` : ""}
+
+          <a class="btn btn-primary" href="${esc(game.link || "#")}" target="_blank" rel="noopener"
+             style="margin-top:8px;display:inline-flex;align-items:center;gap:6px">
+            ⬇ Перейти к игре
+          </a>
+        </div>
+      </div>`;
+
+    overlay.querySelector(".js-ng-close")?.addEventListener("click", closeNewsGameModal);
+
+    // Звёздный рейтинг
+    const picker = overlay.querySelector("#ng-star-picker");
+    const myREl  = overlay.querySelector("#ng-my-r");
+    picker?.querySelectorAll(".star-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (!currentUser) { toast("Войдите, чтобы оценить", "error"); return; }
+        const val    = parseInt(btn.dataset.val);
+        const colR   = item.source === "solo" ? "soloRatings" : "ratings";
+        const docId  = `${currentUser.uid}_${item.id}`;
+        await getDocs; // ensure import works
+        const { setDoc, doc: docRef } = await import("https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js");
+        await setDoc(doc(db, colR, docId), {
+          userId: currentUser.uid, gameId: item.id, rating: val, updatedAt: Date.now()
+        });
+        picker.querySelectorAll(".star-btn").forEach(b =>
+          b.classList.toggle("active", parseInt(b.dataset.val) === val)
+        );
+        myREl.textContent = `Вы поставили: ⭐ ${val}`;
+        toast("Оценка сохранена!", "success");
+      });
+      btn.addEventListener("mouseenter", () => {
+        const val = parseInt(btn.dataset.val);
+        picker.querySelectorAll(".star-btn").forEach(b =>
+          b.classList.toggle("hover", parseInt(b.dataset.val) <= val)
+        );
+      });
+      btn.addEventListener("mouseleave", () => {
+        picker.querySelectorAll(".star-btn").forEach(b => b.classList.remove("hover"));
+      });
+    });
+
+  } catch(err) {
+    overlay.innerHTML = `
+      <div class="modal" style="max-width:420px;padding:32px;text-align:center">
+        <button class="modal-close" onclick="document.getElementById('news-game-modal-overlay').remove();document.body.style.overflow=''">✕</button>
+        <p style="color:var(--danger,#e83030);margin-top:16px">Ошибка: ${esc(err.message)}</p>
+      </div>`;
+  }
+}
 
 // -------- Фильтр --------
 $("filter-type")?.addEventListener("change", renderFeed);
@@ -439,14 +602,17 @@ function buildPostCard(post) {
     ? `<div class="post-games-list">${items.map(item => {
         if (item.type === "game") {
           const href = item.source === "solo" ? "solo.html" : "index.html";
-          return `<a class="post-game-chip" href="${esc(href)}" title="Открыть страницу игры">
+          return `<div class="post-game-chip js-open-game" 
+            data-game-id="${esc(item.id)}" data-game-source="${esc(item.source)}"
+            data-game-title="${esc(item.title)}" data-game-image="${esc(item.image||"")}"
+            title="Открыть карточку игры" style="cursor:pointer">
             ${item.image ? `<img src="${esc(item.image)}" alt="" onerror="this.style.display='none'" />` : ""}
             <div class="pgc-info">
               <span class="pgc-title">${esc(item.title)}</span>
               <span class="pgc-type">${item.source === "solo" ? "🕹 Соло" : "🎮 Мульти"}</span>
             </div>
             <span class="pgc-arrow">→</span>
-          </a>`;
+          </div>`;
         } else {
           return `<a class="news-link-btn" href="${esc(item.url)}" target="_blank" rel="noopener">
             🔗 ${esc(item.label || item.url)}
