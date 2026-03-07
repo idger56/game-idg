@@ -14,6 +14,25 @@ renderHeader({ activePage: "news" });
 
 const $ = id => document.getElementById(id);
 
+// -------- Кэш игр (загружаем один раз) --------
+let _allGames = null; // { id, title, image, source: "multi"|"solo" }[]
+
+async function getAllGames() {
+  if (_allGames) return _allGames;
+  const [multiSnap, soloSnap] = await Promise.all([
+    getDocs(collection(db, "games")),
+    getDocs(collection(db, "soloGames")),
+  ]);
+  _allGames = [
+    ...multiSnap.docs.map(d => ({ id: d.id, ...d.data(), source: "multi" })),
+    ...soloSnap.docs.map(d => ({ id: d.id, ...d.data(), source: "solo"  })),
+  ];
+  return _allGames;
+}
+
+// Прикреплённые к текущей форме игры
+let attachedGames = []; // { id, title, image, source }
+
 let currentUser = null;
 let currentUserData = null;
 let allPosts = [];
@@ -37,6 +56,71 @@ watchAuth({
     loadFeed();
   }
 });
+
+// -------- Поиск и прикрепление игр --------
+document.addEventListener("input", async e => {
+  if (e.target.id !== "f-game-search") return;
+  const q = e.target.value.trim().toLowerCase();
+  const dropdown = $("game-search-results");
+  if (!q) { dropdown.classList.add("hidden"); return; }
+
+  const games = await getAllGames();
+  const found = games.filter(g => g.title?.toLowerCase().includes(q)).slice(0, 8);
+
+  if (!found.length) {
+    dropdown.innerHTML = `<div class="game-search-empty">Ничего не найдено</div>`;
+  } else {
+    dropdown.innerHTML = found.map(g => `
+      <div class="game-search-item" data-id="${esc(g.id)}" data-source="${g.source}">
+        <img src="${esc(g.image||"")}" alt="" onerror="this.style.display='none'" />
+        <div>
+          <span class="gsi-title">${esc(g.title)}</span>
+          <span class="gsi-type">${g.source === "solo" ? "🕹 Соло" : "🎮 Мульти"}</span>
+        </div>
+      </div>`).join("");
+  }
+  dropdown.classList.remove("hidden");
+});
+
+// Выбор игры из дропдауна
+document.addEventListener("click", e => {
+  const item = e.target.closest(".game-search-item");
+  if (item) {
+    const id     = item.dataset.id;
+    const source = item.dataset.source;
+    if (!attachedGames.find(g => g.id === id)) {
+      const game = _allGames?.find(g => g.id === id && g.source === source);
+      if (game) {
+        attachedGames.push(game);
+        renderAttachedGames();
+      }
+    }
+    $("f-game-search").value = "";
+    $("game-search-results").classList.add("hidden");
+    return;
+  }
+  // Закрыть дропдаун при клике вне
+  if (!e.target.closest(".game-search-wrap")) {
+    $("game-search-results")?.classList.add("hidden");
+  }
+  // Удалить прикреплённую игру
+  if (e.target.classList.contains("js-detach-game")) {
+    const id = e.target.dataset.id;
+    attachedGames = attachedGames.filter(g => g.id !== id);
+    renderAttachedGames();
+  }
+});
+
+function renderAttachedGames() {
+  const wrap = $("attached-games-list");
+  if (!wrap) return;
+  wrap.innerHTML = attachedGames.map(g => `
+    <div class="attached-game-chip">
+      <img src="${esc(g.image||"")}" alt="" onerror="this.style.display='none'" />
+      <span>${esc(g.title)}</span>
+      <button class="js-detach-game" data-id="${esc(g.id)}" title="Убрать">✕</button>
+    </div>`).join("");
+}
 
 // -------- Переключение полей по типу --------
 $("f-type")?.addEventListener("change", () => updateFormFields());
@@ -96,6 +180,9 @@ function openCreateForm(post = null) {
   $("f-poll-options").value  = (post?.pollOptions ?? []).join("\n");
   $("f-poll-deadline").value = post?.pollDeadline ? toDatetimeLocal(post.pollDeadline) : "";
   $("f-post-image").value    = post?.image ?? "";
+  // Прикреплённые игры
+  attachedGames = (post?.games ?? []).map(g => ({ ...g }));
+  renderAttachedGames();
   // Превью
   const previewImg = $("f-image-preview-img");
   const preview    = $("f-image-preview");
@@ -111,6 +198,8 @@ function openCreateForm(post = null) {
 
 $("btn-cancel-post")?.addEventListener("click", () => {
   $("create-form-wrap").classList.add("hidden");
+  attachedGames = [];
+  renderAttachedGames();
 });
 
 $("btn-submit-post")?.addEventListener("click", async () => {
@@ -131,6 +220,7 @@ $("btn-submit-post")?.addEventListener("click", async () => {
     type, title, body,
     image: image || null,
     links,
+    games: attachedGames.map(g => ({ id: g.id, title: g.title, image: g.image ?? null, source: g.source })),
     authorId:    currentUser.uid,
     authorNick:  currentUserData?.nickname ?? currentUser.email,
     updatedAt:   Date.now(),
@@ -305,6 +395,21 @@ function buildPostCard(post) {
       </div>`;
   }
 
+  // Прикреплённые игры
+  const gamesHtml = (post.games ?? []).length
+    ? `<div class="post-games-list">${(post.games).map(g => {
+        const href = g.source === "solo" ? "solo.html" : `index.html`;
+        return `<a class="post-game-chip" href="${href}" title="Открыть страницу игры">
+          ${g.image ? `<img src="${esc(g.image)}" alt="" onerror="this.style.display='none'" />` : ""}
+          <div class="pgc-info">
+            <span class="pgc-title">${esc(g.title)}</span>
+            <span class="pgc-type">${g.source === "solo" ? "🕹 Соло" : "🎮 Мульти"}</span>
+          </div>
+          <span class="pgc-arrow">→</span>
+        </a>`;
+      }).join("")}</div>`
+    : "";
+
   // Картинка
   const imageHtml = post.image
     ? `<img class="news-card-image" src="${esc(post.image)}" alt="" onerror="this.style.display='none'">`
@@ -325,6 +430,7 @@ function buildPostCard(post) {
     ${imageHtml}
     <h3 class="news-title">${esc(post.title)}</h3>
     ${post.body ? `<p class="news-body">${esc(post.body)}</p>` : ""}
+    ${gamesHtml}
     ${linksHtml}
     ${extraHtml}
     <div class="news-actions">
