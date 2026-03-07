@@ -777,91 +777,111 @@ select option { background: var(--bg-surface); }
 }
 
 /* ============================================================
-   ТОП ИГР — новый дизайн
+   ТОП ИГР — пирамидальная раскладка
+   Ряд 0: 1 карточка  (место 1)
+   Ряд 1: 2 карточки  (места 2–3)
+   Ряд 2: 3 карточки  (места 4–6)
+   Далее: 3 карточки в ряд
    ============================================================ */
 #top-list {
+  max-width: 1100px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 900px;
-  margin: 0 auto;
 }
 
-/* Базовая карточка */
-.top-entry {
+/* Ряды */
+.top-row {
+  display: grid;
+  gap: 16px;
+}
+.top-row-0 { grid-template-columns: 1fr; }           /* 1 место */
+.top-row-1 { grid-template-columns: 1fr 1fr; }       /* 2–3 */
+.top-row-2 { grid-template-columns: 1fr 1fr 1fr; }   /* 4–6 */
+.top-row-3 { grid-template-columns: 1fr 1fr 1fr; }   /* 7+ */
+
+/* ---- Карточка ---- */
+.top-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--shadow-card);
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
 }
-.top-entry:hover {
-  transform: translateY(-2px);
+.top-card:hover {
+  transform: translateY(-4px);
   box-shadow: var(--shadow);
 }
 
-/* Обложка */
-.top-entry-cover {
+/* Обёртка картинки */
+.top-card-img-wrap {
   position: relative;
-  width: 100%;
   overflow: hidden;
+  flex-shrink: 0;
 }
-.top-entry-cover img {
+.top-card-img-wrap img {
   width: 100%;
   display: block;
   object-fit: cover;
-  object-position: center 30%;
+  object-position: center 25%;
   transition: transform 0.4s ease;
 }
-.top-entry:hover .top-entry-cover img {
-  transform: scale(1.03);
-}
+.top-card:hover .top-card-img-wrap img { transform: scale(1.04); }
 
-/* Градиент поверх картинки снизу */
-.top-entry-cover-overlay {
+.top-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    transparent 40%,
-    rgba(0,0,0,0.55) 100%
-  );
+  background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.6) 100%);
   pointer-events: none;
 }
 
 /* Бейдж ранга */
-.top-entry-rank-badge {
+.top-card-rank {
   position: absolute;
-  top: 14px;
-  left: 14px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
+  top: 12px;
+  left: 12px;
+  padding: 4px 12px;
   border-radius: var(--radius-pill);
+  font-size: 0.85rem;
   font-weight: 700;
-  font-size: 0.9rem;
-  backdrop-filter: blur(8px);
-  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.6);
   border: 1px solid rgba(255,255,255,0.15);
   color: #fff;
 }
-.top-medal { font-size: 1.1rem; }
+
+/* Высоты по рядам */
+.top-row-0 .top-card-img-wrap img { height: 340px; }
+.top-row-1 .top-card-img-wrap img { height: 240px; }
+.top-row-2 .top-card-img-wrap img { height: 190px; }
+.top-row-3 .top-card-img-wrap img { height: 170px; }
+
+/* Цветные бордеры топ-3 */
+.top-r1 { border-color: rgba(245,197,66,0.45); }
+.top-r2 { border-color: rgba(176,184,200,0.35); }
+.top-r3 { border-color: rgba(205,127,50,0.35); }
+.top-r1:hover { border-color: rgba(245,197,66,0.8); box-shadow: 0 6px 28px rgba(245,197,66,0.18); }
+.top-r2:hover { border-color: rgba(176,184,200,0.6); }
+.top-r3:hover { border-color: rgba(205,127,50,0.6); }
+
+/* Бейджи топ-3 */
+.top-r1-badge { background: rgba(180,140,0,0.75) !important; border-color: rgba(245,197,66,0.5) !important; }
+.top-r2-badge { background: rgba(100,110,130,0.75) !important; border-color: rgba(176,184,200,0.4) !important; }
+.top-r3-badge { background: rgba(120,70,20,0.75) !important; border-color: rgba(205,127,50,0.4) !important; }
 
 /* Тело карточки */
-.top-entry-body {
-  padding: 18px 20px;
+.top-card-body {
+  padding: 14px 16px 16px;
   display: flex;
-  align-items: center;
-  gap: 20px;
-  justify-content: space-between;
+  flex-direction: column;
+  flex: 1;
 }
-.top-entry-left  { flex: 1; min-width: 0; }
-.top-entry-right { flex-shrink: 0; }
-
-.top-entry-title {
-  font-size: 1.25rem;
+.top-card-title {
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 6px;
@@ -869,12 +889,15 @@ select option { background: var(--bg-surface); }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Крупный заголовок для 1 места */
+.top-row-0 .top-card-title { font-size: 1.4rem; }
+.top-row-1 .top-card-title { font-size: 1.15rem; }
 
-.top-entry-tags {
+.top-card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-  margin-bottom: 12px;
+  gap: 4px;
+  margin-bottom: 10px;
 }
 .top-tag {
   padding: 2px 8px;
@@ -882,55 +905,58 @@ select option { background: var(--bg-surface); }
   border: 1px solid rgba(79,142,247,0.2);
   border-radius: var(--radius-pill);
   color: var(--accent);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 500;
 }
 
-/* Полоса рейтинга */
-.top-entry-bar-wrap {
+.top-card-score-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.top-card-bar-wrap {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
+  gap: 10px;
 }
-.top-entry-bar {
+.top-card-bar {
   flex: 1;
-  height: 6px;
+  height: 5px;
   background: var(--border);
   border-radius: var(--radius-pill);
   overflow: hidden;
 }
-.top-entry-bar-fill {
+.top-card-bar-fill {
   height: 100%;
   border-radius: var(--radius-pill);
   transition: width 0.6s ease;
 }
-.top-entry-score {
-  font-size: 1.1rem;
+.top-card-score {
+  font-size: 1rem;
   font-weight: 700;
   flex-shrink: 0;
-  min-width: 52px;
+  min-width: 50px;
   text-align: right;
 }
-.top-entry-votes {
-  font-size: 0.78rem;
+.top-card-votes {
+  font-size: 0.75rem;
   color: var(--text-muted);
 }
 
-/* Высоты обложек по месту */
-.top-rank-1 .top-entry-cover img { height: 300px; }
-.top-rank-2 .top-entry-cover img { height: 220px; }
-.top-rank-3 .top-entry-cover img { height: 200px; }
-.top-rank-other .top-entry-cover img { height: 160px; }
-
-/* Бордеры для топ-3 */
-.top-rank-1 { border-color: rgba(245,197,66,0.4); }
-.top-rank-2 { border-color: rgba(176,184,200,0.3); }
-.top-rank-3 { border-color: rgba(205,127,50,0.3); }
-
-.top-rank-1:hover { border-color: rgba(245,197,66,0.7); box-shadow: 0 4px 24px rgba(245,197,66,0.15); }
-.top-rank-2:hover { border-color: rgba(176,184,200,0.5); }
-.top-rank-3:hover { border-color: rgba(205,127,50,0.5); }
+/* Адаптив */
+@media (max-width: 900px) {
+  .top-row-2,
+  .top-row-3 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .top-row-0,
+  .top-row-1,
+  .top-row-2,
+  .top-row-3 { grid-template-columns: 1fr; }
+  .top-row-0 .top-card-img-wrap img,
+  .top-row-1 .top-card-img-wrap img { height: 200px; }
+}
 
 /* ============================================================
    СТРАНИЦА ПОЛЬЗОВАТЕЛЕЙ
