@@ -108,21 +108,14 @@ let heroIdx   = 0;
 let heroTimer = null;
 
 function renderHeroSlider() {
+  // Приоритет: помеченные featured → последние добавленные (по порядку в Firestore = по slug)
   const featured = allGames.filter(g => g.featured === "featured");
-  // Если не помечено как featured — берём топ-5 по рейтингу
-  const slides = featured.length >= 2
-    ? featured
-    : [...allGames]
-        .map(g => {
-          const rs = ratingsAll.filter(r => r.gameId === g.id);
-          const avg = rs.length ? rs.reduce((s,r)=>s+r.rating,0)/rs.length : 0;
-          return { ...g, avg };
-        })
-        .sort((a,b) => b.avg - a.avg)
-        .slice(0, 5);
+  // "Последние добавленные" — берём последние 7 из массива (Firestore возвращает в порядке создания)
+  const recent = [...allGames].slice(-7).reverse();
+  const slides = featured.length >= 2 ? featured : recent.slice(0, 7);
 
   if (!slides.length) {
-    $("hero-slider").style.display = "none"; return;
+    $("hero-slider").parentElement.style.display = "none"; return;
   }
 
   const slidesEl = $("hero-slides");
