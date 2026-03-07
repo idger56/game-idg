@@ -19,14 +19,18 @@ let _allGames = null; // { id, title, image, source: "multi"|"solo" }[]
 
 async function getAllGames() {
   if (_allGames) return _allGames;
-  const [multiSnap, soloSnap] = await Promise.all([
-    getDocs(collection(db, "games")),
-    getDocs(collection(db, "soloGames")),
-  ]);
-  _allGames = [
-    ...multiSnap.docs.map(d => ({ id: d.id, ...d.data(), source: "multi" })),
-    ...soloSnap.docs.map(d => ({ id: d.id, ...d.data(), source: "solo"  })),
-  ];
+  try {
+    const [multiSnap, soloSnap] = await Promise.all([
+      getDocs(collection(db, "games")),
+      getDocs(collection(db, "soloGames")),
+    ]);
+    _allGames = [
+      ...multiSnap.docs.map(d => ({ id: d.id, ...d.data(), source: "multi" })),
+      ...soloSnap.docs.map(d => ({ id: d.id, ...d.data(), source: "solo"  })),
+    ];
+  } catch(e) {
+    _allGames = [];
+  }
   return _allGames;
 }
 
@@ -57,69 +61,108 @@ watchAuth({
   }
 });
 
-// -------- Поиск и прикрепление игр --------
-document.addEventListener("input", async e => {
-  if (e.target.id !== "f-game-search") return;
-  const q = e.target.value.trim().toLowerCase();
-  const dropdown = $("game-search-results");
-  if (!q) { dropdown.classList.add("hidden"); return; }
+// -------- Единый список ссылок+игр --------
+// Каждый элемент: { type: "link"|"game", label, url } или { type:"game", id, title, image, source }
+let linkItems = [];
 
+function renderLinkItems() {
+  const wrap = $("links-list");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  linkItems.forEach((item, idx) => {
+    const row = document.createElement("div");
+    row.className = "link-row";
+    row.style.cssText = "display:flex;gap:8px;align-items:center;flex-wrap:wrap";
+    if (item.type === "game") {
+      row.innerHTML = `
+        <div class="attached-game-chip" style="flex:1">
+          ${item.image ? `<img src="${esc(item.image)}" alt="" onerror="this.style.display='none'" />` : ""}
+          <span>${esc(item.title)}</span>
+          <span style="font-size:.72rem;color:var(--text-secondary);margin-left:2px">${item.source==="solo"?"🕹":"🎮"}</span>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm js-remove-link" data-idx="${idx}" style="color:var(--danger,#e83030)">✕</button>`;
+    } else {
+      row.innerHTML = `
+        <input type="text" class="link-label" placeholder="Название" value="${esc(item.label||"")}" style="flex:1;min-width:80px" data-idx="${idx}" />
+        <input type="url"  class="link-url"   placeholder="https://..." value="${esc(item.url||"")}" style="flex:2;min-width:120px" data-idx="${idx}" />
+        <button type="button" class="btn btn-ghost btn-sm js-remove-link" data-idx="${idx}" style="color:var(--danger,#e83030)">✕</button>`;
+      row.querySelector(".link-label").addEventListener("input", e => { linkItems[idx].label = e.target.value; });
+      row.querySelector(".link-url").addEventListener("input",  e => { linkItems[idx].url   = e.target.value; });
+    }
+    wrap.appendChild(row);
+  });
+}
+
+// Кнопка добавить ссылку
+document.addEventListener("click", e => {
+  if (e.target.id === "btn-add-link") {
+    linkItems.push({ type: "link", label: "", url: "" });
+    renderLinkItems();
+  }
+  if (e.target.classList.contains("js-remove-link")) {
+    const idx = parseInt(e.target.dataset.idx);
+    linkItems.splice(idx, 1);
+    renderLinkItems();
+  }
+  if (e.target.id === "btn-add-game") openGamePicker();
+});
+
+// -------- Модалка выбора игры --------
+function openGamePicker() {
+  const overlay = $("game-picker-overlay");
+  overlay.classList.remove("hidden");
+  $("game-picker-search").value = "";
+  renderPickerList("");
+
+  $("game-picker-search").focus();
+}
+
+$("game-picker-close")?.addEventListener("click", () => {
+  $("game-picker-overlay").classList.add("hidden");
+});
+$("game-picker-overlay")?.addEventListener("click", e => {
+  if (e.target === $("game-picker-overlay")) $("game-picker-overlay").classList.add("hidden");
+});
+
+$("game-picker-search")?.addEventListener("input", e => {
+  renderPickerList(e.target.value.trim().toLowerCase());
+});
+
+async function renderPickerList(search) {
+  const list = $("game-picker-list");
+  list.innerHTML = `<div class="spinner" style="width:24px;height:24px;margin:16px auto"></div>`;
   const games = await getAllGames();
-  const found = games.filter(g => g.title?.toLowerCase().includes(q)).slice(0, 8);
+  const found = search
+    ? games.filter(g => g.title?.toLowerCase().includes(search))
+    : games;
 
   if (!found.length) {
-    dropdown.innerHTML = `<div class="game-search-empty">Ничего не найдено</div>`;
-  } else {
-    dropdown.innerHTML = found.map(g => `
-      <div class="game-search-item" data-id="${esc(g.id)}" data-source="${g.source}">
-        <img src="${esc(g.image||"")}" alt="" onerror="this.style.display='none'" />
-        <div>
-          <span class="gsi-title">${esc(g.title)}</span>
-          <span class="gsi-type">${g.source === "solo" ? "🕹 Соло" : "🎮 Мульти"}</span>
-        </div>
-      </div>`).join("");
-  }
-  dropdown.classList.remove("hidden");
-});
-
-// Выбор игры из дропдауна
-document.addEventListener("click", e => {
-  const item = e.target.closest(".game-search-item");
-  if (item) {
-    const id     = item.dataset.id;
-    const source = item.dataset.source;
-    if (!attachedGames.find(g => g.id === id)) {
-      const game = _allGames?.find(g => g.id === id && g.source === source);
-      if (game) {
-        attachedGames.push(game);
-        renderAttachedGames();
-      }
-    }
-    $("f-game-search").value = "";
-    $("game-search-results").classList.add("hidden");
+    list.innerHTML = `<p style="color:var(--text-secondary);padding:12px">Ничего не найдено</p>`;
     return;
   }
-  // Закрыть дропдаун при клике вне
-  if (!e.target.closest(".game-search-wrap")) {
-    $("game-search-results")?.classList.add("hidden");
-  }
-  // Удалить прикреплённую игру
-  if (e.target.classList.contains("js-detach-game")) {
-    const id = e.target.dataset.id;
-    attachedGames = attachedGames.filter(g => g.id !== id);
-    renderAttachedGames();
-  }
-});
-
-function renderAttachedGames() {
-  const wrap = $("attached-games-list");
-  if (!wrap) return;
-  wrap.innerHTML = attachedGames.map(g => `
-    <div class="attached-game-chip">
+  list.innerHTML = "";
+  found.forEach(g => {
+    const row = document.createElement("div");
+    row.className = "game-search-item";
+    row.innerHTML = `
       <img src="${esc(g.image||"")}" alt="" onerror="this.style.display='none'" />
-      <span>${esc(g.title)}</span>
-      <button class="js-detach-game" data-id="${esc(g.id)}" title="Убрать">✕</button>
-    </div>`).join("");
+      <div style="flex:1;min-width:0">
+        <span class="gsi-title">${esc(g.title)}</span>
+        <span class="gsi-type">${g.source === "solo" ? "🕹 Соло" : "🎮 Мульти"}</span>
+      </div>
+      <button class="btn btn-primary btn-sm" style="flex-shrink:0">Добавить</button>`;
+    row.querySelector("button").addEventListener("click", () => {
+      if (!linkItems.find(i => i.type === "game" && i.id === g.id)) {
+        linkItems.push({ type: "game", id: g.id, title: g.title, image: g.image ?? null, source: g.source });
+        renderLinkItems();
+        toast(`Игра «${g.title}» добавлена`, "success");
+      } else {
+        toast("Эта игра уже добавлена", "error");
+      }
+      $("game-picker-overlay").classList.add("hidden");
+    });
+    list.appendChild(row);
+  });
 }
 
 // -------- Переключение полей по типу --------
@@ -180,9 +223,9 @@ function openCreateForm(post = null) {
   $("f-poll-options").value  = (post?.pollOptions ?? []).join("\n");
   $("f-poll-deadline").value = post?.pollDeadline ? toDatetimeLocal(post.pollDeadline) : "";
   $("f-post-image").value    = post?.image ?? "";
-  // Прикреплённые игры
-  attachedGames = (post?.games ?? []).map(g => ({ ...g }));
-  renderAttachedGames();
+  // Ссылки и игры
+  linkItems = (post?.linkItems ?? []).map(i => ({ ...i }));
+  renderLinkItems();
   // Превью
   const previewImg = $("f-image-preview-img");
   const preview    = $("f-image-preview");
@@ -198,8 +241,8 @@ function openCreateForm(post = null) {
 
 $("btn-cancel-post")?.addEventListener("click", () => {
   $("create-form-wrap").classList.add("hidden");
-  attachedGames = [];
-  renderAttachedGames();
+  linkItems = [];
+  renderLinkItems();
 });
 
 $("btn-submit-post")?.addEventListener("click", async () => {
@@ -211,16 +254,11 @@ $("btn-submit-post")?.addEventListener("click", async () => {
   if (!title) { toast("Укажи заголовок", "error"); return; }
 
   const image = $("f-post-image").value.trim();
-  const links = Array.from($("links-list").querySelectorAll(".link-row")).map(row => ({
-    label: row.querySelector(".link-label").value.trim(),
-    url:   row.querySelector(".link-url").value.trim(),
-  })).filter(l => l.url);
 
   const data = {
     type, title, body,
     image: image || null,
-    links,
-    games: attachedGames.map(g => ({ id: g.id, title: g.title, image: g.image ?? null, source: g.source })),
+    linkItems: linkItems.filter(i => i.type === "game" || (i.type === "link" && i.url)),
     authorId:    currentUser.uid,
     authorNick:  currentUserData?.nickname ?? currentUser.email,
     updatedAt:   Date.now(),
@@ -395,18 +433,25 @@ function buildPostCard(post) {
       </div>`;
   }
 
-  // Прикреплённые игры
-  const gamesHtml = (post.games ?? []).length
-    ? `<div class="post-games-list">${(post.games).map(g => {
-        const href = g.source === "solo" ? "solo.html" : `index.html`;
-        return `<a class="post-game-chip" href="${href}" title="Открыть страницу игры">
-          ${g.image ? `<img src="${esc(g.image)}" alt="" onerror="this.style.display='none'" />` : ""}
-          <div class="pgc-info">
-            <span class="pgc-title">${esc(g.title)}</span>
-            <span class="pgc-type">${g.source === "solo" ? "🕹 Соло" : "🎮 Мульти"}</span>
-          </div>
-          <span class="pgc-arrow">→</span>
-        </a>`;
+  // Ссылки и прикреплённые игры (единый список)
+  const items = post.linkItems ?? [];
+  const itemsHtml = items.length
+    ? `<div class="post-games-list">${items.map(item => {
+        if (item.type === "game") {
+          const href = item.source === "solo" ? "solo.html" : "index.html";
+          return `<a class="post-game-chip" href="${esc(href)}" title="Открыть страницу игры">
+            ${item.image ? `<img src="${esc(item.image)}" alt="" onerror="this.style.display='none'" />` : ""}
+            <div class="pgc-info">
+              <span class="pgc-title">${esc(item.title)}</span>
+              <span class="pgc-type">${item.source === "solo" ? "🕹 Соло" : "🎮 Мульти"}</span>
+            </div>
+            <span class="pgc-arrow">→</span>
+          </a>`;
+        } else {
+          return `<a class="news-link-btn" href="${esc(item.url)}" target="_blank" rel="noopener">
+            🔗 ${esc(item.label || item.url)}
+          </a>`;
+        }
       }).join("")}</div>`
     : "";
 
@@ -430,8 +475,7 @@ function buildPostCard(post) {
     ${imageHtml}
     <h3 class="news-title">${esc(post.title)}</h3>
     ${post.body ? `<p class="news-body">${esc(post.body)}</p>` : ""}
-    ${gamesHtml}
-    ${linksHtml}
+    ${itemsHtml}
     ${extraHtml}
     <div class="news-actions">
       <button class="btn btn-ghost btn-sm js-like ${liked ? "liked" : ""}">

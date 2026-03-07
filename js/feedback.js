@@ -120,9 +120,11 @@ function loadFeedback() {
         }
       }
       // Тост для пользователя когда админ ответил
-      if (change.type === "modified" && !snap.metadata.hasPendingWrites && !isAdmin) {
-        const item = change.doc.data();
-        if (item.adminNote && item.authorId === currentUser?.uid) {
+      if (change.type === "modified" && !isAdmin) {
+        const item    = change.doc.data();
+        const before  = change.doc.metadata.fromCache;
+        const hadNote = change.doc._document?.data?.value?.mapValue?.fields?.adminNote?.stringValue;
+        if (item.adminNote && item.authorId === currentUser?.uid && !snap.metadata.fromCache) {
           toast(`📝 Администратор ответил на ваше обращение`, "info");
         }
       }
