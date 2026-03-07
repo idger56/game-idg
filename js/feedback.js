@@ -7,7 +7,7 @@ import { esc } from "./utils.js";
 import { renderHeader, toast, showSpinner, showEmpty } from "./ui.js";
 import {
   collection, getDocs, addDoc, updateDoc, deleteDoc,
-  doc, query, orderBy, where
+  doc, query, orderBy, where, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 renderHeader({ activePage: "feedback" });
@@ -17,6 +17,7 @@ const $ = id => document.getElementById(id);
 let currentUser = null;
 let currentUserData = null;
 let isAdmin = false;
+let _unsubFeedback = null;
 
 const TYPE_LABELS = {
   suggestion: "💡 Предложение",
@@ -86,22 +87,21 @@ $("btn-send-feedback")?.addEventListener("click", async () => {
 $("filter-fb-status")?.addEventListener("change", loadFeedback);
 $("filter-fb-type")?.addEventListener("change",   loadFeedback);
 
-// -------- Загрузка --------
-async function loadFeedback() {
+// -------- Загрузка (realtime) --------
+function loadFeedback() {
+  if (_unsubFeedback) { _unsubFeedback(); _unsubFeedback = null; }
   showSpinner($("feedback-list"));
-  try {
-    let q;
-    if (isAdmin) {
-      q = query(collection(db, "feedbackItems"), orderBy("createdAt", "desc"));
-    } else {
-      q = query(collection(db, "feedbackItems"),
+
+  const q = isAdmin
+    ? query(collection(db, "feedbackItems"), orderBy("createdAt", "desc"))
+    : query(collection(db, "feedbackItems"),
         where("authorId", "==", currentUser.uid),
         orderBy("createdAt", "desc"));
-    }
-    const snap = await getDocs(q);
+
+  _unsubFeedback = onSnapshot(q, snap => {
     let items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    // Фильтры для админа (клиентски, т.к. нет составных индексов)
+    // Клиентские фильтры для админа
     if (isAdmin) {
       const fStatus = $("filter-fb-status")?.value ?? "";
       const fType   = $("filter-fb-type")?.value   ?? "";
@@ -110,9 +110,26 @@ async function loadFeedback() {
     }
 
     renderFeedback(items);
-  } catch (err) {
+
+    // Тост для админа при новом обращении
+    snap.docChanges().forEach(change => {
+      if (change.type === "added" && !snap.metadata.hasPendingWrites && isAdmin) {
+        const item = change.doc.data();
+        if (item.authorId !== currentUser?.uid) {
+          toast(`💬 Новое обращение от ${item.authorNick ?? "пользователя"}`, "info");
+        }
+      }
+      // Тост для пользователя когда админ ответил
+      if (change.type === "modified" && !snap.metadata.hasPendingWrites && !isAdmin) {
+        const item = change.doc.data();
+        if (item.adminNote && item.authorId === currentUser?.uid) {
+          toast(`📝 Администратор ответил на ваше обращение`, "info");
+        }
+      }
+    });
+  }, err => {
     showEmpty($("feedback-list"), "Ошибка: " + err.message);
-  }
+  });
 }
 
 // -------- Рендер --------
@@ -170,24 +187,27 @@ function buildFeedbackCard(item) {
   card.querySelector(".js-status-sel")?.addEventListener("change", async e => {
     await updateDoc(doc(db, "feedbackItems", item.id), { status: e.target.value });
     item.status = e.target.value;
-    toast("Статус обновлён", "success");
+    toast("Статус обновлён", "success"); // onSnapshot обновит
   });
 
   // Сохранить заметку
   card.querySelector(".js-save-note")?.addEventListener("click", async () => {
     const note = card.querySelector(".js-admin-note").value.trim();
     await updateDoc(doc(db, "feedbackItems", item.id), { adminNote: note });
-    toast("Ответ сохранён", "success");
-    loadFeedback();
+    toast("Ответ сохранён", "success"); // onSnapshot обновит
   });
 
   // Удалить
   card.querySelector(".js-delete-fb")?.addEventListener("click", async () => {
     if (!confirm("Удалить обращение?")) return;
     await deleteDoc(doc(db, "feedbackItems", item.id));
-    toast("Удалено", "success");
-    loadFeedback();
+    toast("Удалено", "success"); // onSnapshot обновит
   });
 
   return card;
 }
+
+// Отписка при закрытии страницы
+window.addEventListener("beforeunload", () => {
+  if (_unsubFeedback) _unsubFeedback();
+});
