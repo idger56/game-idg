@@ -13,11 +13,16 @@ import {
 
 // ---------- Темы ----------
 const THEME_META = {
-  dark:      { label: "🌑 Тёмная",    dot: "#4f8ef7" },
-  light:     { label: "☀️ Светлая",   dot: "#3b72e8" },
-  cyberpunk: { label: "⚡ Киберпанк", dot: "#00f5ff" },
-  retro:     { label: "🎮 Ретро",     dot: "#ff6ac1" },
-  forest:    { label: "🌿 Лес",       dot: "#5bbf7a" },
+  dark:      { label: "🌑 Тёмная",     dot: "#4f8ef7" },
+  light:     { label: "☀️ Светлая",    dot: "#3b72e8" },
+  cyberpunk: { label: "⚡ Киберпанк",  dot: "#00f5ff" },
+  retro:     { label: "🕹 Ретро",      dot: "#ff6ac1" },
+  forest:    { label: "🌿 Лес",        dot: "#4ec96e" },
+  ocean:     { label: "🌊 Океан",      dot: "#00c6ff" },
+  blood:     { label: "🩸 Кровь",      dot: "#e83030" },
+  synthwave: { label: "🌆 Синтвейв",   dot: "#f72585" },
+  matrix:    { label: "💚 Матрица",    dot: "#00ff41" },
+  golden:    { label: "🏆 Золото",     dot: "#f0b429" },
 };
 
 export function buildThemeMenu() {

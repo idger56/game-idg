@@ -11,7 +11,6 @@ import {
   updateDoc, query, where, doc, addDoc
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
-// ---------- Инициализация ----------
 renderHeader({ activePage: "index" });
 
 const $ = id => document.getElementById(id);
@@ -26,18 +25,17 @@ const addForm      = $("add-game-form");
 
 // Заполняем жанры
 $("f-category").innerHTML = genreOptions();
-$("filter-category").innerHTML = `<option value="">Все жанры</option>` + GENRES.map(g =>
-  `<option value="${g}">${g}</option>`).join("");
+$("filter-category").innerHTML =
+  `<option value="">Все жанры</option>` +
+  GENRES.map(g => `<option value="${g}">${g}</option>`).join("");
 
 // ---------- Авторизация ----------
 $("btn-login").addEventListener("click", async () => {
-  authError.textContent = "";
-  authError.style.color = "var(--danger)";
+  authError.textContent  = "";
+  authError.style.color  = "var(--danger)";
   try {
     await login($("auth-email").value.trim(), $("auth-pass").value.trim());
-  } catch (e) {
-    authError.textContent = e.message;
-  }
+  } catch (e) { authError.textContent = e.message; }
 });
 
 $("btn-register").addEventListener("click", async () => {
@@ -57,9 +55,9 @@ $("btn-register").addEventListener("click", async () => {
 });
 
 // ---------- Состояние ----------
-let allGames    = [];
-let ratingsAll  = [];
-let usersMap    = {};
+let allGames   = [];
+let ratingsAll = [];
+let usersMap   = {};
 let currentUser = null;
 let isLoading   = false;
 
@@ -69,9 +67,7 @@ watchAuth({
     currentUser = user;
     authSection.classList.add("hidden");
     mainSection.classList.remove("hidden");
-    if (user.email === ADMIN_EMAIL) {
-      btnToggleAdd.classList.remove("hidden");
-    }
+    if (user.email === ADMIN_EMAIL) btnToggleAdd.classList.remove("hidden");
     loadGames();
   },
   onLogout: () => {
@@ -99,39 +95,32 @@ addForm.addEventListener("submit", async e => {
   if (!title || !category.length || !link || !image || !status) {
     toast("Заполните все поля", "error"); return;
   }
-
   try {
-    const id = toSlug(title);
-    await setDoc(doc(db, "games", id), { title, category, link, image, status });
+    await setDoc(doc(db, "games", toSlug(title)), { title, category, link, image, status });
     addForm.reset();
     addFormWrap.classList.add("hidden");
     toast("Игра добавлена!", "success");
     loadGames();
-  } catch (err) {
-    toast(err.message, "error");
-  }
+  } catch (err) { toast(err.message, "error"); }
 });
 
-// ---------- Загрузка всех данных одним разом ----------
+// ---------- Загрузка всего одним разом ----------
 async function loadGames() {
   if (isLoading) return;
   isLoading = true;
   showSpinner(gamesGrid);
-
   try {
-    // Все три коллекции грузим параллельно
     const [gamesSnap, ratSnap, usersSnap] = await Promise.all([
       getDocs(collection(db, "games")),
       getDocs(collection(db, "ratings")),
       getDocs(collection(db, "users")),
     ]);
-
     allGames   = gamesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     ratingsAll = ratSnap.docs.map(d => d.data());
     usersMap   = Object.fromEntries(usersSnap.docs.map(d => [d.data().uid, d.data()]));
-
     applyFilters();
   } catch (err) {
+    console.error("loadGames error:", err);
     toast("Ошибка загрузки: " + err.message, "error");
     showEmpty(gamesGrid, "Ошибка загрузки игр");
   } finally {
@@ -145,9 +134,9 @@ $("filter-category")?.addEventListener("change", applyFilters);
 $("filter-status")?.addEventListener("change",   applyFilters);
 
 function applyFilters() {
-  const search   = ($("filter-search")?.value  || "").toLowerCase();
-  const category = $("filter-category")?.value || "";
-  const status   = $("filter-status")?.value   || "";
+  const search   = ($("filter-search")?.value   || "").toLowerCase();
+  const category = $("filter-category")?.value  || "";
+  const status   = $("filter-status")?.value    || "";
 
   const filtered = allGames.filter(g => {
     const cats = Array.isArray(g.category) ? g.category : [g.category];
@@ -157,45 +146,45 @@ function applyFilters() {
       (!status   || g.status === status)
     );
   });
-
   renderGames(filtered);
 }
 
-// ---------- Рендер (синхронный — данные уже загружены) ----------
+// ---------- Рендер (синхронный) ----------
 function renderGames(games) {
-  if (!games.length) {
-    showEmpty(gamesGrid, "Игры не найдены");
-    return;
-  }
-
+  if (!games.length) { showEmpty(gamesGrid, "Игры не найдены"); return; }
   gamesGrid.innerHTML = "";
-
   for (const game of games) {
-    const gameRatings   = ratingsAll.filter(r => r.gameId === game.id);
-    const avg           = gameRatings.length
+    const gameRatings = ratingsAll.filter(r => r.gameId === game.id);
+    const avg = gameRatings.length
       ? (gameRatings.reduce((s, r) => s + r.rating, 0) / gameRatings.length).toFixed(1)
       : null;
     const userRatingObj = currentUser
       ? gameRatings.find(r => r.userId === currentUser.uid)
       : null;
-    const userRating    = userRatingObj?.rating ?? null;
-
+    const userRating = userRatingObj?.rating ?? null;
     gamesGrid.appendChild(buildCard(game, avg, userRating, gameRatings));
   }
 }
 
-// ---------- Построить карточку ----------
+// ---------- Карточка ----------
+// ВАЖНО: не используем id-атрибуты с game.id (он может содержать спецсимволы).
+// Вместо этого — data-атрибуты и поиск через closest/querySelector внутри карточки.
 function buildCard(game, avg, userRating, gameRatings) {
   const user    = auth.currentUser;
   const isAdmin = user?.email === ADMIN_EMAIL;
   const cats    = Array.isArray(game.category) ? game.category : [game.category];
 
-  const statusClass = { "Пройдена":"done","В процессе":"playing","В планах":"plan" }[game.status] ?? "";
-  const tagsHtml    = cats.slice(0, 3).map(c => `<span class="tag">${esc(c)}</span>`).join("") +
+  const statusClass = {
+    "Пройдена":"done","В процессе":"playing","В планах":"plan"
+  }[game.status] ?? "";
+
+  const tagsHtml = cats.slice(0, 3).map(c => `<span class="tag">${esc(c)}</span>`).join("") +
     (cats.length > 3 ? `<span class="tag">+${cats.length - 3}</span>` : "");
 
   const card = document.createElement("div");
   card.className = "game-card";
+  card.dataset.gameId = game.id; // храним id в data-атрибуте
+
   card.innerHTML = `
     <img class="game-card-img" src="${esc(game.image)}" alt="${esc(game.title)}"
          onerror="this.src='https://placehold.co/280x200/1c2030/4f8ef7?text=No+Image'">
@@ -205,21 +194,21 @@ function buildCard(game, avg, userRating, gameRatings) {
       <span class="status-badge ${statusClass}">${esc(game.status)}</span>
       <div class="rating-row">
         <span class="label">⭐ Средняя</span>
-        <span class="value">${avg ?? "—"}</span>
+        <span class="value js-avg">${avg ?? "—"}</span>
       </div>
       ${user ? `
       <div class="rating-row">
         <span class="label">Ваша оценка</span>
-        <span class="value" id="my-rating-${game.id}">${userRating ?? "—"}</span>
+        <span class="value js-my-rating">${userRating ?? "—"}</span>
       </div>` : ""}
     </div>
     <div class="game-card-footer">
       ${user && game.status === "Пройдена" ? `
-        <select class="card-select" id="rate-select-${game.id}" aria-label="Ваша оценка">
+        <select class="card-select js-rate-select" aria-label="Ваша оценка">
           <option value="">⭐ Оценить...</option>
-          ${Array.from({length:10},(_,i)=>`
-            <option value="${i+1}" ${userRating===i+1?"selected":""}>${i+1} ⭐</option>
-          `).join("")}
+          ${Array.from({length:10}, (_, i) =>
+            `<option value="${i+1}" ${userRating === i+1 ? "selected" : ""}>${i+1} ⭐</option>`
+          ).join("")}
         </select>
       ` : ""}
       <a class="download-btn" href="${esc(game.link)}" target="_blank" rel="noopener">
@@ -227,30 +216,34 @@ function buildCard(game, avg, userRating, gameRatings) {
       </a>
       ${isAdmin ? `
         <div class="flex-gap mt-4">
-          <button class="btn btn-ghost btn-sm" data-edit="${game.id}">✏️ Редактировать</button>
-          <button class="btn btn-ghost btn-sm" data-ratings="${game.id}">📋 Оценки</button>
+          <button class="btn btn-ghost btn-sm js-edit">✏️ Редактировать</button>
+          <button class="btn btn-ghost btn-sm js-show-ratings">📋 Оценки</button>
         </div>
       ` : ""}
     </div>`;
 
-  // Рейтинг
-  const rateSelect = card.querySelector(`#rate-select-${game.id}`);
+  // --- Обработчики через classList (без querySelector по id) ---
+
+  // Выбор рейтинга
+  const rateSelect = card.querySelector(".js-rate-select");
   rateSelect?.addEventListener("change", async () => {
     const rating = parseInt(rateSelect.value);
-    if (isNaN(rating)) return;
+    if (isNaN(rating) || !user) return;
     await saveRating(game.id, rating);
-    // Обновляем локальный кэш без перезагрузки
+    // Обновляем кэш
     const ex = ratingsAll.find(r => r.gameId === game.id && r.userId === user.uid);
     if (ex) ex.rating = rating;
     else ratingsAll.push({ gameId: game.id, userId: user.uid, rating });
-    card.querySelector(`#my-rating-${game.id}`).textContent = rating;
+    // Обновляем отображение в карточке
+    const myRatingEl = card.querySelector(".js-my-rating");
+    if (myRatingEl) myRatingEl.textContent = rating;
   });
 
   // Редактирование
-  card.querySelector("[data-edit]")?.addEventListener("click", () => openEditModal(game));
+  card.querySelector(".js-edit")?.addEventListener("click", () => openEditModal(game));
 
-  // Оценки
-  card.querySelector("[data-ratings]")?.addEventListener("click", () =>
+  // Оценки пользователей
+  card.querySelector(".js-show-ratings")?.addEventListener("click", () =>
     openRatingsModal(game, gameRatings)
   );
 
@@ -263,11 +256,8 @@ async function saveRating(gameId, rating) {
   if (!user) return;
   const q    = query(collection(db,"ratings"), where("gameId","==",gameId), where("userId","==",user.uid));
   const snap = await getDocs(q);
-  if (!snap.empty) {
-    await updateDoc(snap.docs[0].ref, { rating });
-  } else {
-    await addDoc(collection(db,"ratings"), { userId: user.uid, gameId, rating });
-  }
+  if (!snap.empty) await updateDoc(snap.docs[0].ref, { rating });
+  else await addDoc(collection(db,"ratings"), { userId: user.uid, gameId, rating });
   toast("Оценка сохранена!", "success");
 }
 
@@ -280,7 +270,7 @@ function openEditModal(game) {
       <button class="modal-close">✕</button>
       <div class="modal-body">
         <h2>✏️ Редактировать игру</h2>
-        <form id="edit-form" style="margin-top:16px;display:flex;flex-direction:column;gap:14px">
+        <form class="edit-form-inner" style="margin-top:16px;display:flex;flex-direction:column;gap:14px">
           <div class="form-group"><label class="form-label">Название</label>
             <input type="text" name="title" value="${esc(game.title)}" required /></div>
           <div class="form-group"><label class="form-label">URL обложки</label>
@@ -303,7 +293,7 @@ function openEditModal(game) {
   overlay.querySelector(".modal-close").onclick = () => overlay.remove();
   overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
 
-  overlay.querySelector("#edit-form").addEventListener("submit", async e => {
+  overlay.querySelector(".edit-form-inner").addEventListener("submit", async e => {
     e.preventDefault();
     const fd = e.target;
     try {
@@ -314,15 +304,13 @@ function openEditModal(game) {
         status:   fd.status.value,
         category: Array.from(fd.category.selectedOptions).map(o => o.value),
       };
-      await updateDoc(doc(db,"games",game.id), updated);
+      await updateDoc(doc(db, "games", game.id), updated);
       const idx = allGames.findIndex(g => g.id === game.id);
       if (idx !== -1) allGames[idx] = { ...allGames[idx], ...updated };
       overlay.remove();
       toast("Игра обновлена!", "success");
       applyFilters();
-    } catch (err) {
-      toast(err.message, "error");
-    }
+    } catch (err) { toast(err.message, "error"); }
   });
 
   document.body.appendChild(overlay);
@@ -336,7 +324,7 @@ function openRatingsModal(game, gameRatings) {
       <div style="display:flex;justify-content:space-between;align-items:center;
                   padding:10px 0;border-bottom:1px solid var(--border)">
         <div style="display:flex;align-items:center;gap:10px">
-          <img src="${esc(u?.avatar||"assets/default-avatar.png")}" alt=""
+          <img src="${esc(u?.avatar || "assets/default-avatar.png")}" alt=""
                style="width:28px;height:28px;border-radius:4px;object-fit:cover"
                onerror="this.src='assets/default-avatar.png'">
           <span>${esc(u?.nickname ?? "Аноним")}</span>

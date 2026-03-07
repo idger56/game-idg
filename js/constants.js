@@ -41,4 +41,4 @@ export const MEDAL_DESCS = {
   favgenre: "Будь преданным фанатом своего любимого жанра",
 };
 
-export const THEMES = ["dark","light","cyberpunk","retro","forest"];
+export const THEMES = ["dark","light","cyberpunk","retro","forest","ocean","blood","synthwave","matrix","golden"];
