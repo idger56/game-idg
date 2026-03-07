@@ -3266,3 +3266,40 @@ select option { background: var(--bg-surface); }
 .poll-option--clickable:active {
   transform: translateX(1px);
 }
+
+/* Картинка в карточке новости */
+.news-card-image {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+  display: block;
+}
+
+/* Ссылки в карточке новости */
+.news-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.news-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  background: rgba(79,142,247,.1);
+  border: 1px solid rgba(79,142,247,.25);
+  color: var(--accent);
+  border-radius: 20px;
+  font-size: .85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s, border-color .15s, transform .1s;
+}
+.news-link-btn:hover {
+  background: rgba(79,142,247,.2);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
