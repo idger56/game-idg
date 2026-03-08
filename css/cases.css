@@ -856,3 +856,64 @@
   word-break: break-word;
   max-width: 100%;
 }
+
+/* ── Поиск пользователя для пополнения ──────────────────── */
+.topup-user-list {
+  position: absolute;
+  z-index: 100;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  width: 100%;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+.topup-user-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background .15s;
+  font-size: .9rem;
+}
+.topup-user-option:hover { background: var(--bg-card); }
+.topup-user-option img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.topup-no-result {
+  color: var(--text-muted);
+  cursor: default;
+  font-style: italic;
+}
+.topup-no-result:hover { background: none; }
+
+.topup-selected-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  margin-bottom: 4px;
+}
+.topup-selected-user img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.topup-selected-user > div { flex: 1; }
+
+/* position relative нужен для выпадашки */
+#topup-search + .topup-user-list,
+.form-group:has(#topup-search) { position: relative; }
+.form-group:has(#topup-search) .topup-user-list { position: absolute; }
