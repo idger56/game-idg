@@ -116,17 +116,28 @@
       <!-- Пополнить баланс -->
       <div class="admin-block">
         <h3>💎 Пополнить баланс пользователя</h3>
-        <form id="form-topup" class="admin-form">
+        <div class="admin-form">
           <div class="form-group">
-            <label class="form-label">Email пользователя</label>
-            <input type="email" id="topup-email" placeholder="user@example.com" required />
+            <label class="form-label">Поиск по нику</label>
+            <div style="position:relative">
+              <input type="text" id="topup-search" placeholder="Начни вводить ник..." autocomplete="off" />
+              <div id="topup-user-list" class="topup-user-list hidden"></div>
+            </div>
+          </div>
+          <div id="topup-selected-user" class="topup-selected-user hidden">
+            <img id="topup-user-avatar" src="" alt="" onerror="this.src='assets/default-avatar.png'">
+            <div>
+              <div id="topup-user-nick" style="font-weight:700"></div>
+              <div id="topup-user-balance" style="font-size:.8rem;color:var(--text-muted)"></div>
+            </div>
+            <button class="btn btn-ghost btn-xs" id="topup-clear-user">✕</button>
           </div>
           <div class="form-group">
             <label class="form-label">Сумма (PS)</label>
-            <input type="number" id="topup-amount" min="1" placeholder="100" required />
+            <input type="number" id="topup-amount" min="1" placeholder="100" />
           </div>
-          <button type="submit" class="btn btn-success">💎 Пополнить</button>
-        </form>
+          <button class="btn btn-success" id="btn-topup">💎 Пополнить</button>
+        </div>
       </div>
 
       <!-- Загрузить предметы по умолчанию -->
