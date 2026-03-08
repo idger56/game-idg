@@ -52,7 +52,7 @@ async function loadPage(user, userData) {
 }
 
 // ---------- Мой профиль ----------
-function renderMyProfile(user, data, stats) {
+async function renderMyProfile(user, data, stats) {
   const section = $("my-profile-section");
   const lastMs  = typeof data.lastSeen === "number" ? data.lastSeen : null;
   const online  = isOnline(lastMs);
