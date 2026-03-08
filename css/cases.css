@@ -627,3 +627,232 @@
   word-break: break-word;
 }
 .showcase-rarity { font-size: .7rem; font-weight: 700; }
+
+/* ════════════════════════════════════════════════════════════
+   НОВЫЕ СТИЛИ: скин-превью, витрина профиля, каталог-таблица
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Превью скинов в инвентаре ──────────────────────────── */
+.inv-skin-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.preview-frame-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+.preview-bg-strip {
+  width: 100%;
+  height: 100%;
+  min-height: 80px;
+  border-radius: 6px;
+}
+.preview-card-border {
+  width: 64px;
+  height: 80px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: var(--bg-card);
+}
+.inv-badge.equip-badge {
+  background: #4bff91;
+  color: #000;
+}
+.inv-card.equipped {
+  outline: 2px solid #4bff91;
+}
+
+/* ── Витрина профиля (3 слота) ───────────────────────────── */
+.profile-showcase-section {
+  margin-top: 32px;
+}
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--text-primary);
+}
+.showcase-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 600px;
+}
+@media (max-width: 480px) {
+  .showcase-slots { grid-template-columns: 1fr; }
+}
+.showcase-slot {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: transform .2s, box-shadow .2s;
+}
+.showcase-slot:hover {
+  transform: translateY(-2px);
+}
+.showcase-slot--empty {
+  border-style: dashed;
+  opacity: .5;
+  min-height: 120px;
+}
+.showcase-slot-icon {
+  font-size: 2rem;
+  color: var(--text-muted);
+}
+.showcase-slot-hint {
+  font-size: .8rem;
+  color: var(--text-muted);
+}
+.showcase-item-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.showcase-frame-demo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+.showcase-bg-demo {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+}
+.showcase-card-demo {
+  width: 60px;
+  height: 72px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  background: var(--bg-surface);
+}
+.showcase-slot-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+}
+.showcase-slot-name   { font-size: .85rem; font-weight: 600; color: var(--text-primary); }
+.showcase-slot-rarity { font-size: .75rem; font-weight: 700; }
+.showcase-slot-type   { font-size: .7rem; color: var(--text-muted); }
+
+/* ── Каталог-таблица в Admin-панели ─────────────────────── */
+.catalog-admin-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+}
+.catalog-table-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1.5fr 2fr;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  border-bottom: 1px solid var(--border);
+}
+.catalog-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1.5fr 2fr;
+  gap: 8px;
+  padding: 8px 12px;
+  align-items: center;
+  font-size: .85rem;
+  background: var(--bg-card);
+  border-radius: 6px;
+  transition: background .15s;
+}
+.catalog-row:hover { background: var(--bg-surface); }
+.catalog-name { font-weight: 600; color: var(--text-primary); }
+
+/* ── Аватар-обёртка для рамки ───────────────────────────── */
+.profile-avatar-wrap {
+  position: relative;
+  display: inline-block;
+}
+.profile-bg-wrap {
+  border-radius: var(--radius);
+  overflow: hidden;
+  padding: 24px;
+  transition: background .3s;
+}
+
+/* Рулетка — обновлённый превью (без image) */
+.roulette-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-card);
+  flex-shrink: 0;
+  overflow: hidden;
+  font-size: .7rem;
+  gap: 6px;
+  padding: 8px;
+}
+.roulette-item .roulette-skin-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.roulette-item-name {
+  font-size: .65rem;
+  text-align: center;
+  color: var(--text-secondary);
+  line-height: 1.2;
+  word-break: break-word;
+  max-width: 100%;
+}
