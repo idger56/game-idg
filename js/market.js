@@ -16,20 +16,23 @@ export async function listItem(uid, invId, price) {
   const invRef  = doc(db, "inventory", invId);
   const invSnap = await getDoc(invRef);
   if (!invSnap.exists() || invSnap.data().uid !== uid) throw new Error("Предмет не найден");
-  if (invSnap.data().onShowcase) throw new Error("Снимите с витрины перед продажей");
+  if (invSnap.data().onShowcase)  throw new Error("Снимите с витрины перед продажей");
   if (invSnap.data().listedPrice) throw new Error("Предмет уже на рынке");
 
+  const d = invSnap.data();
   const listing = await addDoc(collection(db, "market"), {
-    sellerUid:  uid,
+    sellerUid:    uid,
     invId,
-    itemId:     invSnap.data().itemId,
-    name:       invSnap.data().name,
-    type:       invSnap.data().type,
-    rarity:     invSnap.data().rarity,
-    image:      invSnap.data().image,
+    itemId:       d.itemId       || "",
+    name:         d.name         || "",
+    type:         d.type         || "",
+    rarity:       d.rarity       || "common",
+    cssEffect:    d.cssEffect    || "",
+    previewColor: d.previewColor || "",
+    isAnimated:   d.isAnimated   || false,
     price,
-    createdAt:  Date.now(),
-    status:     "active",
+    createdAt:    Date.now(),
+    status:       "active",
   });
 
   await updateDoc(invRef, { listedPrice: price, listingId: listing.id });
@@ -53,26 +56,27 @@ export async function buyItem(buyerUid, listingId) {
   const snap = await getDoc(ref);
   if (!snap.exists() || snap.data().status !== "active") throw new Error("Лот недоступен");
 
-  const { sellerUid, invId, price, name, type, rarity, image, itemId } = snap.data();
+  const { sellerUid, invId, price, name, type, rarity, cssEffect, previewColor, isAnimated, itemId } = snap.data();
   if (sellerUid === buyerUid) throw new Error("Нельзя купить свой предмет");
 
   const balance = await getBalance(buyerUid);
   if (balance < price) throw new Error(`Недостаточно 💎 (нужно ${price} PS)`);
 
-  // Снимаем деньги с покупателя
   await adjustBalance(buyerUid, -price, `buy_market_${listingId}`);
-  // Отдаём продавцу (комиссия 5%)
   const sellerReceives = Math.floor(price * 0.95);
   await adjustBalance(sellerUid, sellerReceives, `sell_market_${listingId}`);
 
-  // Переносим предмет
+  // Переносим предмет покупателю
   await deleteDoc(doc(db, "inventory", invId));
-  const newInvId = await addItemToInventory(buyerUid, { id: itemId, name, type, rarity, image });
+  const newInvId = await addItemToInventory(buyerUid, {
+    id: itemId, name, type, rarity,
+    cssEffect:    cssEffect    || "",
+    previewColor: previewColor || "",
+    isAnimated:   isAnimated   || false,
+  });
 
-  // Закрываем лот
   await updateDoc(ref, { status: "sold", buyerUid, soldAt: Date.now() });
-
-  return { item: { name, rarity, image, type }, newInvId };
+  return { item: { name, rarity, cssEffect, type }, newInvId };
 }
 
 // ── Получить активные лоты ────────────────────────────────
@@ -86,33 +90,36 @@ export async function getActiveListings() {
 }
 
 // ════════════════════════════════════════════
-//  ОБМЕНЫ (trade offers)
+//  ОБМЕНЫ
 // ════════════════════════════════════════════
 
-// ── Предложить обмен ──────────────────────────────────────
 export async function sendTradeOffer(fromUid, toUid, offeredInvId, wantedInvId) {
-  // Проверяем, что предметы принадлежат тем, кому надо
-  const offSnap = await getDoc(doc(db, "inventory", offeredInvId));
+  const offSnap  = await getDoc(doc(db, "inventory", offeredInvId));
   if (!offSnap.exists() || offSnap.data().uid !== fromUid) throw new Error("Ваш предмет не найден");
 
   const wantSnap = await getDoc(doc(db, "inventory", wantedInvId));
   if (!wantSnap.exists() || wantSnap.data().uid !== toUid) throw new Error("Запрашиваемый предмет не найден");
 
+  const off  = offSnap.data();
+  const want = wantSnap.data();
+
   const ref = await addDoc(collection(db, "trades"), {
     fromUid, toUid,
     offeredInvId,
     offeredItem: {
-      name:   offSnap.data().name,
-      rarity: offSnap.data().rarity,
-      image:  offSnap.data().image,
-      type:   offSnap.data().type,
+      name:         off.name         || "",
+      rarity:       off.rarity       || "common",
+      cssEffect:    off.cssEffect    || "",
+      previewColor: off.previewColor || "",
+      type:         off.type         || "",
     },
     wantedInvId,
     wantedItem: {
-      name:   wantSnap.data().name,
-      rarity: wantSnap.data().rarity,
-      image:  wantSnap.data().image,
-      type:   wantSnap.data().type,
+      name:         want.name         || "",
+      rarity:       want.rarity       || "common",
+      cssEffect:    want.cssEffect    || "",
+      previewColor: want.previewColor || "",
+      type:         want.type         || "",
     },
     status:    "pending",
     createdAt: Date.now(),
@@ -120,23 +127,18 @@ export async function sendTradeOffer(fromUid, toUid, offeredInvId, wantedInvId) 
   return ref.id;
 }
 
-// ── Принять обмен ─────────────────────────────────────────
 export async function acceptTrade(toUid, tradeId) {
   const ref  = doc(db, "trades", tradeId);
   const snap = await getDoc(ref);
   if (!snap.exists() || snap.data().toUid !== toUid) throw new Error("Обмен не найден");
   if (snap.data().status !== "pending") throw new Error("Обмен уже обработан");
 
-  const { fromUid, offeredInvId, wantedInvId, offeredItem, wantedItem } = snap.data();
-
-  // Меняем владельцев
-  await updateDoc(doc(db, "inventory", offeredInvId), { uid: toUid, onShowcase: false, listedPrice: null });
-  await updateDoc(doc(db, "inventory", wantedInvId),  { uid: fromUid, onShowcase: false, listedPrice: null });
-
+  const { fromUid, offeredInvId, wantedInvId } = snap.data();
+  await updateDoc(doc(db, "inventory", offeredInvId), { uid: toUid,   onShowcase: false, listedPrice: null, equipped: false });
+  await updateDoc(doc(db, "inventory", wantedInvId),  { uid: fromUid, onShowcase: false, listedPrice: null, equipped: false });
   await updateDoc(ref, { status: "accepted", resolvedAt: Date.now() });
 }
 
-// ── Отклонить обмен ───────────────────────────────────────
 export async function declineTrade(uid, tradeId) {
   const ref  = doc(db, "trades", tradeId);
   const snap = await getDoc(ref);
@@ -145,7 +147,6 @@ export async function declineTrade(uid, tradeId) {
   await updateDoc(ref, { status: "declined", resolvedAt: Date.now() });
 }
 
-// ── Получить входящие/исходящие обмены ────────────────────
 export async function getTradesForUser(uid) {
   const [inSnap, outSnap] = await Promise.all([
     getDocs(query(collection(db, "trades"), where("toUid",   "==", uid), where("status", "==", "pending"))),
