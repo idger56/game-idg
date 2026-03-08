@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GameIDG — Кейсы</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cases.css" />
+</head>
+<body>
+<div class="theme-deco"></div>
+
+<!-- Не авторизован -->
+<div id="cases-auth" class="page-content">
+  <div class="empty-state" style="margin-top:80px">
+    <div class="icon">📦</div>
+    <p>Войдите, чтобы открывать кейсы</p>
+    <a href="index.html" class="btn btn-primary" style="margin-top:16px">Войти</a>
+  </div>
+</div>
+
+<!-- Основной контент -->
+<div id="cases-main" class="hidden">
+  <div class="page-content">
+
+    <!-- Шапка страницы -->
+    <div class="cases-page-header">
+      <div>
+        <h1 class="page-title">📦 Кейсы</h1>
+        <p class="page-sub">Открывай кейсы и получай уникальные предметы</p>
+      </div>
+      <div class="balance-chip" id="balance-display">💎 — PS</div>
+    </div>
+
+    <!-- Панель администратора -->
+    <div class="admin-bar hidden" id="cases-admin-bar">
+      <div class="admin-bar-inner">
+        <span>⚙️ Панель администратора</span>
+        <button class="btn btn-ghost btn-sm" id="btn-open-admin-cases">🛠 Управление кейсами</button>
+      </div>
+    </div>
+
+    <!-- Адм панель (скрытая) -->
+    <div class="admin-cases-panel hidden" id="admin-cases-panel">
+
+      <!-- Создать кейс -->
+      <div class="admin-block">
+        <h3>➕ Создать кейс</h3>
+        <form id="form-add-case" class="admin-form">
+          <div class="form-group">
+            <label class="form-label">Название</label>
+            <input type="text" id="case-name" placeholder="Название кейса" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Цена (PS)</label>
+            <input type="number" id="case-price" min="1" value="50" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL обложки</label>
+            <input type="url" id="case-image" placeholder="https://..." required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Описание</label>
+            <textarea id="case-desc" rows="2" placeholder="Описание кейса..."></textarea>
+          </div>
+          <input type="hidden" id="new-case-id" />
+          <button type="submit" class="btn btn-success">Создать кейс</button>
+        </form>
+      </div>
+
+      <!-- Добавить предмет -->
+      <div class="admin-block">
+        <h3>🎁 Добавить предмет в кейс</h3>
+        <form id="form-add-item" class="admin-form">
+          <div class="form-group">
+            <label class="form-label">Кейс</label>
+            <select id="item-case-select" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Название предмета</label>
+            <input type="text" id="item-name" placeholder="Название" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Редкость</label>
+            <select id="item-rarity" required>
+              <option value="">Выберите редкость</option>
+              <option value="common">Обычный</option>
+              <option value="rare">Редкий</option>
+              <option value="epic">Эпический</option>
+              <option value="legendary">Легендарный</option>
+              <option value="exclusive">Эксклюзив</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Тип предмета</label>
+            <select id="item-type" required>
+              <option value="">Выберите тип</option>
+              <option value="frame">🖼 Рамка профиля</option>
+              <option value="background">🌌 Фон профиля</option>
+              <option value="icon">⭐ Иконка</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL изображения</label>
+            <input type="url" id="item-image" placeholder="https://..." required />
+          </div>
+          <button type="submit" class="btn btn-primary">Добавить предмет</button>
+        </form>
+      </div>
+
+      <!-- Пополнить баланс -->
+      <div class="admin-block">
+        <h3>💎 Пополнить баланс пользователя</h3>
+        <form id="form-topup" class="admin-form">
+          <div class="form-group">
+            <label class="form-label">Email пользователя</label>
+            <input type="email" id="topup-email" placeholder="user@example.com" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Сумма (PS)</label>
+            <input type="number" id="topup-amount" min="1" placeholder="100" required />
+          </div>
+          <button type="submit" class="btn btn-success">💎 Пополнить</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Сетка кейсов -->
+    <div id="cases-grid" class="cases-grid">
+      <div class="spinner"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<script type="module" src="js/cases.js"></script>
+</body>
+</html>

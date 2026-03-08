@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GameIDG — Рынок</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/cases.css" />
+</head>
+<body>
+<div class="theme-deco"></div>
+
+<div id="mkt-auth" class="page-content">
+  <div class="empty-state" style="margin-top:80px">
+    <div class="icon">🏪</div>
+    <p>Войдите, чтобы использовать рынок</p>
+    <a href="index.html" class="btn btn-primary" style="margin-top:16px">Войти</a>
+  </div>
+</div>
+
+<div id="mkt-main" class="hidden">
+  <div class="page-content">
+
+    <div class="cases-page-header">
+      <div>
+        <h1 class="page-title">🏪 Рынок</h1>
+        <p class="page-sub">Покупай и продавай предметы с другими игроками</p>
+      </div>
+      <div class="balance-chip" id="balance-display-mkt">💎 — PS</div>
+    </div>
+
+    <!-- Вкладки -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="listings">🏪 Лоты</button>
+      <button class="tab-btn" data-tab="trades">🔄 Обмены</button>
+    </div>
+
+    <!-- Вкладка: Лоты -->
+    <div class="tab-content active" id="tab-listings">
+      <div class="filters-bar">
+        <input type="text" id="mkt-search" placeholder="🔍 Поиск предмета..." />
+        <select id="mkt-filter-rarity">
+          <option value="">Все редкости</option>
+          <option value="common">Обычный</option>
+          <option value="rare">Редкий</option>
+          <option value="epic">Эпический</option>
+          <option value="legendary">Легендарный</option>
+          <option value="exclusive">Эксклюзив</option>
+        </select>
+        <select id="mkt-sort">
+          <option value="newest">Новые первые</option>
+          <option value="price_asc">Цена ↑</option>
+          <option value="price_desc">Цена ↓</option>
+        </select>
+      </div>
+      <div id="market-grid" class="market-grid">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- Вкладка: Обмены -->
+    <div class="tab-content" id="tab-trades">
+      <div id="trades-section" style="margin-top:24px">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<script type="module" src="js/market-page.js"></script>
+</body>
+</html>
