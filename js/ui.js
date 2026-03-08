@@ -78,8 +78,11 @@ export function renderHeader({ activePage = "" } = {}) {
     { href: "solo.html",     label: "🕹 Соло",         id: "solo"     },
     { href: "top.html",      label: "🏆 Топ",          id: "top"      },
     { href: "users.html",    label: "👥 Пользователи", id: "users"    },
-    { href: "news.html",     label: "📰 Новости",      id: "news"     },
-    { href: "feedback.html", label: "💬 Обратная связь", id: "feedback" },
+    { href: "news.html",      label: "📰 Новости",        id: "news"      },
+    { href: "cases.html",     label: "📦 Кейсы",          id: "cases"     },
+    { href: "inventory.html", label: "🎒 Инвентарь",      id: "inventory" },
+    { href: "market.html",    label: "🏪 Рынок",          id: "market"    },
+    { href: "feedback.html",  label: "💬 Обратная связь", id: "feedback"  },
   ];
 
   const header = document.createElement("header");
@@ -141,8 +144,10 @@ export function renderHeader({ activePage = "" } = {}) {
 
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
-        const nick = snap.exists() ? snap.data().nickname : user.email;
-        userInfo.innerHTML = `<span class="nav-user-dot"></span>${nick}`;
+        const data = snap.exists() ? snap.data() : {};
+        const nick = data.nickname || user.email;
+        const bal  = typeof data.balance === "number" ? data.balance : 100;
+        userInfo.innerHTML = `<span class="nav-user-dot"></span>${nick} <span class="nav-balance">💎${bal}</span>`;
         userInfo.classList.remove("hidden");
         if (!nickClickBound) {
           nickClickBound = true;

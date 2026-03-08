@@ -33,6 +33,12 @@ watchAuth({
       $("btn-toggle-add").classList.remove("hidden");
       $("hero-manage-bar").classList.remove("hidden");
     }
+    // Пробуем дать ежедневный бонус
+    import("./economy.js").then(({ claimDailyBonus }) => {
+      claimDailyBonus(user.uid).then(res => {
+        if (res.ok) toast(`🎁 Ежедневный бонус: +${res.amount} 💎 PixelShard!`, "success");
+      }).catch(() => {});
+    });
     loadAll();
   },
   onLogout: () => {
@@ -566,6 +572,11 @@ async function openGameModal(game) {
     cSnap.docs.forEach(d => commentsAll.push({ id:d.id, ...d.data() }));
     await loadGameComments(game.id);
     toast("Комментарий добавлен!","success");
+    // Награда за комментарий
+    try {
+      const { rewardAction } = await import("./economy.js");
+      await rewardAction(user.uid, "comment");
+    } catch(_) {}
   });
 }
 
@@ -749,8 +760,16 @@ async function saveRating(gameId, rating) {
   const user = auth.currentUser; if (!user) return;
   const q    = query(collection(db,"ratings"), where("gameId","==",gameId), where("userId","==",user.uid));
   const snap = await getDocs(q);
-  if (!snap.empty) await updateDoc(snap.docs[0].ref, { rating });
-  else await addDoc(collection(db,"ratings"), { userId:user.uid, gameId, rating });
+  const isNew = snap.empty;
+  if (!isNew) await updateDoc(snap.docs[0].ref, { rating });
+  else {
+    await addDoc(collection(db,"ratings"), { userId:user.uid, gameId, rating });
+    // Награда за первую оценку этой игры
+    try {
+      const { rewardAction } = await import("./economy.js");
+      await rewardAction(user.uid, "rating");
+    } catch(_) {}
+  }
   toast("Оценка сохранена!","success");
 }
 

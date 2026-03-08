@@ -141,6 +141,12 @@ export function watchAuth({ onLogin, onLogout } = {}) {
       // Запускаем присутствие сразу — работает на ЛЮБОЙ странице
       _startPresence(user.uid);
 
+      // Инициализируем баланс если не был создан
+      try {
+        const { ensureBalance } = await import("./economy.js");
+        await ensureBalance(user.uid);
+      } catch(_) {}
+
       // Получаем данные профиля
       const snap = await getDoc(doc(db, "users", user.uid));
       const userData = snap.exists() ? snap.data() : {};

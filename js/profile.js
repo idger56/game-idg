@@ -86,6 +86,38 @@ async function loadProfile(uid) {
   renderBadges(document.getElementById("profile-badges"), achInput);
   renderAchievements(document.getElementById("profile-achievements"), achInput);
 
+  // Витрина предметов
+  try {
+    const { getShowcase } = await import("./inventory.js");
+    const showcase = await getShowcase(uid);
+    if (showcase.length) {
+      const { RARITIES, ITEM_TYPES } = await import("./items.js");
+      const showcaseSection = document.createElement("section");
+      showcaseSection.style.cssText = "margin-top:32px";
+      showcaseSection.innerHTML = `
+        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:var(--text-primary)">
+          🖼 Витрина (${showcase.length}/5)
+        </h2>
+        <div class="showcase-grid" id="showcase-grid"></div>`;
+      container.querySelector("section")?.before(showcaseSection);
+      const grid = showcaseSection.querySelector("#showcase-grid");
+      for (const item of showcase) {
+        const r = RARITIES[item.rarity] || RARITIES.common;
+        const card = document.createElement("div");
+        card.className = "showcase-card";
+        card.style.cssText = `border-color:${r.color};box-shadow:0 0 14px ${r.glow}`;
+        card.innerHTML = `
+          <img src="${esc(item.image)}" alt="${esc(item.name)}"
+               onerror="this.src='https://placehold.co/80x80/1c2030/4f8ef7?text=?'">
+          <div class="showcase-info">
+            <span class="showcase-name">${esc(item.name)}</span>
+            <span class="showcase-rarity" style="color:${r.color}">${r.label}</span>
+          </div>`;
+        grid.appendChild(card);
+      }
+    }
+  } catch(_) {}
+
   // Оцененные игры
   const ratedList = document.getElementById("rated-games-list");
   if (!ratings.length) {
