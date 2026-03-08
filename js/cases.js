@@ -6,6 +6,9 @@ import { watchAuth } from "./auth.js";
 import { renderHeader, toast } from "./ui.js";
 import { esc } from "./utils.js";
 import { RARITIES, RARITY_ORDER, rollRarity, CURRENCY } from "./items.js";
+import { injectSkinCSS } from "./skins.js";
+
+injectSkinCSS();
 import { getBalance, adjustBalance } from "./economy.js";
 import { addItemToInventory } from "./inventory.js";
 import {
@@ -157,9 +160,17 @@ async function openCase(c) {
 
   // Показать модалку рулетки
   showRouletteModal(c, items, won, async () => {
-    // Колбэк после анимации
     await adjustBalance(currentUser.uid, -c.price, `open_case_${c.id}`);
-    await addItemToInventory(currentUser.uid, { ...won, caseId: c.id });
+    await addItemToInventory(currentUser.uid, {
+      id:           won.id,
+      name:         won.name,
+      type:         won.type,
+      rarity:       won.rarity,
+      cssEffect:    won.cssEffect    || "",
+      previewColor: won.previewColor || "",
+      isAnimated:   won.isAnimated   || false,
+      caseId:       c.id,
+    });
     await updateBalanceDisplay();
     toast(`🎉 Выпало: ${won.name}!`, won.rarity === "exclusive" ? "success" : "info");
   });
@@ -193,7 +204,8 @@ function showRouletteModal(c, items, won, onComplete) {
       </div>
       <div class="roulette-result hidden" id="roulette-result">
         <div class="roulette-result-glow" id="roulette-glow"></div>
-        <img id="roulette-won-img" src="" alt="">
+        <img id="roulette-won-img" src="" alt="" style="display:none">
+        <div id="roulette-won-preview" style="width:100px;height:100px;border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden"></div>
         <div class="roulette-won-name" id="roulette-won-name"></div>
         <div class="roulette-won-rarity" id="roulette-won-rarity"></div>
         <div style="display:flex;gap:12px;justify-content:center;margin-top:20px">
@@ -225,10 +237,20 @@ function showRouletteModal(c, items, won, onComplete) {
     const el = document.createElement("div");
     el.className = "roulette-item";
     el.style.cssText = `border-color: ${RARITIES[item.rarity]?.color || "#fff"}`;
-    el.innerHTML = `
-      <img src="${esc(item.image)}" alt="${esc(item.name)}"
-           onerror="this.src='https://placehold.co/96x96/1c2030/4f8ef7?text=?'">
-      <span class="roulette-item-name">${esc(item.name)}</span>`;
+
+    // CSS-превью вместо картинки
+    let previewHTML = "";
+    if (item.type === "avatar_frame") {
+      previewHTML = `<div class="roulette-skin-preview" style="border-radius:50%;${item.cssEffect||'border:2px solid #888;'}"><span style="font-size:1.2rem;font-weight:700">A</span></div>`;
+    } else if (item.type === "profile_bg") {
+      previewHTML = `<div class="roulette-skin-preview" style="${item.cssEffect||'background:#333;'}"></div>`;
+    } else if (item.type === "card_skin") {
+      previewHTML = `<div class="roulette-skin-preview" style="${item.cssEffect||'border:2px solid #888;'}">🃏</div>`;
+    } else {
+      previewHTML = `<div class="roulette-skin-preview" style="background:${item.previewColor||'#333'};"></div>`;
+    }
+
+    el.innerHTML = `${previewHTML}<span class="roulette-item-name">${esc(item.name)}</span>`;
     if (i === WIN_POS) el.classList.add("roulette-winner");
     track.appendChild(el);
   });
@@ -250,7 +272,14 @@ function showRouletteModal(c, items, won, onComplete) {
     const color    = RARITIES[won.rarity]?.color || "#fff";
 
     resultEl.classList.remove("hidden");
-    overlay.querySelector("#roulette-won-img").src           = won.image;
+
+    // CSS-превью выигранного предмета
+    const previewEl = overlay.querySelector("#roulette-won-preview");
+    previewEl.style.cssText = won.cssEffect || `background:${RARITIES[won.rarity]?.color||'#888'}22;border:2px solid ${RARITIES[won.rarity]?.color||'#888'}`;
+    if (won.type === "avatar_frame") previewEl.innerHTML = `<span style="font-size:2.5rem;font-weight:700;color:var(--text-primary)">A</span>`;
+    else if (won.type === "card_skin") previewEl.innerHTML = `<span>🃏</span>`;
+    else previewEl.innerHTML = "";
+
     overlay.querySelector("#roulette-won-name").textContent  = won.name;
     overlay.querySelector("#roulette-won-rarity").textContent = RARITIES[won.rarity]?.label || won.rarity;
     overlay.querySelector("#roulette-won-rarity").style.color = color;
@@ -306,20 +335,23 @@ $("form-add-case")?.addEventListener("submit", async e => {
 // Добавить предмет в кейс
 $("form-add-item")?.addEventListener("submit", async e => {
   e.preventDefault();
-  const caseId = $("item-case-select").value;
-  const name   = $("item-name").value.trim();
-  const rarity = $("item-rarity").value;
-  const type   = $("item-type").value;
-  const image  = $("item-image").value.trim();
-  if (!caseId || !name || !rarity || !type || !image) { toast("Заполните поля", "error"); return; }
+  const caseId       = $("item-case-select").value;
+  const name         = $("item-name").value.trim();
+  const rarity       = $("item-rarity").value;
+  const type         = $("item-type").value;
+  const cssEffect    = ($("item-css")?.value || "").trim();
+  const previewColor = ($("item-preview-color")?.value || "").trim();
+  if (!caseId || !name || !rarity || !type) { toast("Заполните поля", "error"); return; }
 
   await addDoc(collection(db, "catalogItems"), {
-    caseId, name, rarity, type, image,
+    caseId, name, rarity, type, cssEffect, previewColor,
+    isAnimated: false,
     createdAt: Date.now(),
   });
   toast("Предмет добавлен!", "success");
   e.target.reset();
   await loadAll();
+  await renderCatalogAdmin();
 });
 
 // Пополнить баланс пользователю
@@ -352,3 +384,145 @@ async function populateCaseSelect() {
 
 // Наблюдаем за изменением кейсов
 const origRenderCases = renderCases;
+
+// ════════════════════════════════════════════
+//  СИДИРОВАНИЕ КАТАЛОГА + УПРАВЛЕНИЕ ПРЕДМЕТАМИ
+// ════════════════════════════════════════════
+
+// Кнопка "Загрузить предметы по умолчанию"
+$("btn-seed-items")?.addEventListener("click", async () => {
+  try {
+    const { seedDefaultItems } = await import("./skins.js");
+    const result = await seedDefaultItems();
+    toast(`✅ Загружено: ${result.added} новых, ${result.skipped} уже было`, "success");
+    await loadAll();
+    await renderCatalogAdmin();
+  } catch(e) { toast("Ошибка: " + e.message, "error"); }
+});
+
+// Рендер таблицы всех предметов каталога для редактирования
+async function renderCatalogAdmin() {
+  const wrap = $("catalog-admin-table");
+  if (!wrap) return;
+
+  const { getAllCatalogItems } = await import("./skins.js");
+  const { ITEM_TYPES } = await import("./items.js");
+  const items = await getAllCatalogItems();
+
+  if (!items.length) {
+    wrap.innerHTML = `<p style="color:var(--text-muted)">Каталог пуст. Нажмите "Загрузить предметы".</p>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div class="catalog-table-header">
+      <span>Название</span><span>Тип</span><span>Редкость</span><span>Кейс</span><span>Действия</span>
+    </div>
+    ${items.map(item => {
+      const r = RARITIES[item.rarity] || RARITIES.common;
+      return `
+        <div class="catalog-row" data-id="${item.id}">
+          <span class="catalog-name">${esc(item.name)}</span>
+          <span>${ITEM_TYPES[item.type]?.icon||""} ${ITEM_TYPES[item.type]?.label||item.type}</span>
+          <span style="color:${r.color}">${r.label}</span>
+          <span style="font-size:.8rem;color:var(--text-muted)">${item.caseId ? allCases.find(c=>c.id===item.caseId)?.name||item.caseId : "—"}</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-xs js-edit-item">✏️ Ред.</button>
+            <select class="js-assign-case" style="font-size:.75rem;padding:2px 4px;background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;color:var(--text-primary)">
+              <option value="">— кейс —</option>
+              ${allCases.map(c=>`<option value="${c.id}" ${item.caseId===c.id?"selected":""}>${esc(c.name)}</option>`).join("")}
+            </select>
+          </div>
+        </div>`;
+    }).join("")}`;
+
+  // Привязать к кейсу
+  wrap.querySelectorAll(".js-assign-case").forEach((sel, i) => {
+    sel.addEventListener("change", async () => {
+      const id = items[i].id;
+      const { updateCatalogItem } = await import("./skins.js");
+      await updateCatalogItem(id, { caseId: sel.value });
+      toast("Привязан к кейсу!", "success");
+    });
+  });
+
+  // Редактировать предмет
+  wrap.querySelectorAll(".js-edit-item").forEach((btn, i) => {
+    btn.addEventListener("click", () => openEditItemModal(items[i]));
+  });
+}
+
+// Модалка редактирования предмета каталога
+function openEditItemModal(item) {
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  const r = RARITIES[item.rarity] || RARITIES.common;
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:520px">
+      <button class="modal-close">✕</button>
+      <div class="modal-body">
+        <h2>✏️ Редактировать предмет</h2>
+        <div class="admin-form" style="margin-top:16px">
+          <div class="form-group">
+            <label class="form-label">Название</label>
+            <input type="text" id="edit-item-name" value="${esc(item.name)}" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Тип</label>
+            <select id="edit-item-type">
+              <option value="avatar_frame" ${item.type==="avatar_frame"?"selected":""}>🖼 Рамка аватара</option>
+              <option value="profile_bg"   ${item.type==="profile_bg"  ?"selected":""}>🌌 Фон профиля</option>
+              <option value="card_skin"    ${item.type==="card_skin"   ?"selected":""}>🃏 Скин карточки</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Редкость</label>
+            <select id="edit-item-rarity">
+              ${RARITY_ORDER.map(r=>`<option value="${r}" ${item.rarity===r?"selected":""}>${RARITIES[r].label}</option>`).join("")}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CSS-эффект</label>
+            <textarea id="edit-item-css" rows="3" style="font-family:monospace;font-size:.8rem">${esc(item.cssEffect||"")}</textarea>
+            <small style="color:var(--text-muted)">CSS для применения скина (border, background, animation и т.п.)</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Превью-цвет (hex или gradient)</label>
+            <input type="text" id="edit-item-preview" value="${esc(item.previewColor||"")}" placeholder="#4f8ef7" />
+          </div>
+          <div style="display:flex;gap:12px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="edit-item-animated" ${item.isAnimated?"checked":""}> Анимированный
+            </label>
+          </div>
+          <button class="btn btn-primary" id="btn-save-item" style="width:100%;margin-top:8px">💾 Сохранить</button>
+        </div>
+      </div>
+    </div>`;
+
+  overlay.querySelector(".modal-close").onclick = () => overlay.remove();
+  overlay.addEventListener("click", e => { if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector("#btn-save-item").addEventListener("click", async () => {
+    const fields = {
+      name:        overlay.querySelector("#edit-item-name").value.trim(),
+      type:        overlay.querySelector("#edit-item-type").value,
+      rarity:      overlay.querySelector("#edit-item-rarity").value,
+      cssEffect:   overlay.querySelector("#edit-item-css").value.trim(),
+      previewColor:overlay.querySelector("#edit-item-preview").value.trim(),
+      isAnimated:  overlay.querySelector("#edit-item-animated").checked,
+    };
+    try {
+      const { updateCatalogItem } = await import("./skins.js");
+      await updateCatalogItem(item.id, fields);
+      toast("Предмет обновлён!", "success");
+      overlay.remove();
+      await renderCatalogAdmin();
+    } catch(e) { toast(e.message, "error"); }
+  });
+  document.body.appendChild(overlay);
+}
+
+// Показать таблицу при открытии панели
+$("btn-open-admin-cases")?.addEventListener("click", async () => {
+  await renderCatalogAdmin();
+});

@@ -11,18 +11,20 @@ import {
 
 // ── Добавить предмет в инвентарь пользователя ─────────────
 export async function addItemToInventory(uid, item) {
-  // item: { id, name, type, rarity, image, caseId? }
   const ref = await addDoc(collection(db, "inventory"), {
     uid,
-    itemId:    item.id,
-    name:      item.name,
-    type:      item.type,
-    rarity:    item.rarity,
-    image:     item.image,
-    caseId:    item.caseId || "",
-    obtainedAt: Date.now(),
-    onShowcase: false,
-    listedPrice: null,   // если выставлен на рынок
+    itemId:      item.id,
+    name:        item.name,
+    type:        item.type,
+    rarity:      item.rarity,
+    cssEffect:   item.cssEffect   || "",
+    previewColor:item.previewColor|| "",
+    isAnimated:  item.isAnimated  || false,
+    caseId:      item.caseId || "",
+    obtainedAt:  Date.now(),
+    onShowcase:  false,
+    equipped:    false,
+    listedPrice: null,
   });
   return ref.id;
 }
@@ -61,7 +63,7 @@ export async function setShowcase(uid, invId, show) {
       where("uid", "==", uid),
       where("onShowcase", "==", true)
     ));
-    if (showcaseSnap.size >= 5) throw new Error("Витрина заполнена (максимум 5 предметов)");
+    if (showcaseSnap.size >= 3) throw new Error("Витрина заполнена (максимум 5 предметов)");
   }
 
   await updateDoc(ref, { onShowcase: show });

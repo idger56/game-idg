@@ -6,15 +6,17 @@ import { watchAuth } from "./auth.js";
 import { esc, calcUserStats, formatLastSeen, isOnline } from "./utils.js";
 import { renderHeader, showEmpty } from "./ui.js";
 import { renderAchievements, renderBadges, statsToAchievementInput } from "./achievements.js";
+import { injectSkinCSS, getUserActiveSkins, applyAvatarFrame, applyProfileBg } from "./skins.js";
+import { RARITIES, ITEM_TYPES, CURRENCY } from "./items.js";
 import {
   collection, getDocs, query, where
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
+injectSkinCSS();
 renderHeader({ activePage: "" });
-// Трекинг присутствия на этой странице
 watchAuth({});
 
-const uid = new URLSearchParams(location.search).get("uid");
+const uid       = new URLSearchParams(location.search).get("uid");
 const container = document.getElementById("profile-content");
 
 if (!uid) {
@@ -42,15 +44,17 @@ async function loadProfile(uid) {
   const achInput = statsToAchievementInput(stats);
 
   document.title = `GameIDG — ${userData.nickname}`;
-
   const lastMs = typeof userData.lastSeen === "number" ? userData.lastSeen : null;
   const online = isOnline(lastMs);
 
   container.innerHTML = `
-    <div class="profile-header">
+    <div class="profile-header profile-bg-wrap" id="profile-bg-wrap">
       <div>
-        <img class="profile-avatar-big" src="${esc(userData.avatar||"assets/default-avatar.png")}" alt=""
-             onerror="this.onerror=null;this.src='assets/default-avatar.png'">
+        <div class="profile-avatar-wrap" id="profile-avatar-wrap">
+          <img class="profile-avatar-big" id="profile-avatar-img"
+               src="${esc(userData.avatar||"assets/default-avatar.png")}" alt=""
+               onerror="this.onerror=null;this.src='assets/default-avatar.png'">
+        </div>
       </div>
       <div class="profile-mid">
         <h1>${esc(userData.nickname||"Пользователь")}</h1>
@@ -74,51 +78,69 @@ async function loadProfile(uid) {
         <div id="profile-badges" style="margin-top:16px"></div>
       </div>
       <div class="profile-achievements" id="profile-achievements"></div>
-    </div>
-
-    <section style="margin-top:36px">
-      <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)">
-        🎮 Оцененные игры (${ratings.length})
-      </h2>
-      <div class="rated-games-list" id="rated-games-list"></div>
-    </section>`;
+    </div>`;
 
   renderBadges(document.getElementById("profile-badges"), achInput);
   renderAchievements(document.getElementById("profile-achievements"), achInput);
 
-  // Витрина предметов
+  // ── Применяем активные скины ──────────────────────────────
   try {
-    const { getShowcase } = await import("./inventory.js");
-    const showcase = await getShowcase(uid);
-    if (showcase.length) {
-      const { RARITIES, ITEM_TYPES } = await import("./items.js");
-      const showcaseSection = document.createElement("section");
-      showcaseSection.style.cssText = "margin-top:32px";
-      showcaseSection.innerHTML = `
-        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:14px;color:var(--text-primary)">
-          🖼 Витрина (${showcase.length}/5)
-        </h2>
-        <div class="showcase-grid" id="showcase-grid"></div>`;
-      container.querySelector("section")?.before(showcaseSection);
-      const grid = showcaseSection.querySelector("#showcase-grid");
-      for (const item of showcase) {
-        const r = RARITIES[item.rarity] || RARITIES.common;
-        const card = document.createElement("div");
-        card.className = "showcase-card";
-        card.style.cssText = `border-color:${r.color};box-shadow:0 0 14px ${r.glow}`;
-        card.innerHTML = `
-          <img src="${esc(item.image)}" alt="${esc(item.name)}"
-               onerror="this.src='https://placehold.co/80x80/1c2030/4f8ef7?text=?'">
-          <div class="showcase-info">
-            <span class="showcase-name">${esc(item.name)}</span>
-            <span class="showcase-rarity" style="color:${r.color}">${r.label}</span>
-          </div>`;
-        grid.appendChild(card);
-      }
+    const skins = await getUserActiveSkins(uid);
+
+    // Рамка аватара
+    if (skins.avatar_frame) {
+      const avatarImg = document.getElementById("profile-avatar-img");
+      applyAvatarFrame(avatarImg, skins.avatar_frame);
+    }
+
+    // Фон профиля
+    if (skins.profile_bg) {
+      const bgWrap = document.getElementById("profile-bg-wrap");
+      applyProfileBg(bgWrap, skins.profile_bg);
     }
   } catch(_) {}
 
-  // Оцененные игры
+  // ── Витрина (3 слота) ──────────────────────────────────────
+  try {
+    const { getShowcase } = await import("./inventory.js");
+    const showcase = await getShowcase(uid);
+    const showcaseSection = document.createElement("section");
+    showcaseSection.className = "profile-showcase-section";
+    showcaseSection.innerHTML = `
+      <h2 class="section-title">🖼 Витрина</h2>
+      <div class="showcase-slots" id="showcase-slots">
+        ${[0,1,2].map(i => {
+          const item = showcase[i];
+          if (!item) return `<div class="showcase-slot showcase-slot--empty"><span class="showcase-slot-icon">+</span><span class="showcase-slot-hint">пусто</span></div>`;
+          const r = RARITIES[item.rarity] || RARITIES.common;
+          return `
+            <div class="showcase-slot" style="border-color:${r.color};box-shadow:0 0 16px ${r.glow}">
+              <div class="showcase-item-preview" style="${item.cssEffect ? item.cssEffect.replace(/border-radius:[^;]+;/g,'') : `background:${r.color}22`}">
+                ${item.type === 'avatar_frame' ? `<div class="showcase-frame-demo" style="${item.cssEffect||''}"><span>A</span></div>` : ''}
+                ${item.type === 'profile_bg'   ? `<div class="showcase-bg-demo" style="${item.cssEffect||''}"></div>` : ''}
+                ${item.type === 'card_skin'    ? `<div class="showcase-card-demo" style="${item.cssEffect||''}">🃏</div>` : ''}
+              </div>
+              <div class="showcase-slot-info">
+                <span class="showcase-slot-name">${esc(item.name)}</span>
+                <span class="showcase-slot-rarity" style="color:${r.color}">${r.label}</span>
+                <span class="showcase-slot-type">${ITEM_TYPES[item.type]?.icon||""} ${ITEM_TYPES[item.type]?.label||item.type}</span>
+              </div>
+            </div>`;
+        }).join("")}
+      </div>`;
+    container.querySelector(".profile-header").after(showcaseSection);
+  } catch(_) {}
+
+  // ── Оцененные игры ────────────────────────────────────────
+  const ratedSection = document.createElement("section");
+  ratedSection.style.marginTop = "36px";
+  ratedSection.innerHTML = `
+    <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)">
+      🎮 Оцененные игры (${ratings.length})
+    </h2>
+    <div class="rated-games-list" id="rated-games-list"></div>`;
+  container.appendChild(ratedSection);
+
   const ratedList = document.getElementById("rated-games-list");
   if (!ratings.length) {
     ratedList.innerHTML = `<p class="text-muted">Нет оценённых игр</p>`;
