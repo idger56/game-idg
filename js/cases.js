@@ -354,24 +354,89 @@ $("form-add-item")?.addEventListener("submit", async e => {
   await renderCatalogAdmin();
 });
 
-// Пополнить баланс пользователю
-$("form-topup")?.addEventListener("submit", async e => {
-  e.preventDefault();
-  const email  = $("topup-email").value.trim();
+// ── Пополнение баланса — поиск по нику ───────────────────
+let allUsers        = [];
+let topupTargetUid  = null;
+
+async function loadAllUsers() {
+  const snap = await getDocs(collection(db, "users"));
+  allUsers = snap.docs.map(d => d.data()).filter(u => u.uid && u.nickname);
+}
+
+// Загружаем пользователей когда открывается панель
+$("btn-open-admin-cases")?.addEventListener("click", async () => {
+  if (!allUsers.length) await loadAllUsers();
+});
+
+$("topup-search")?.addEventListener("input", () => {
+  const q = $("topup-search").value.trim().toLowerCase();
+  const list = $("topup-user-list");
+  if (!q) { list.classList.add("hidden"); list.innerHTML = ""; return; }
+
+  const matches = allUsers.filter(u => u.nickname.toLowerCase().includes(q)).slice(0, 8);
+  if (!matches.length) {
+    list.innerHTML = `<div class="topup-user-option topup-no-result">Не найдено</div>`;
+    list.classList.remove("hidden");
+    return;
+  }
+
+  list.innerHTML = matches.map(u => `
+    <div class="topup-user-option" data-uid="${u.uid}">
+      <img src="${esc(u.avatar||"assets/default-avatar.png")}" alt=""
+           onerror="this.src='assets/default-avatar.png'">
+      <span>${esc(u.nickname)}</span>
+    </div>`).join("");
+  list.classList.remove("hidden");
+
+  list.querySelectorAll(".topup-user-option[data-uid]").forEach(el => {
+    el.addEventListener("click", async () => {
+      const uid  = el.dataset.uid;
+      const user = allUsers.find(u => u.uid === uid);
+      topupTargetUid = uid;
+
+      // Показать выбранного
+      $("topup-user-avatar").src        = user.avatar || "assets/default-avatar.png";
+      $("topup-user-nick").textContent  = user.nickname;
+      $("topup-user-balance").textContent = "Загрузка баланса...";
+      $("topup-selected-user").classList.remove("hidden");
+      $("topup-search").value = "";
+      list.classList.add("hidden");
+
+      // Показать текущий баланс
+      const bal = await getBalance(uid);
+      $("topup-user-balance").textContent = `Баланс: ${bal} PS`;
+    });
+  });
+});
+
+$("topup-clear-user")?.addEventListener("click", () => {
+  topupTargetUid = null;
+  $("topup-selected-user").classList.add("hidden");
+  $("topup-search").value = "";
+});
+
+// Клик вне списка — закрыть
+document.addEventListener("click", e => {
+  if (!e.target.closest("#topup-search") && !e.target.closest("#topup-user-list")) {
+    $("topup-user-list")?.classList.add("hidden");
+  }
+});
+
+$("btn-topup")?.addEventListener("click", async () => {
+  if (!topupTargetUid) { toast("Выберите пользователя", "error"); return; }
   const amount = parseInt($("topup-amount").value);
-  if (!email || !amount) { toast("Введите email и сумму", "error"); return; }
+  if (!amount || amount < 1) { toast("Введите сумму", "error"); return; }
 
-  const { getDocs, query, collection, where } = await import(
-    "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js"
-  );
-  const snap = await getDocs(query(collection(db, "users"), where("email", "==", email)));
-  if (snap.empty) { toast("Пользователь не найден", "error"); return; }
-
-  const uid = snap.docs[0].data().uid;
   const { adminTopUp } = await import("./economy.js");
-  await adminTopUp(uid, amount);
-  toast(`✅ Начислено ${amount} ${CURRENCY.short} пользователю ${email}`, "success");
-  e.target.reset();
+  await adminTopUp(topupTargetUid, amount);
+
+  const user = allUsers.find(u => u.uid === topupTargetUid);
+  toast(`✅ ${user?.nickname} +${amount} PS`, "success");
+
+  // Обновить баланс в плашке
+  const newBal = await getBalance(topupTargetUid);
+  $("topup-user-balance").textContent = `Баланс: ${newBal} PS`;
+  $("topup-amount").value = "";
 });
 
 // Заполнить select кейсов в форме предметов
