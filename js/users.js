@@ -7,10 +7,13 @@ import { esc, calcUserStats, formatLastSeen, isOnline } from "./utils.js";
 import { GENRES } from "./constants.js";
 import { renderHeader, toast } from "./ui.js";
 import { renderAchievements, renderBadges, medalIcons, statsToAchievementInput } from "./achievements.js";
+import { injectSkinCSS, getUserActiveSkins } from "./skins.js";
 import {
   collection, getDocs, getDoc, updateDoc,
   query, where, doc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
+injectSkinCSS();
 
 renderHeader({ activePage: "users" });
 
@@ -56,9 +59,11 @@ function renderMyProfile(user, data, stats) {
   const achInput = statsToAchievementInput(stats);
 
   section.innerHTML = `
-    <div class="my-profile-card">
-      <img class="my-profile-avatar" src="${esc(data.avatar||"assets/default-avatar.png")}" alt=""
-           onerror="this.onerror=null;this.src='assets/default-avatar.png'">
+    <div class="my-profile-card" id="my-profile-bg">
+      <div class="my-profile-avatar-wrap">
+        <img class="my-profile-avatar" id="my-profile-avatar" src="${esc(data.avatar||"assets/default-avatar.png")}" alt=""
+             onerror="this.onerror=null;this.src='assets/default-avatar.png'">
+      </div>
       <div class="my-profile-body">
         <h2>${esc(data.nickname||"Пользователь")}</h2>
         <div class="profile-status">
@@ -101,6 +106,19 @@ function renderMyProfile(user, data, stats) {
     </div>`;
 
   renderBadges($("my-badges"), achInput);
+
+  // Применить активные скины
+  try {
+    const skins = await getUserActiveSkins(user.uid);
+    if (skins.avatar_frame) {
+      const img = document.getElementById("my-profile-avatar");
+      if (img) img.style.cssText = skins.avatar_frame.cssEffect || "";
+    }
+    if (skins.profile_bg) {
+      const bg = document.getElementById("my-profile-bg");
+      if (bg) bg.style.cssText = (skins.profile_bg.cssEffect || "") + ";border-radius:var(--radius);overflow:hidden;";
+    }
+  } catch(_) {}
 
   $("btn-save-profile").addEventListener("click", async () => {
     const avatar = $("inp-avatar").value.trim();
@@ -147,22 +165,35 @@ async function loadOtherUsers(currentUid) {
 
   list.innerHTML = "";
 
-  for (const snap of usersSnap.docs) {
-    const u = snap.data();
-    if (u.uid === currentUid) continue;
+  // Загружаем скины всех пользователей параллельно
+  const userItems = usersSnap.docs
+    .map(snap => snap.data())
+    .filter(u => u.uid !== currentUid);
 
-    const ratings   = ratingsAll.filter(r => r.userId === u.uid);
-    const stats     = calcUserStats(ratings, gamesArr, total, u.favoriteGenre);
-    const achInput  = statsToAchievementInput(stats);
-    const lastMs    = typeof u.lastSeen === "number" ? u.lastSeen : null;
-    const online    = isOnline(lastMs);
-    const medals    = medalIcons(achInput, 4);
+  const skinsMap = {};
+  await Promise.all(userItems.map(async u => {
+    try { skinsMap[u.uid] = await getUserActiveSkins(u.uid); } catch(_) {}
+  }));
+
+  for (const u of userItems) {
+    const ratings  = ratingsAll.filter(r => r.userId === u.uid);
+    const stats    = calcUserStats(ratings, gamesArr, total, u.favoriteGenre);
+    const achInput = statsToAchievementInput(stats);
+    const lastMs   = typeof u.lastSeen === "number" ? u.lastSeen : null;
+    const online   = isOnline(lastMs);
+    const medals   = medalIcons(achInput, 4);
+    const skins    = skinsMap[u.uid] || {};
+
+    const bgStyle    = skins.profile_bg   ? skins.profile_bg.cssEffect   || "" : "";
+    const frameStyle = skins.avatar_frame ? skins.avatar_frame.cssEffect || "" : "";
 
     const card = document.createElement("div");
     card.className = "user-card";
+    if (bgStyle) card.style.cssText = bgStyle + ";border-radius:var(--radius);overflow:hidden;";
     card.innerHTML = `
       <img class="user-card-avatar" src="${esc(u.avatar||"assets/default-avatar.png")}" alt=""
-           onerror="this.onerror=null;this.src='assets/default-avatar.png'">
+           onerror="this.onerror=null;this.src='assets/default-avatar.png'"
+           style="${frameStyle}">
       <div class="user-card-info">
         <h4>${esc(u.nickname||"Пользователь")}</h4>
         <div class="profile-status mt-4">
