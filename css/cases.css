@@ -1,0 +1,629 @@
+/* ============================================================
+   cases.css — кейсы, инвентарь, рынок, рулетка
+   ============================================================ */
+
+/* ── Баланс-чип ─────────────────────────────────────────── */
+.balance-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: .02em;
+  box-shadow: 0 0 20px rgba(79,142,247,.12), var(--shadow-card);
+}
+
+/* ── Шапка страницы кейсов ───────────────────────────────── */
+.cases-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+/* ── Адм панель ──────────────────────────────────────────── */
+.admin-bar {
+  background: var(--bg-surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+}
+.admin-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.admin-cases-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.admin-block {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.admin-block h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Кейс-карточка ───────────────────────────────────────── */
+.cases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 8px;
+}
+.case-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  cursor: default;
+}
+.case-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 32px rgba(79,142,247,.15);
+}
+.case-img-wrap {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  background: var(--bg-surface);
+}
+.case-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .3s;
+}
+.case-card:hover .case-img-wrap img { transform: scale(1.05); }
+.case-rarity-strip {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: linear-gradient(transparent, rgba(0,0,0,.7));
+}
+.rarity-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+.case-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.case-body h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.case-desc {
+  font-size: .82rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.case-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .82rem;
+}
+.case-items-count { color: var(--text-secondary); }
+.case-price {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: .95rem;
+}
+
+/* ── Превью кейса ────────────────────────────────────────── */
+.case-preview-grid { margin-top: 20px; }
+.preview-group { margin-bottom: 20px; }
+.preview-rarity-label {
+  font-weight: 700;
+  font-size: .9rem;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.preview-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 80px;
+  text-align: center;
+}
+.preview-item img {
+  width: 64px; height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+.preview-item span {
+  font-size: .7rem;
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+/* ════════════════════════════════════════════
+   РУЛЕТКА
+════════════════════════════════════════════ */
+.roulette-overlay { align-items: flex-start; padding-top: 60px; }
+
+.roulette-modal {
+  width: 100%;
+  max-width: 720px !important;
+  overflow: hidden;
+}
+
+.roulette-wrap {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.roulette-arrow {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 16px solid var(--accent);
+  z-index: 10;
+  filter: drop-shadow(0 0 8px var(--accent));
+}
+
+.roulette-track-outer {
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  background: var(--bg-surface);
+  padding: 12px 0;
+  position: relative;
+}
+/* Боковые fade */
+.roulette-track-outer::before,
+.roulette-track-outer::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 120px;
+  z-index: 2;
+  pointer-events: none;
+}
+.roulette-track-outer::before {
+  left: 0;
+  background: linear-gradient(to right, var(--bg-surface), transparent);
+}
+.roulette-track-outer::after {
+  right: 0;
+  background: linear-gradient(to left, var(--bg-surface), transparent);
+}
+
+.roulette-track {
+  display: flex;
+  gap: 8px;
+  padding: 0 12px;
+  will-change: transform;
+}
+
+.roulette-item {
+  flex: 0 0 120px;
+  height: 140px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  transition: border-color .1s;
+}
+.roulette-item img {
+  width: 72px; height: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.roulette-item-name {
+  font-size: .68rem;
+  color: var(--text-secondary);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.roulette-winner {
+  box-shadow: 0 0 20px currentColor;
+}
+
+/* Результат */
+.roulette-result {
+  text-align: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  margin-top: 8px;
+  animation: roulette-pop .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes roulette-pop {
+  from { transform: scale(.8); opacity: 0; }
+  to   { transform: scale(1);  opacity: 1; }
+}
+.roulette-result-glow {
+  position: absolute;
+  inset: 0;
+  opacity: .08;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.roulette-result img {
+  width: 120px; height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+.roulette-won-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  position: relative;
+  z-index: 1;
+}
+.roulette-won-rarity {
+  font-size: .9rem;
+  font-weight: 700;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ════════════════════════════════════════════
+   ИНВЕНТАРЬ
+════════════════════════════════════════════ */
+.inv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+.inv-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+.inv-card:hover { transform: translateY(-3px); }
+.inv-card.on-showcase { border-color: #a855f7; box-shadow: 0 0 12px rgba(168,85,247,.25); }
+.inv-card.on-market   { border-color: #f5c542; box-shadow: 0 0 12px rgba(245,197,66,.2); }
+
+.inv-card-img {
+  position: relative;
+  height: 120px;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid;
+}
+.inv-card-img img {
+  width: 90px; height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.inv-badge {
+  position: absolute;
+  top: 6px; right: 6px;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  letter-spacing: .03em;
+}
+.showcase-badge { background: #a855f7; color: #fff; }
+.market-badge   { background: #f5c542; color: #000; }
+
+.inv-card-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.inv-card-body h4 {
+  font-size: .85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+.rarity-label  { font-size: .75rem; font-weight: 600; }
+.type-label    { font-size: .72rem; color: var(--text-secondary); }
+
+.inv-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+}
+.btn-xs {
+  padding: 3px 7px !important;
+  font-size: .72rem !important;
+}
+.js-contract-add.selected {
+  border-color: #a855f7 !important;
+  color: #a855f7 !important;
+}
+
+/* ── Контракт панель ──────────────────────────────────────── */
+.contract-panel {
+  background: linear-gradient(135deg, var(--bg-surface), var(--bg-card));
+  border: 1px solid #a855f7;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 20px rgba(168,85,247,.15);
+}
+.contract-panel-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.contract-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: .95rem;
+}
+.contract-title { font-weight: 800; color: #a855f7; font-size: 1rem; }
+.contract-actions { display: flex; gap: 8px; }
+.contract-hint {
+  font-size: .78rem;
+  color: var(--text-secondary);
+  margin: 8px 0 0;
+}
+
+/* ════════════════════════════════════════════
+   РЫНОК
+════════════════════════════════════════════ */
+.tabs-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.tab-btn {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+  font-family: var(--theme-font);
+  margin-bottom: -1px;
+}
+.tab-btn:hover  { color: var(--text-primary); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-content    { display: none; }
+.tab-content.active { display: block; }
+
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+.market-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform .2s, border-color .2s;
+}
+.market-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+}
+.market-card-img {
+  height: 130px;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid;
+}
+.market-card-img img {
+  width: 100px; height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.market-card-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.market-card-body h4 {
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.market-price {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-top: 4px;
+}
+.market-price small {
+  font-size: .75rem;
+  color: var(--text-secondary);
+}
+.market-card-actions {
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Обмены ──────────────────────────────────────────────── */
+.trade-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.trade-row-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.trade-direction {
+  font-weight: 700;
+  font-size: .85rem;
+}
+.trade-items-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.trade-items-preview div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.trade-items-preview small { font-size: .7rem; color: var(--text-secondary); }
+.trade-row-actions { display: flex; gap: 8px; }
+
+/* ── Модалка обмена ──────────────────────────────────────── */
+.trade-sides {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.trade-side {
+  flex: 1;
+  min-width: 140px;
+}
+.trade-side h4 {
+  font-size: .85rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+.trade-arrow {
+  font-size: 1.5rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+.trade-item-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.trade-item-preview img {
+  width: 64px; height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* ── Витрина на профиле ───────────────────────────────────── */
+.showcase-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.showcase-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 2px solid;
+  border-radius: var(--radius);
+  width: 110px;
+  text-align: center;
+  transition: transform .2s;
+}
+.showcase-card:hover { transform: translateY(-3px); }
+.showcase-card img {
+  width: 72px; height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.showcase-info { display: flex; flex-direction: column; gap: 2px; }
+.showcase-name {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+.showcase-rarity { font-size: .7rem; font-weight: 700; }
